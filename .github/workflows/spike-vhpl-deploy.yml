@@ -1,0 +1,135 @@
+# Throwaway spike: deploy to vh.pl over SSH/rsync. See context/changes/vhpl-deploy-spike/spike-plan.md.
+#
+# Manual trigger only. Do NOT change this to `push: branches: [main]` until the spike checks pass.
+# No secrets live in this file; it only references secret NAMES that a human must create:
+#   VHPL_HOST, VHPL_USER, VHPL_SSH_KEY (dedicated deploy key), VHPL_KNOWN_HOSTS (pinned host key line),
+#   VHPL_SPA_DIR (e.g. /home/<user>/spike-site), VHPL_API_DIR (e.g. /home/<user>/spike-api)
+#
+# Layout on the host: <dir>/releases/<commit-sha>/ plus a <dir>/current symlink that is switched.
+# UNVERIFIED on vh.pl (that is what the spike measures): that the docroot can point at the
+# `current` symlink, how `npm ci` behaves in the cPanel Node environment, and that
+# `tmp/restart.txt` restarts the app.
+
+name: Spike - deploy to vh.pl (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      rollback_to:
+        description: 'Commit SHA of an already uploaded release to activate. Leave empty to build and deploy this commit.'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: spike-vhpl-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      VHPL_HOST: ${{ secrets.VHPL_HOST }}
+      VHPL_USER: ${{ secrets.VHPL_USER }}
+      VHPL_SPA_DIR: ${{ secrets.VHPL_SPA_DIR }}
+      VHPL_API_DIR: ${{ secrets.VHPL_API_DIR }}
+      ROLLBACK_TO: ${{ inputs.rollback_to }}
+    steps:
+      - name: Resolve release id
+        run: |
+          set -euo pipefail
+          release="${ROLLBACK_TO:-$GITHUB_SHA}"
+          if ! [[ "$release" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Release must be a 40-char commit SHA" >&2
+            exit 1
+          fi
+          echo "RELEASE=$release" >> "$GITHUB_ENV"
+
+      - name: Check required secrets are set
+        env:
+          VHPL_SSH_KEY: ${{ secrets.VHPL_SSH_KEY }}
+          VHPL_KNOWN_HOSTS: ${{ secrets.VHPL_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          for name in VHPL_HOST VHPL_USER VHPL_SSH_KEY VHPL_KNOWN_HOSTS VHPL_SPA_DIR VHPL_API_DIR; do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing secret: $name" >&2
+              exit 1
+            fi
+          done
+
+      - uses: actions/checkout@v4
+        if: inputs.rollback_to == ''
+
+      - uses: actions/setup-node@v4
+        if: inputs.rollback_to == ''
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Build SPA
+        if: inputs.rollback_to == ''
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          cp spike/htaccess/.htaccess dist/z-kim-mi-po-drodze/browser/.htaccess
+
+      - name: Configure SSH
+        env:
+          VHPL_SSH_KEY: ${{ secrets.VHPL_SSH_KEY }}
+          VHPL_KNOWN_HOSTS: ${{ secrets.VHPL_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VHPL_SSH_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          printf '%s\n' "$VHPL_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          {
+            echo "Host vhpl"
+            echo "  HostName $VHPL_HOST"
+            echo "  User $VHPL_USER"
+            echo "  IdentityFile ~/.ssh/id_deploy"
+            echo "  IdentitiesOnly yes"
+            echo "  StrictHostKeyChecking yes"
+            echo "  BatchMode yes"
+          } > ~/.ssh/config
+
+      - name: Upload SPA and API releases
+        if: inputs.rollback_to == ''
+        run: |
+          set -euo pipefail
+          ssh vhpl bash -s -- "$VHPL_SPA_DIR" "$VHPL_API_DIR" "$RELEASE" <<'REMOTE'
+          set -euo pipefail
+          mkdir -p "$1/releases/$3" "$2/releases/$3"
+          REMOTE
+          rsync -az --delete dist/z-kim-mi-po-drodze/browser/ "vhpl:$VHPL_SPA_DIR/releases/$RELEASE/"
+          rsync -az --delete --exclude node_modules spike/api/ "vhpl:$VHPL_API_DIR/releases/$RELEASE/"
+
+      - name: Install API dependencies on the host
+        if: inputs.rollback_to == ''
+        run: |
+          set -euo pipefail
+          # UNVERIFIED: the cPanel Node selector may manage node_modules itself (virtual env).
+          ssh vhpl bash -s -- "$VHPL_API_DIR" "$RELEASE" <<'REMOTE'
+          set -euo pipefail
+          cd "$1/releases/$2"
+          npm ci --omit=dev
+          REMOTE
+
+      - name: Activate release and restart API
+        run: |
+          set -euo pipefail
+          ssh vhpl bash -s -- "$VHPL_SPA_DIR" "$VHPL_API_DIR" "$RELEASE" <<'REMOTE'
+          set -euo pipefail
+          test -d "$1/releases/$3" && test -d "$2/releases/$3"
+          ln -sfn "$1/releases/$3" "$1/current"
+          ln -sfn "$2/releases/$3" "$2/current"
+          # UNVERIFIED on vh.pl: Passenger convention for restarting the app.
+          mkdir -p "$2/tmp"
+          touch "$2/tmp/restart.txt"
+          REMOTE
+          echo "Activated release $RELEASE"

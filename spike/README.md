@@ -25,11 +25,11 @@ curl http://localhost:3000/api/health
 
 ## Before the first workflow run (human steps)
 
-1. Create the test subdomain, MySQL database/user and the Node.js App in cPanel (point the docroot at `<spa dir>/current` if the panel accepts a symlink).
+1. In cPanel create the test subdomain with a fixed document root (e.g. `spike-site/live`), a MySQL database/user, and register the Node.js App with a fixed app root (e.g. `spike-api/app`), URL `<subdomain>/api`, startup file `app.js`, plus the `DB_*` variables. Fixed paths are required: with `releases/` + a `current` symlink, cPanel pinned the app to the resolved release path (observed 2026-10-18).
 2. Create a dedicated deploy SSH key and add the public part in cPanel.
-3. Create the GitHub secrets named in the workflow header. `VHPL_KNOWN_HOSTS` is the pinned host key line (get it from `ssh-keyscan` run on a trusted machine and compare with the host's published fingerprint).
-4. Run the workflow manually. To roll back, run it again with `rollback_to` set to an earlier release SHA.
+3. Create the GitHub secrets named in the workflow header (`VHPL_SPA_DIR` = the docroot, `VHPL_API_DIR` = the app root, `VHPL_NODE_ACTIVATE` = that app's `bin/activate`). Optionally set the repository variable `VHPL_SITE_URL` to enable the end-of-run smoke check. `VHPL_KNOWN_HOSTS` is the pinned host key line (get it from `ssh-keyscan` run on a trusted machine and compare with the host's published fingerprint).
+4. Run the workflow manually (Use workflow from: `spike/vhpl-deploy`). It deploys in place. To roll back, run it again with `rollback_to` set to an earlier commit SHA; that commit is rebuilt and deployed (minutes, not atomic).
 
 ## Not verified yet (this is what the spike measures)
 
-Docroot via symlink, `npm ci` in the cPanel Node environment, restart by `tmp/restart.txt`, port handling under Passenger, `.htaccess` coexistence with the Node app rules, SSH key login from a GitHub runner.
+`npm install` in the cPanel Node environment with a fixed app root, restart by `tmp/restart.txt` (does the app really restart, check `uptimeSeconds` in `/api/health`), that `rsync --delete` leaves the cPanel-managed `/api/` in the docroot intact, and latency after idle.

@@ -1,16 +1,29 @@
-# Throwaway spike: deploy to vh.pl over SSH/rsync. See context/changes/vhpl-deploy-spike/spike-plan.md.
+# Throwaway spike: in-place deploy to vh.pl over SSH/rsync. See context/changes/vhpl-deploy-spike/spike-plan.md.
 #
 # Manual trigger only. Do NOT change this to `push: branches: [main]` until the spike checks pass.
 # No secrets live in this file; it only references secret NAMES that a human must create:
 #   VHPL_HOST, VHPL_USER, VHPL_SSH_KEY (dedicated deploy key), VHPL_KNOWN_HOSTS (pinned host key line),
-#   VHPL_SPA_DIR (e.g. /home/<user>/spike-site), VHPL_API_DIR (e.g. /home/<user>/spike-api),
-#   VHPL_NODE_ACTIVATE (absolute path to the cPanel Node app's `bin/activate`, shown at the top of
-#   "Setup Node.js App"; a non-interactive SSH shell has no `node`/`npm` on PATH without it)
+#   VHPL_SPA_DIR     the subdomain's document root, e.g. /home/<user>/spike-site/live
+#   VHPL_API_DIR     the Node app root registered in cPanel, e.g. /home/<user>/spike-api/app
+#   VHPL_NODE_ACTIVATE  absolute path to that app's `bin/activate` (shown at the top of "Setup Node.js
+#                    App"; it is named after VHPL_API_DIR). A non-interactive SSH shell has no
+#                    `node`/`npm` on PATH without it.
+# Optional repository VARIABLE (not a secret): VHPL_SITE_URL, e.g. https://spike.demokratia.pl.
+# When set, the run ends with a smoke check of /api/health and a SPA deep link.
 #
-# Layout on the host: <dir>/releases/<commit-sha>/ plus a <dir>/current symlink that is switched.
-# UNVERIFIED on vh.pl (that is what the spike measures): that the docroot can point at the
-# `current` symlink, how `npm ci` behaves in the cPanel Node environment, and that
-# `tmp/restart.txt` restarts the app.
+# Why in place (no releases/ + current symlink): observed on 2026-10-18, the cPanel Node selector
+# records the RESOLVED path of the app root and names its virtualenv after it, so a symlink that
+# moves between releases leaves the app pinned to the first release. Docroot and app root are
+# therefore fixed directories that cPanel is pointed at once.
+#
+# Rollback = run this workflow with `rollback_to`: that commit is checked out, rebuilt and deployed
+# again (minutes, not atomic). The target commit must contain spike/ (commit 30ade11 or later).
+#
+# Paths cPanel manages inside the targets are protected from rsync: /api/ in the docroot holds the
+# Passenger config and DB_* variables (never copy that file into the repo), /.well-known/ is used
+# for certificate renewal, and the app root keeps node_modules (a link into the Node virtualenv),
+# tmp/ and stderr.log. The API sync does not use --delete for the same reason.
+# UNVERIFIED on vh.pl: `npm install` inside the activated environment, and `tmp/restart.txt`.
 
 name: Spike - deploy to vh.pl (manual)
 
@@ -18,7 +31,7 @@ on:
   workflow_dispatch:
     inputs:
       rollback_to:
-        description: 'Commit SHA of an already uploaded release to activate. Leave empty to build and deploy this commit.'
+        description: 'Commit SHA (40 chars) to build and deploy instead of the triggering commit. Leave empty to deploy this commit.'
         required: false
         default: ''
 
@@ -41,42 +54,49 @@ jobs:
       VHPL_NODE_ACTIVATE: ${{ secrets.VHPL_NODE_ACTIVATE }}
       ROLLBACK_TO: ${{ inputs.rollback_to }}
     steps:
-      - name: Resolve release id
-        run: |
-          set -euo pipefail
-          release="${ROLLBACK_TO:-$GITHUB_SHA}"
-          if ! [[ "$release" =~ ^[0-9a-f]{40}$ ]]; then
-            echo "Release must be a 40-char commit SHA" >&2
-            exit 1
-          fi
-          echo "RELEASE=$release" >> "$GITHUB_ENV"
-
-      - name: Check required secrets are set
+      - name: Validate inputs and secrets
         env:
           VHPL_SSH_KEY: ${{ secrets.VHPL_SSH_KEY }}
           VHPL_KNOWN_HOSTS: ${{ secrets.VHPL_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
+          if [ -n "$ROLLBACK_TO" ] && ! [[ "$ROLLBACK_TO" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "rollback_to must be a 40-char commit SHA" >&2
+            exit 1
+          fi
           for name in VHPL_HOST VHPL_USER VHPL_SSH_KEY VHPL_KNOWN_HOSTS VHPL_SPA_DIR VHPL_API_DIR VHPL_NODE_ACTIVATE; do
             if [ -z "${!name:-}" ]; then
               echo "Missing secret: $name" >&2
               exit 1
             fi
           done
+          # rsync --delete runs against VHPL_SPA_DIR: refuse anything that is not an absolute path at
+          # least two levels below /home/<user>, so a typo cannot point it at the home directory.
+          path_re='^/home/[A-Za-z0-9._-]+/[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*$'
+          for name in VHPL_SPA_DIR VHPL_API_DIR; do
+            if ! [[ "${!name}" =~ $path_re ]]; then
+              echo "$name must be an absolute path at least two levels below /home/<user>, without a trailing slash" >&2
+              exit 1
+            fi
+          done
+          if [ "$VHPL_SPA_DIR" = "$VHPL_API_DIR" ] || [[ "$VHPL_SPA_DIR" == "$VHPL_API_DIR"/* ]] || [[ "$VHPL_API_DIR" == "$VHPL_SPA_DIR"/* ]]; then
+            echo "VHPL_SPA_DIR and VHPL_API_DIR must be separate, non-nested directories" >&2
+            exit 1
+          fi
 
       - uses: actions/checkout@v4
-        if: inputs.rollback_to == ''
+        with:
+          ref: ${{ inputs.rollback_to || github.sha }}
 
       - uses: actions/setup-node@v4
-        if: inputs.rollback_to == ''
         with:
           node-version: 22
           cache: npm
 
       - name: Build SPA
-        if: inputs.rollback_to == ''
         run: |
           set -euo pipefail
+          test -f spike/htaccess/.htaccess || { echo "spike/ is missing in this commit" >&2; exit 1; }
           npm ci
           npm run build
           cp spike/htaccess/.htaccess dist/z-kim-mi-po-drodze/browser/.htaccess
@@ -101,42 +121,64 @@ jobs:
             echo "  BatchMode yes"
           } > ~/.ssh/config
 
-      - name: Upload SPA and API releases
-        if: inputs.rollback_to == ''
+      - name: Check target directories exist on the host
         run: |
           set -euo pipefail
-          ssh vhpl bash -s -- "$VHPL_SPA_DIR" "$VHPL_API_DIR" "$RELEASE" <<'REMOTE'
+          ssh vhpl bash -s -- "$VHPL_SPA_DIR" "$VHPL_API_DIR" <<'REMOTE'
           set -euo pipefail
-          mkdir -p "$1/releases/$3" "$2/releases/$3"
+          test -d "$1" || { echo "SPA dir is missing: it must already be the subdomain document root" >&2; exit 1; }
+          test -d "$2" || { echo "API dir is missing: register the Node app in cPanel first" >&2; exit 1; }
           REMOTE
-          rsync -az --delete dist/z-kim-mi-po-drodze/browser/ "vhpl:$VHPL_SPA_DIR/releases/$RELEASE/"
-          rsync -az --delete --exclude node_modules spike/api/ "vhpl:$VHPL_API_DIR/releases/$RELEASE/"
+
+      - name: Sync SPA into the document root
+        run: |
+          set -euo pipefail
+          rsync -azs --delete \
+            --exclude /api/ --exclude /.well-known/ --exclude /cgi-bin/ --exclude /error_log \
+            dist/z-kim-mi-po-drodze/browser/ "vhpl:$VHPL_SPA_DIR/"
+
+      - name: Sync API into the app root
+        run: |
+          set -euo pipefail
+          rsync -azs \
+            --exclude /node_modules --exclude /tmp --exclude /stderr.log \
+            spike/api/ "vhpl:$VHPL_API_DIR/"
 
       - name: Install API dependencies on the host
-        if: inputs.rollback_to == ''
         run: |
           set -euo pipefail
-          # UNVERIFIED: the cPanel Node selector may manage node_modules itself (virtual env).
-          # The activate script may reference unset variables, so `set -u` comes after sourcing it.
-          ssh vhpl bash -s -- "$VHPL_API_DIR" "$RELEASE" "$VHPL_NODE_ACTIVATE" <<'REMOTE'
+          # `npm install`, not `npm ci`: `npm ci` deletes node_modules, which cPanel links to the
+          # Node virtualenv. The activate script may reference unset variables, so `set -u` comes after it.
+          ssh vhpl bash -s -- "$VHPL_API_DIR" "$VHPL_NODE_ACTIVATE" <<'REMOTE'
           set -eo pipefail
-          source "$3"
+          source "$2"
           set -u
           node --version
-          cd "$1/releases/$2"
-          npm ci --omit=dev
+          cd "$1"
+          npm install --omit=dev --no-audit --no-fund
           REMOTE
 
-      - name: Activate release and restart API
+      - name: Restart API
         run: |
           set -euo pipefail
-          ssh vhpl bash -s -- "$VHPL_SPA_DIR" "$VHPL_API_DIR" "$RELEASE" <<'REMOTE'
-          set -euo pipefail
-          test -d "$1/releases/$3" && test -d "$2/releases/$3"
-          ln -sfn "$1/releases/$3" "$1/current"
-          ln -sfn "$2/releases/$3" "$2/current"
           # UNVERIFIED on vh.pl: Passenger convention for restarting the app.
-          mkdir -p "$2/tmp"
-          touch "$2/tmp/restart.txt"
+          ssh vhpl bash -s -- "$VHPL_API_DIR" <<'REMOTE'
+          set -euo pipefail
+          mkdir -p "$1/tmp"
+          touch "$1/tmp/restart.txt"
           REMOTE
-          echo "Activated release $RELEASE"
+          echo "Deployed commit ${ROLLBACK_TO:-$GITHUB_SHA}"
+
+      - name: Smoke check
+        if: vars.VHPL_SITE_URL != ''
+        env:
+          SITE_URL: ${{ vars.VHPL_SITE_URL }}
+        run: |
+          set -euo pipefail
+          sleep 5
+          body=$(curl -fsS --max-time 30 --retry 5 --retry-delay 5 --retry-all-errors "${SITE_URL%/}/api/health")
+          echo "$body"
+          echo "$body" | grep -q '"status":"ok"'
+          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "${SITE_URL%/}/quiz/1")
+          echo "SPA deep link: HTTP $code"
+          [ "$code" = "200" ]

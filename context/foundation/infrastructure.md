@@ -1,22 +1,30 @@
 ---
 project: Z kim mi po drodze
 researched_at: 2026-10-18
-recommended_platform: Cloudflare (Workers + static assets)
-runner_up: Vercel
+recommended_platform: vh.pl Wizytówka (hosting współdzielony, cPanel Node.js App + MySQL)
+runner_up: Cloudflare (Workers + static assets)
 context_type: mvp
 tech_stack:
   language: TypeScript
   framework: Angular 21 (front-end only, statyczny SPA, bez SSR)
-  runtime: Node.js (build) / przeglądarka; back end (API + MySQL) jeszcze nie istnieje
+  runtime: Node.js 24.x (back end na cPanel Node.js App, build w CI) / przeglądarka (SPA); API i baza MySQL jeszcze nie zaimplementowane
 ---
 
-> **Status decyzji: ODROCZONA.** Po kontroli antybiasowej użytkownik odpowiedział „zdecyduje później" i nie zaakceptował ani nie odrzucił lidera. Cloudflare jest liderem punktowym, a nie decyzją użytkownika. Przed `/10x-implement` i Plan Mode deploy trzeba zamknąć „Open Decisions" poniżej.
+> **Status decyzji: ZAMKNIĘTA przez użytkownika, 2026-10-18.** Wybrano **vh.pl Wizytówka**, a **Cloudflare jako plan B**. To decyzja użytkownika, nie lidera punktowego: macierz agent-friendly premiuje Cloudflare (27 do 17 pkt), a użytkownik rozstrzygnął na korzyść kosztu, MySQL w cenie, znajomości platformy i krótkiego terminu, po spike'u, który potwierdził działanie całego łańcucha. **Zaakceptowane ryzyko:** opóźnienie po bezczynności (kryterium 6 ze spike'u) nie zostało zmierzone; użytkownik zamknął decyzję bez tego pomiaru. Wyzwalacze przejścia na plan B są w sekcji „Recommendation".
 
 ## Recommendation
 
-**Lider punktowy: Cloudflare (Workers + static assets). Decyzja nie została jeszcze podjęta.**
+**Wdrożyć na vh.pl Wizytówka (decyzja użytkownika, 2026-10-18). Plan B: Cloudflare.**
 
-Cloudflare zdobył najwięcej punktów (24/24 surowo, 27 po wagach z wywiadu): `wrangler` obejmuje deploy, rollback i logi, dokumentacja ma `llms.txt` i źródła w GitHubie, jest oficjalny MCP, a po stronie platformy koszt dla 5–50 użytkowników to 0 (statyczne zasoby bez limitu, 100k żądań/dzień na Workers). Ocena zakłada bazę D1 (SQLite), bo Cloudflare nie hostuje MySQL; preferencja MySQL ze stacka jest wtedy niespełniona. Wywiad: koszt = minimalizuj, współlokalizacja preferowana, jeden region, trwałe połączenia = nie wiem, znajomość = vh.pl „Wizytówka".
+Użytkownik wybrał vh.pl, choć Cloudflare wygrał macierz agent-friendly (24/24 surowo, 27 po wagach, wobec 12/24 i 17 dla vh.pl). Uzasadnienie: koszt marginalny około 0 zł (pakiet 49 zł netto/rok jest już opłacony), MySQL w cenie (preferencja ze stacka spełniona bez zmiany `tech-stack.md`), znajomość platformy, jeden region PL i krótki termin (MVP 2026-11-04). Spike potwierdził łańcuch: SSH kluczem z GitHub Actions, SPA z fallbackiem `.htaccess`, API Node 24 z zapisem i odczytem w MySQL, scrypt około 50 ms, rollback przez `rollback_to` (wg użytkownika). Cena: mniejsze wsparcie dla agenta (brak platformowego CLI, MCP i `llms.txt`) oraz ręczne bramki w cPanelu.
+
+**Zaakceptowane ryzyko:** opóźnienie po bezczynności nie zostało zmierzone. Zmierzyć w pierwszym tygodniu implementacji (`spike/scripts/measure-latency.sh`, jedno żądanie na raz).
+
+**Wyzwalacze przejścia na plan B (Cloudflare):**
+1. pierwsze żądanie po bezczynności konsekwentnie > 2 s (cel PRD) i brak obejścia,
+2. vh.pl blokuje wdrożenia z GitHub Actions (SSH, limity, blokada IP),
+3. limity zasobów aplikacji Node (LVE, 300 procesów) powodują niestabilność,
+4. warunki RODO lub lokalizacja danych vh.pl okażą się nie do przyjęcia.
 
 ## Platform Comparison
 
@@ -36,7 +44,7 @@ Twardy filtr: odpowiedź „nie wiem" przy trwałych połączeniach nie usuwa pl
 
 ### Shortlisted Platforms
 
-#### 1. Cloudflare (Recommended, decyzja odroczona)
+#### 1. Cloudflare (lider punktowy, plan B)
 
 - Statyczny SPA jako Workers static assets, komenda `wrangler deploy` (komendy Pages i Workers nie są zamienne). Rollback `wrangler rollback [version-id]` (do 100 ostatnich wersji), logi `wrangler tail` (niezweryfikowane osobno) i Workers Logs.
 - Koszt: plan Free to 100k żądań/dzień i 10 ms CPU na wywołanie; Paid od 5 USD/mies. D1: 5 GB, 5M odczytów wierszy/dzień na Free. Hyperdrive Free: 100k zapytań/dzień.
@@ -58,7 +66,7 @@ Twardy filtr: odpowiedź „nie wiem" przy trwałych połączeniach nie usuwa pl
 
 ### Considered, not shortlisted
 
-- **vh.pl Wizytówka (17 pkt, 6. miejsce; poza krótką listą wg punktacji, ale realna opcja):** 49 zł netto/rok (60,27 zł brutto), 5 GB NVMe, 2 rdzenie/2 GB RAM, nielimitowane bazy MySQL, SSH/SFTP, LiteSpeed z `.htaccess`, backupy 2×/dobę przez 31 dni, już opłacony i znany. **Potwierdzone przez użytkownika 2026-10-18 w jego cPanelu:** jest „Setup Node.js App" z wieloma wersjami Node (wymienione: 10.24.1, 24.21.0, 22.23.3) oraz nielimitowana liczba subdomen. Dzięki temu vh.pl przechodzi twardy filtr stacka (Node/TypeScript), a PHP nie jest konieczne. Punktacja nie zmienia się (Node nie wpływa na pięć kryteriów), ale znika główna przeszkoda. Nadal: dokumentacja tylko jako renderowane strony (`llms.txt` zwraca 404), brak MCP, rollbacku i stagingu, brak platformowego CLI (wdrożenie przez SSH/rsync). Niezweryfikowane: Git/cron i SSH z kluczem na tym pakiecie, jak działa restart aplikacji Node po wdrożeniu, limity zasobów dla aplikacji Node (limit 300 procesów, LVE), typ SSL, wersja MySQL/MariaDB, zdalny dostęp do MySQL z GitHub Actions, lokalizacja DC (tylko źródło trzecie: Gdańsk/Gdynia), RODO.
+- **vh.pl Wizytówka (17 pkt, 6. miejsce wg punktacji; WYBRANA przez użytkownika po spike'u):** 49 zł netto/rok (60,27 zł brutto), 5 GB NVMe, 2 rdzenie/2 GB RAM, nielimitowane bazy MySQL, SSH/SFTP, LiteSpeed z `.htaccess`, backupy 2×/dobę przez 31 dni, już opłacony i znany. **Potwierdzone przez użytkownika 2026-10-18 w jego cPanelu:** jest „Setup Node.js App" z wieloma wersjami Node (wymienione: 10.24.1, 24.21.0, 22.23.3) oraz nielimitowana liczba subdomen. Dzięki temu vh.pl przechodzi twardy filtr stacka (Node/TypeScript), a PHP nie jest konieczne. Punktacja nie zmienia się (Node nie wpływa na pięć kryteriów), ale znika główna przeszkoda. Nadal: dokumentacja tylko jako renderowane strony (`llms.txt` zwraca 404), brak MCP, rollbacku i stagingu, brak platformowego CLI (wdrożenie przez SSH/rsync). Niezweryfikowane: Git/cron i SSH z kluczem na tym pakiecie, jak działa restart aplikacji Node po wdrożeniu, limity zasobów dla aplikacji Node (limit 300 procesów, LVE), typ SSL, wersja MySQL/MariaDB, zdalny dostęp do MySQL z GitHub Actions, lokalizacja DC (tylko źródło trzecie: Gdańsk/Gdynia), RODO.
 - **Netlify (19 pkt):** świetna obsługa SPA, ale plan Free to twardy limit 300 kredytów (przekroczenie wstrzymuje wszystkie strony), funkcje na stałe w Ohio na Free, brak MySQL (Netlify Database to Postgres, GA od 2026-04-28), brak udokumentowanego rollbacku w CLI.
 - **Railway (18 pkt):** zarządzany szablon MySQL (jednowęzłowy obraz Docker, utrzymujesz go sam po zmianach), EU West w Amsterdamie, szacunkowo 8–12 USD/mies. (własna kalkulacja), rollback tylko w dashboardzie, SPA wymaga własnego Dockerfile z Caddy.
 - **Fly.io (15 pkt):** brak darmowego planu, brak zarządzanego MySQL (Managed Postgres od 38 USD/mies., status ambiguous), około 15–20 USD/mies. przy samodzielnym MySQL, nieudokumentowany rollback.
@@ -85,7 +93,7 @@ Jedyny deweloper wybrał Cloudflare, bo było darmowe i przyjazne agentom. Plan:
 - Rollback nie cofa zmian schematu bazy.
 - Workers Logs działają na Workers, nie na Pages, więc nowy projekt powinien od razu używać Workers.
 
-## Anti-Bias Cross-Check: vh.pl Wizytówka (alternatywa, 2026-10-18)
+## Anti-Bias Cross-Check: vh.pl Wizytówka (wybrana platforma, 2026-10-18)
 
 Kontrola wykonana na życzenie użytkownika dla stosu Angular 21 (statyczny SPA) + API Node (cPanel „Setup Node.js App") + MySQL na hostingu współdzielonym. Punkty oznaczone „typowe dla cPanel/CloudLinux" pochodzą z ogólnej wiedzy o tej klasie hostingu, nie z dokumentacji vh.pl, i wymagają weryfikacji.
 
@@ -111,17 +119,45 @@ Deweloper został przy vh.pl, bo znał hosting, płacił za niego i miał w ceni
 
 Wynik kontroli: ryzyka vh.pl są głównie operacyjne i konfiguracyjne (panel, restart, brak rollbacku), a nie technologiczne jak u Cloudflare (runtime, baza). Są też tańsze i bliższe temu, co deweloper już zna. Jedyny sposób na ich zmniejszenie przed decyzją to krótki spike: minimalne API Node + MySQL uruchomione na vh.pl i wdrożone z GitHub Actions.
 
-### Operational Story (vh.pl, jeśli wybrany)
+## Spike Results: vh.pl Wizytówka (2026-10-18)
 
-- **Preview deploys**: brak natywnych; osobna subdomena (nielimitowane) na staging, wdrażana tym samym skryptem.
-- **Secrets**: zmienne środowiskowe aplikacji Node w cPanelu (UI, ręcznie przez człowieka); klucz SSH i dane SFTP jako GitHub Secrets.
-- **Rollback**: ręczny; poprzedni build w osobnym katalogu, przełączany dowiązaniem, plus kopie 2×/dobę przez 31 dni. Brak komendy platformowej.
-- **Approval**: konfiguracja aplikacji Node, zmiana zmiennych i przywracanie kopii wykonuje człowiek w cPanelu; agent może uruchamiać wdrożenie plików przez SSH/rsync po skonfigurowaniu.
-- **Logs**: do weryfikacji (logi aplikacji Node i serwera w panelu lub przez SSH); brak MCP i CLI.
+Plan i kryteria: `context/changes/vhpl-deploy-spike/spike-plan.md`; kod na gałęzi `spike/vhpl-deploy`. Subdomena testowa `spike.demokratia.pl`, wdrożenie z GitHub Actions (SSH/rsync). Źródło wyników: pomiar curl wykonany przez agenta (kryteria 2, 3, 4, 7), przebieg workflow zgłoszony przez użytkownika (1, 5, 8), konfiguracja cPanela (9).
+
+| # | Kryterium | Wynik | Uwagi |
+|---|---|---|---|
+| 1 | SSH kluczem z runnera, bez promptów | Pass | Wymagało czystego klucza (patrz „Wnioski") |
+| 2 | Głęboki link SPA | Pass | `/quiz/1` zwraca 200 i `index.html` |
+| 3 | API po HTTPS | Pass | `/api/health` 200, Node v24.21.0 |
+| 4 | MySQL z aplikacji | Pass | zapis i odczyt, wiersz id=2, dane z poprzedniego testu zachowane |
+| 5 | Pełna automatyzacja z restartem | Partial | workflow przechodzi bez klikania w cPanelu przy wdrożeniu; rejestracja aplikacji i konfiguracja URL to bramka ręczna, restart przez `tmp/restart.txt` nie został osobno potwierdzony |
+| 6 | Opóźnienie po bezczynności | Niezmierzone | pierwsze żądanie po starcie 0,7 s, kolejne 0,1–0,4 s; brak pomiaru po 30 min |
+| 7 | scrypt | Pass | 49–59 ms (cel < 500 ms) |
+| 8 | Rollback | Pass (wg użytkownika) | przez `rollback_to`: przebudowa i wdrożenie wskazanego commita; czas nie podany, cel < 5 min |
+| 9 | Sekrety poza repo | Pass | `DB_*` w cPanelu, klucz SSH i ścieżki w GitHub Secrets |
+
+### Wnioski ze spike'u
+
+- **Układ `releases/` + dowiązanie `current` nie działa z cPanelowym Node selectorem.** cPanel zapisał rozwiązaną ścieżkę wydania jako root aplikacji i nazwał od niej środowisko Node, więc ruchome dowiązanie zostawiało aplikację przypiętą do pierwszego wydania. Wdrożenie jest teraz w miejscu do stałych katalogów (docroot `spike-site/live`, root aplikacji `spike-api/app`).
+- **Konfiguracja Passengera i zmienne `DB_*` leżą w `<docroot>/api/.htaccess`, zarządzanym przez cPanel i poza repo.** `rsync --delete` musi je omijać (`--exclude /api/`). Plik zawiera hasło do bazy jawnym tekstem w katalogu domowym.
+- **Rejestracja nowej aplikacji Node to ręczna bramka człowieka** w cPanelu (root, URL, startup, zmienne). Dwie aplikacje pod tym samym adresem najprawdopodobniej się blokowały (hipoteza); zadziałało dopiero po usunięciu starej i poprawnym zapisie URL.
+- **Nieinteraktywna sesja SSH nie ma `node` ani `npm` w `PATH`.** Trzeba aktywować środowisko aplikacji (`source …/nodevenv/<app>/24/bin/activate`), a `npm install` zamiast `npm ci`, bo cPanel linkuje `node_modules`.
+- **Rollback wymaga przebudowy** (kilka minut, nie jest atomowy), bo nie ma przełączalnych wydań.
+- **Limit żądań 429 `rate limited`** pojawił się po około 25 szybkich żądaniach z jednego adresu; źródło limitu nie zostało ustalone. W testach obciążeniowych i monitoringu odpytuj rzadko.
+- **Windows OpenSSH** odrzucał klucz skopiowany ręcznie (`Load key … Operation not supported on socket`); pomogło wygenerowanie nowego klucza w Git Bashu. Po wielu nieudanych próbach logowania serwer chwilowo zerwał połączenie (`Connection reset`), co wskazuje na ochronę przed próbami włamań.
 
 ## Operational Story
 
-Zakres tego badania nie objął wszystkich osi; pola oznaczone „do weryfikacji" mają być zamknięte w Plan Mode deploy.
+Dotyczy wybranej platformy (vh.pl). Pola oznaczone „do potwierdzenia" mają być zamknięte w Plan Mode deploy.
+
+- **Preview deploys**: brak natywnych. Osobna subdomena (nielimitowane) z własnym docrootem i własną aplikacją Node, wdrażana tym samym workflow z innymi sekretami; w spike'u nietestowane (do potwierdzenia).
+- **Secrets**: zmienne `DB_*` ustawia człowiek w aplikacji Node w cPanelu; cPanel zapisuje je jawnym tekstem w `<docroot>/api/.htaccess` w katalogu domowym, poza repo (plik nigdy nie trafia do repo ani do czatu). Dedykowany klucz SSH do wdrożeń (bez hasła, osobny od kluczy osobistych), `known_hosts`, ścieżki katalogów i ścieżka `bin/activate` są w GitHub Secrets. Rotacja: nowe hasło w MySQL Databases i aktualizacja zmiennej w aplikacji.
+- **Rollback**: workflow z `rollback_to` buduje i wdraża wskazany commit w miejscu (zweryfikowane w spike'u wg użytkownika; czas nie podany, cel < 5 min), plus kopie 2×/dobę przez 31 dni z panelu. Brak komendy platformowej i brak przełączania atomowego; migracje bazy nie cofają się same.
+- **Approval**: człowiek rejestruje i zmienia aplikację Node w cPanelu (root, URL, startup, zmienne), zmienia hasła, przywraca kopie i kasuje katalogi. Wdrożenie plików to workflow GitHub Actions uruchamiany ręcznie (`workflow_dispatch`); przejście na auto-deploy po merge do `main` (zgodnie z `tech-stack.md`) dopiero po stabilizacji.
+- **Logs**: do potwierdzenia ścieżki; aplikacja Node pisze do `stderr.log` w katalogu aplikacji (cPanel), logi serwera w panelu. Agent czyta przez SSH (`tail`) tylko do odczytu; brak CLI platformy i MCP.
+
+### Operational Story: plan B (Cloudflare)
+
+Zakres badania nie objął wszystkich osi; pola oznaczone „do weryfikacji" miałyby być zamknięte przy ewentualnym przejściu na plan B.
 
 - **Preview deploys**: do weryfikacji w Plan Mode deploy (nie zbadano wersji/preview URL na Workers ani ochrony preview).
 - **Secrets**: token API Cloudflare (zakres „Edit Cloudflare Workers", jeden projekt) i `CLOUDFLARE_ACCOUNT_ID` jako GitHub Secrets dla `cloudflare/wrangler-action@v4`; sekrety Workera (np. klucz JWT) przez `wrangler secret put` (komenda spoza tego badania, do potwierdzenia). Tokeny nie trafiają do repo ani do `.mcp.json`.
@@ -145,32 +181,46 @@ Zakres tego badania nie objął wszystkich osi; pola oznaczone „do weryfikacji
 | Rollback nie cofa schematu bazy | Unknown unknowns | M | M | Migracje wstecznie zgodne; kopia przed migracją |
 | Status GA: Hyperdrive MySQL (nieoficjalnie), MCP Cloudflare (bez etykiety), `tls` częściowo; sprawdzone 2026-10-18 | Research finding | M | M | Ponowna weryfikacja przed produkcją |
 | Vercel: licencja Hobby niekomercyjna, Instant Rollback w beta | Research finding | L | M | Dotyczy tylko wyboru Vercel; sprawdzić warunki przed wdrożeniem |
-| vh.pl: brak rollbacku, stagingu i platformowego CLI; wdrożenie przez SSH/rsync | Research finding | H | M | Trzymać poprzedni build w osobnym katalogu i przełączać dowiązaniem; skrypt wdrożenia w GitHub Actions |
-| vh.pl: Node.js potwierdzony przez użytkownika, ale restart aplikacji i limity procesów (LVE, 300) niezweryfikowane | Research finding | M | M | Spike: uruchomić minimalne API Node + MySQL na hostingu przed zobowiązaniem |
+| vh.pl: brak rollbacku platformowego, stagingu i CLI; wdrożenie przez SSH/rsync | Research finding | H | M | Rollback przez `rollback_to` (przebudowa, w spike'u działa); układ z dowiązaniem `current` odrzucony, bo nie działa z cPanelowym Node selectorem; staging na osobnej subdomenie |
+| vh.pl: Node.js działa (spike), ale restart przez `tmp/restart.txt` nie został osobno potwierdzony, a limity LVE/300 procesów nie były mierzone pod obciążeniem | Research finding | L | M | Potwierdzić restart po kolejnym wdrożeniu (`uptimeSeconds` w `/api/health`); obserwować limity zasobów |
 | vh.pl: dokumentacja bez `llms.txt` i bez MCP | Research finding | H | L | Zapisać potrzebne kroki w `AGENTS.md`/`lessons.md` zamiast polegać na dokumentacji |
-| vh.pl: konfiguracja aplikacji Node, zmienne i restart tylko w panelu, bez CLI/API | Devil's advocate | H | M | Spike wdrożenia; udokumentować kroki ręczne jako bramki człowieka w planie wdrożenia |
-| vh.pl: aplikacja Node usypiana/limity LVE, wolne pierwsze logowanie (cel PRD < 2 s) | Devil's advocate | M | M | Zmierzyć czas odpowiedzi po przerwie na spike'u |
-| vh.pl: moduły natywne (np. bcrypt) mogą się nie zbudować na hostingu | Devil's advocate | M | M | Używać bibliotek czystego JS/WASM; sprawdzić na spike'u |
-| vh.pl: SSH z kluczem dla GitHub Actions niezweryfikowane | Devil's advocate | M | H | Sprawdzić w cPanelu przed wyborem; plan B: SFTP i ręczny restart |
-| vh.pl: aplikacja Node pod Passengerem nie wybiera portu (kod `app.listen`) | Unknown unknowns | M | M | Sprawdzić wymagania pliku startowego w „Setup Node.js App" |
+| vh.pl: konfiguracja aplikacji Node, zmienne i restart tylko w panelu, bez CLI/API (potwierdzone w spike'u: rejestracja aplikacji i URL to ręczna bramka) | Devil's advocate | H | M | Opisać kroki ręczne jako bramki człowieka w planie wdrożenia; jednorazowo przy tworzeniu aplikacji |
+| vh.pl: hasło do bazy jawnym tekstem w `<docroot>/api/.htaccess` i łatwo je ujawnić przy wklejaniu | Research finding | M | H | Nigdy nie kopiować tego pliku do repo ani czatu; wypisywać z filtrem `sed`; rotacja hasła po ujawnieniu |
+| vh.pl: ochrona przed próbami logowania SSH i limit żądań (429) mogą zablokować IP | Research finding | M | M | Nie ponawiać nieudanych logowań; rzadkie odpytywanie; zapisać procedurę odblokowania przez wsparcie vh.pl |
+| vh.pl: opóźnienie po bezczynności NIEZMIERZONE, ryzyko zaakceptowane przez użytkownika bez pomiaru (Passenger może usypiać aplikację; pierwsze żądanie po starcie trwało 0,7 s) | Devil's advocate | M | M | Zmierzyć w pierwszym tygodniu implementacji (`spike/scripts/measure-latency.sh`); próg planu B: pierwsze żądanie po bezczynności > 2 s bez obejścia |
+| vh.pl: moduły natywne (np. bcrypt) mogą się nie zbudować na hostingu | Devil's advocate | L | M | Używać wbudowanego `crypto.scrypt` (49–59 ms w spike'u) i bibliotek bez kompilacji |
+| vh.pl: wdrożenie SSH z klucza w GitHub Actions i blokady IP po nieudanych logowaniach | Devil's advocate | L | H | W spike'u działa; dedykowany klucz bez hasła, pinowany `known_hosts`, nie ponawiać nieudanych logowań; plan B: SFTP i ręczny restart |
+| vh.pl: aplikacja Node pod Passengerem i port (`app.listen`) | Unknown unknowns | L | L | Zweryfikowane w spike'u: `process.env.PORT \|\| 3000` działa pod Passengerem |
 | vh.pl: DNS `demokratia.pl` i RODO (lokalizacja DC, powierzenie danych) niezweryfikowane | Unknown unknowns | M | H | Potwierdzić, kto zarządza DNS, oraz warunki RODO u vh.pl przed zapisem danych osobowych |
 
 ## Open Decisions
 
-1. **Platforma:** Cloudflare (lider punktowy), Vercel, Render albo vh.pl (poza krótką listą). Użytkownik zdecyduje później.
-2. **Baza danych:** D1 (SQLite) kontra zewnętrzny MySQL kontra Postgres. Zmiana preferencji MySQL wymaga aktualizacji `tech-stack.md` (`/10x-tech-stack-selector`).
-3. **vh.pl:** ROZSTRZYGNIĘTE 2026-10-18 (zgłoszone przez użytkownika): „Setup Node.js App" jest dostępne, subdomeny nielimitowane. vh.pl wraca do porównania jako pełnoprawna opcja ze stackiem TS/Node i MySQL, bez zmiany `tech-stack.md`. Do sprawdzenia przed wyborem: (a) SSH z kluczem i Git Version Control w cPanelu (potrzebne do wdrożeń z GitHub Actions), (b) czy aplikacja Node wytrzyma 300-procesowy limit i jak się ją restartuje po wdrożeniu, (c) dostęp do MySQL (lokalnie z aplikacji Node na tym samym hostingu).
-4. **Kompromis do rozstrzygnięcia przez użytkownika:** punktacja agent-friendly premiuje Cloudflare (CLI, rollback, `llms.txt`, MCP), a wywiad premiuje vh.pl (koszt marginalny około 0 zł, MySQL w cenie, znajomość, jeden region PL, 17 dni do terminu). Punktacja nie zmieniła się po potwierdzeniu Node, ale ryzyko schedule'owe Cloudflare (nauka platformy, D1/MySQL, limit CPU) i ryzyka vh.pl (brak rollbacku/stagingu, wdrożenie rsync, mniej wsparcia dla agenta) mają różny charakter. Kontrola antybiasowa dla vh.pl została wykonana (sekcja „Anti-Bias Cross-Check: vh.pl Wizytówka"); jej wynik: ryzyka vh.pl są operacyjne i do zmierzenia krótkim spike'iem (API Node + MySQL wdrożone z GitHub Actions), a nie architektoniczne.
+1. **Platforma: ROZSTRZYGNIĘTE 2026-10-18.** vh.pl Wizytówka, Cloudflare jako plan B (decyzja użytkownika, po spike'u). Wyzwalacze planu B: sekcja „Recommendation".
+2. **Baza danych: ROZSTRZYGNIĘTE.** MySQL na vh.pl, więc bez zmiany `tech-stack.md`. Wersja MySQL/MariaDB niezweryfikowana; sprawdzić przed użyciem funkcji zależnych od wersji.
+3. **Node.js na vh.pl: ROZSTRZYGNIĘTE.** „Setup Node.js App" jest dostępne (Node 24.21.0 działa), subdomeny nielimitowane.
+4. **Kompromis agent-friendly kontra koszt i znajomość: ROZSTRZYGNIĘTE przez użytkownika** na korzyść vh.pl, ze świadomością braku CLI, MCP i `llms.txt` oraz ręcznych bramek w cPanelu.
+5. **OTWARTE: pomiar opóźnienia po bezczynności** (kryterium 6). Zrobić w pierwszym tygodniu implementacji; wynik > 2 s bez obejścia uruchamia plan B.
+6. **OTWARTE: hasło do testowej bazy** (`vh19328_spike`) zostało ujawnione w rozmowie. Do potwierdzenia przez użytkownika, że zostało zmienione; produkcyjna baza ma dostać nowe, losowe hasło.
+7. **OTWARTE: domena.** Kto zarządza DNS `demokratia.pl` i czy `podrodze.demokratia.pl` można skierować na vh.pl; warunki RODO i lokalizacja danych vh.pl (źródło trzecie: Gdańsk/Gdynia) do potwierdzenia przed zapisem danych osobowych.
+8. **OTWARTE: auto-deploy po merge** (`ci_default_flow` w `tech-stack.md`). Workflow jest na razie ręczny (`workflow_dispatch`); zmienić dopiero po stabilizacji.
 
 ## Getting Started
 
-Komendy dotyczą Cloudflare i nie były uruchamiane; przed użyciem sprawdź je w bieżącej dokumentacji. Wrangler nie jest zainstalowany w repo (brak w `devDependencies`), a lokalny Node to v25.9.0, wymagania Wranglera wobec wersji Node nie były weryfikowane.
+Kroki poniżej były wykonane w spike'u (gałąź `spike/vhpl-deploy`, workflow `.github/workflows/spike-vhpl-deploy.yml`) i dotyczą Angular 21 (`dist/z-kim-mi-po-drodze/browser`, brak `outputPath` w `angular.json`) oraz Node 24.21.0 na hostingu. Workflow zbudowano z Node 22 w CI. Nazwy `spike-*` są tymczasowe; produkcyjne katalogi i subdomenę wybierz sam.
 
-1. Zbuduj SPA: `npm run build`. Wynik trafia do `dist/z-kim-mi-po-drodze/browser` (projekt `z-kim-mi-po-drodze`, brak `outputPath` w `angular.json`).
-2. Dodaj `wrangler.toml` z nazwą Workera, `compatibility_date` i sekcją `[assets]`: `directory = "./dist/z-kim-mi-po-drodze/browser"` oraz `not_found_handling = "single-page-application"` (zwraca `/index.html` z kodem 200 dla tras Angulara).
-3. Bramka ręczna: załóż konto Cloudflare i utwórz token API ograniczony do „Edit Cloudflare Workers" (jeden projekt, bez DNS i rozliczeń); zapisz `CLOUDFLARE_API_TOKEN` i `CLOUDFLARE_ACCOUNT_ID` jako GitHub Secrets.
-4. Wdrożenie: `npx wrangler deploy` (nie `wrangler pages deploy`). W GitHub Actions: `cloudflare/wrangler-action@v4` po `npm run build` przy merge do `main`.
-5. Po dodaniu back endu: `run_worker_first = ["/api/*"]` (Wrangler ≥ 4.20.0), binding D1 albo Hyperdrive zależnie od decyzji o bazie, a przed zapisem danych osobowych sprawdź region danych.
+1. **cPanel (jednorazowo, ręcznie):**
+   - Utwórz subdomenę ze **stałym** docrootem (względna ścieżka, np. `<site>/live`).
+   - Utwórz bazę MySQL i użytkownika.
+   - W „Setup Node.js App" zarejestruj aplikację ze **stałym** rootem (np. `<api>/app`), URL `<subdomena>/api` (domena i ścieżka bez literówek i bez `https://`), startup `app.js`, Node 24, oraz zmienne `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`. Nie używaj układu `releases/` z dowiązaniem `current`: cPanel zapisuje rozwiązaną ścieżkę i przypina aplikację do pierwszego wydania.
+   - Dwie aplikacje pod tym samym URL przeszkadzały sobie nawzajem (hipoteza); starą usuń (Destroy) przed rejestracją nowej.
+2. **Klucz SSH do wdrożeń:** wygeneruj dedykowany, bez hasła, w Git Bashu (`ssh-keygen -t rsa -b 4096 -f ~/.ssh/<nazwa> -N ""`), wgraj część publiczną w SSH Access → Import Key → Authorize. Przetestuj lokalnie: `ssh -i ~/.ssh/<nazwa> -o IdentitiesOnly=yes -o BatchMode=yes <user>@<host> pwd`. Nie ponawiaj nieudanych logowań (serwer chwilowo zrywa połączenia).
+3. **GitHub Secrets:** `VHPL_HOST`, `VHPL_USER`, `VHPL_SSH_KEY` (cały klucz prywatny), `VHPL_KNOWN_HOSTS` (wynik `ssh-keyscan -t ed25519 <host>`), `VHPL_SPA_DIR` (docroot, ścieżka bezwzględna `/home/<user>/...` bez ukośnika na końcu), `VHPL_API_DIR` (root aplikacji, osobny i niezagnieżdżony), `VHPL_NODE_ACTIVATE` (bezwzględna ścieżka `…/nodevenv/<app>/<node>/bin/activate`). Opcjonalna zmienna repozytorium `VHPL_SITE_URL` włącza smoke check na końcu biegu.
+4. **Wdrożenie:** workflow wykonuje build w CI, `rsync --delete` SPA do docrootu (z wyjątkami `/api/`, `/.well-known/`, `/cgi-bin/`, `/error_log`), `rsync` API do roota aplikacji (bez `--delete`, z pominięciem `node_modules`, `tmp`, `stderr.log`), `npm install --omit=dev` w aktywowanym środowisku i `touch tmp/restart.txt`. Uruchamiasz go ręcznie z wybraną gałęzią; na `main` musi leżeć kopia pliku, żeby GitHub pokazał przycisk „Run workflow".
+5. **Rollback:** uruchom ten sam workflow z `rollback_to` ustawionym na 40-znakowy SHA commita zawierającego `spike/`; zostanie zbudowany i wdrożony od nowa.
+6. **Weryfikacja:** `/` i głęboki link (np. `/quiz/1`) zwracają 200 i aplikację, `/api/health` zwraca `{"status":"ok", "node":"v24…"}`, a `uptimeSeconds` po wdrożeniu jest bliskie 0.
+7. **Czego nie robić:** nie kopiuj `<docroot>/api/.htaccess` do repo ani czatu (zawiera hasło do bazy jawnym tekstem), nie odpytuj strony w pętli (po około 25 szybkich żądaniach pojawiło się 429), nie używaj `npm ci` na serwerze (kasuje `node_modules` linkowane przez cPanel).
+
+**Plan B (Cloudflare):** na wypadek wyzwalaczy z sekcji „Recommendation". Użyj `wrangler deploy` (nie `wrangler pages deploy`), `[assets] directory` wskazujący `dist/z-kim-mi-po-drodze/browser` i `not_found_handling = "single-page-application"`, a dla API `run_worker_first = ["/api/*"]` (Wrangler ≥ 4.20.0). Te komendy nie były uruchamiane; sprawdź je w bieżącej dokumentacji, bo Wrangler nie jest w `devDependencies`, a lokalny Node to v25.9.0.
 
 ## Out of Scope
 

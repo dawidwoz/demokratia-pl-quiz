@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Criterion 6: response time after idle. Run once after >= 30 min without requests.
-# Usage: spike/scripts/measure-latency.sh https://test.example.pl [requests=20]
+# Response time after idle (spike criterion 6). Run once after >= 30 min without requests.
+# Usage: scripts/measure-latency.sh https://test.example.pl [requests=20]
 set -euo pipefail
 
 base_url="${1:?usage: measure-latency.sh <base-url> [requests]}"

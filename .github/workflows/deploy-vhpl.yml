@@ -1,31 +1,29 @@
-# Throwaway spike: in-place deploy to vh.pl over SSH/rsync. See context/changes/vhpl-deploy-spike/spike-plan.md.
+# Production deploy to vh.pl over SSH/rsync, in place. See context/deployment/deploy-plan.md.
 #
-# Manual trigger only. Do NOT change this to `push: branches: [main]` until the spike checks pass.
-# No secrets live in this file; it only references secret NAMES that a human must create:
-#   VHPL_HOST, VHPL_USER, VHPL_SSH_KEY (dedicated deploy key), VHPL_KNOWN_HOSTS (pinned host key line),
-#   VHPL_SPA_DIR     the subdomain's document root, e.g. /home/<user>/spike-site/live
-#   VHPL_API_DIR     the Node app root registered in cPanel, e.g. /home/<user>/spike-api/app
-#   VHPL_NODE_ACTIVATE  absolute path to that app's `bin/activate` (shown at the top of "Setup Node.js
-#                    App"; it is named after VHPL_API_DIR). A non-interactive SSH shell has no
-#                    `node`/`npm` on PATH without it.
-# Optional repository VARIABLE (not a secret): VHPL_SITE_URL, e.g. https://spike.demokratia.pl.
-# When set, the run ends with a smoke check of /api/health and a SPA deep link.
+# Manual trigger only (auto-deploy after merge comes later, once this is stable).
+# Runs in the GitHub environment `production`, so these live there, not in the repo:
+#   secrets   VHPL_HOST, VHPL_USER, VHPL_SSH_KEY (dedicated deploy key), VHPL_KNOWN_HOSTS (pinned host key line),
+#             VHPL_SPA_DIR     the subdomain's document root, e.g. /home/<user>/quiz-site/live
+#             VHPL_API_DIR     the Node app root registered in cPanel, e.g. /home/<user>/quiz-api/app
+#             VHPL_NODE_ACTIVATE  absolute path to that app's `bin/activate` (shown at the top of "Setup
+#                              Node.js App"; it is named after VHPL_API_DIR). A non-interactive SSH shell
+#                              has no `node`/`npm` on PATH without it.
+#   variable  VHPL_SITE_URL, e.g. https://quiz.demokratia.pl. When set, the run ends with a smoke check of
+#             /api/health and a SPA deep link.
 #
-# Why in place (no releases/ + current symlink): observed on 2026-10-18, the cPanel Node selector
-# records the RESOLVED path of the app root and names its virtualenv after it, so a symlink that
-# moves between releases leaves the app pinned to the first release. Docroot and app root are
-# therefore fixed directories that cPanel is pointed at once.
+# Why in place (no releases/ + current symlink): the cPanel Node selector records the RESOLVED path of the
+# app root and names its virtualenv after it, so a symlink that moves between releases leaves the app
+# pinned to the first release. Docroot and app root are fixed directories that cPanel is pointed at once.
 #
-# Rollback = run this workflow with `rollback_to`: that commit is checked out, rebuilt and deployed
-# again (minutes, not atomic). The target commit must contain spike/ (commit 30ade11 or later).
+# Rollback = run this workflow with `rollback_to`: that commit is checked out, rebuilt and deployed again
+# (minutes, not atomic). The target commit must contain deploy/vhpl/ and api/.
 #
 # Paths cPanel manages inside the targets are protected from rsync: /api/ in the docroot holds the
-# Passenger config and DB_* variables (never copy that file into the repo), /.well-known/ is used
-# for certificate renewal, and the app root keeps node_modules (a link into the Node virtualenv),
-# tmp/ and stderr.log. The API sync does not use --delete for the same reason.
-# UNVERIFIED on vh.pl: `npm install` inside the activated environment, and `tmp/restart.txt`.
+# Passenger config and DB_* variables (never copy that file into the repo), /.well-known/ is used for
+# certificate renewal, and the app root keeps node_modules (a link into the Node virtualenv), tmp/ and
+# stderr.log. The API sync does not use --delete for the same reason.
 
-name: Spike - deploy to vh.pl (manual)
+name: Deploy to vh.pl (manual)
 
 on:
   workflow_dispatch:
@@ -39,13 +37,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: spike-vhpl-deploy
+  group: vhpl-deploy
   cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    environment: production
     env:
       VHPL_HOST: ${{ secrets.VHPL_HOST }}
       VHPL_USER: ${{ secrets.VHPL_USER }}
@@ -96,10 +95,11 @@ jobs:
       - name: Build SPA
         run: |
           set -euo pipefail
-          test -f spike/htaccess/.htaccess || { echo "spike/ is missing in this commit" >&2; exit 1; }
+          test -f deploy/vhpl/.htaccess || { echo "deploy/vhpl/ is missing in this commit" >&2; exit 1; }
+          test -f api/app.js || { echo "api/ is missing in this commit" >&2; exit 1; }
           npm ci
           npm run build
-          cp spike/htaccess/.htaccess dist/z-kim-mi-po-drodze/browser/.htaccess
+          cp deploy/vhpl/.htaccess dist/z-kim-mi-po-drodze/browser/.htaccess
 
       - name: Configure SSH
         env:
@@ -142,7 +142,7 @@ jobs:
           set -euo pipefail
           rsync -azs \
             --exclude /node_modules --exclude /tmp --exclude /stderr.log \
-            spike/api/ "vhpl:$VHPL_API_DIR/"
+            api/ "vhpl:$VHPL_API_DIR/"
 
       - name: Install API dependencies on the host
         run: |
@@ -161,7 +161,7 @@ jobs:
       - name: Restart API
         run: |
           set -euo pipefail
-          # UNVERIFIED on vh.pl: Passenger convention for restarting the app.
+          # Passenger convention for restarting the app; confirm with uptimeSeconds in /api/health.
           ssh vhpl bash -s -- "$VHPL_API_DIR" <<'REMOTE'
           set -euo pipefail
           mkdir -p "$1/tmp"

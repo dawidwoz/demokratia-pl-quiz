@@ -1,0 +1,11 @@
+{
+  "name": "z-kim-mi-po-drodze-api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Back-end API for Z kim mi po drodze, run by the cPanel Node.js App on vh.pl",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {}
+}

@@ -1,7 +1,7 @@
 # Spike: vh.pl Wizytówka — API Node + MySQL wdrożone z GitHub Actions
 
 Źródło: `context/foundation/infrastructure.md` (kontrola antybiasowa vh.pl, 2026-10-18).
-Status: plan, nic nie zostało uruchomione.
+Status: spike wykonany 2026-10-18. Wyniki, wnioski i decyzja (vh.pl, Cloudflare jako plan B) są w `context/foundation/infrastructure.md`, sekcje „Spike Results" i „Recommendation". Poniższy plan opisuje stan wyjściowy; układ `releases/` z dowiązaniem (krok 4) zastąpiono wdrożeniem w miejscu do stałych katalogów, bo cPanel Node selector przypina aplikację do rozwiązanej ścieżki, a rollback działa przez przebudowę wskazanego commita. Kod spike'u jest na gałęzi `spike/vhpl-deploy`.
 
 ## Cel
 

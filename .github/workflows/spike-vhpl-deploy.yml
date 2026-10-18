@@ -3,7 +3,9 @@
 # Manual trigger only. Do NOT change this to `push: branches: [main]` until the spike checks pass.
 # No secrets live in this file; it only references secret NAMES that a human must create:
 #   VHPL_HOST, VHPL_USER, VHPL_SSH_KEY (dedicated deploy key), VHPL_KNOWN_HOSTS (pinned host key line),
-#   VHPL_SPA_DIR (e.g. /home/<user>/spike-site), VHPL_API_DIR (e.g. /home/<user>/spike-api)
+#   VHPL_SPA_DIR (e.g. /home/<user>/spike-site), VHPL_API_DIR (e.g. /home/<user>/spike-api),
+#   VHPL_NODE_ACTIVATE (absolute path to the cPanel Node app's `bin/activate`, shown at the top of
+#   "Setup Node.js App"; a non-interactive SSH shell has no `node`/`npm` on PATH without it)
 #
 # Layout on the host: <dir>/releases/<commit-sha>/ plus a <dir>/current symlink that is switched.
 # UNVERIFIED on vh.pl (that is what the spike measures): that the docroot can point at the
@@ -36,6 +38,7 @@ jobs:
       VHPL_USER: ${{ secrets.VHPL_USER }}
       VHPL_SPA_DIR: ${{ secrets.VHPL_SPA_DIR }}
       VHPL_API_DIR: ${{ secrets.VHPL_API_DIR }}
+      VHPL_NODE_ACTIVATE: ${{ secrets.VHPL_NODE_ACTIVATE }}
       ROLLBACK_TO: ${{ inputs.rollback_to }}
     steps:
       - name: Resolve release id
@@ -54,7 +57,7 @@ jobs:
           VHPL_KNOWN_HOSTS: ${{ secrets.VHPL_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
-          for name in VHPL_HOST VHPL_USER VHPL_SSH_KEY VHPL_KNOWN_HOSTS VHPL_SPA_DIR VHPL_API_DIR; do
+          for name in VHPL_HOST VHPL_USER VHPL_SSH_KEY VHPL_KNOWN_HOSTS VHPL_SPA_DIR VHPL_API_DIR VHPL_NODE_ACTIVATE; do
             if [ -z "${!name:-}" ]; then
               echo "Missing secret: $name" >&2
               exit 1
@@ -114,8 +117,12 @@ jobs:
         run: |
           set -euo pipefail
           # UNVERIFIED: the cPanel Node selector may manage node_modules itself (virtual env).
-          ssh vhpl bash -s -- "$VHPL_API_DIR" "$RELEASE" <<'REMOTE'
-          set -euo pipefail
+          # The activate script may reference unset variables, so `set -u` comes after sourcing it.
+          ssh vhpl bash -s -- "$VHPL_API_DIR" "$RELEASE" "$VHPL_NODE_ACTIVATE" <<'REMOTE'
+          set -eo pipefail
+          source "$3"
+          set -u
+          node --version
           cd "$1/releases/$2"
           npm ci --omit=dev
           REMOTE

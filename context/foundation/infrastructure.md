@@ -155,7 +155,7 @@ Workflow `.github/workflows/deploy-vhpl.yml` (środowisko `production`, ręczny 
 | `/quiz/1` (głęboki link SPA) | 200 |
 | `/api/health` | 200, `{"status":"ok","node":"v24.21.0"}`, 0,08 s |
 | Restart po wdrożeniu (`uptimeSeconds` blisko 0 po deployu bez zmian) | niepotwierdzony osobno: po ponownym uruchomieniu workflow `uptimeSeconds` wyniosło 11 s |
-| Smoke check w workflow | pominięty mimo ustawionego `VHPL_SITE_URL`; do wyjaśnienia (zmienna musi być w Variables środowiska `production`, nie w Secrets) |
+| Smoke check w workflow | początkowo pominięty mimo ustawionego `VHPL_SITE_URL`; po poprawce (zmienna w Variables środowiska `production`, nie w Secrets) działa, wg użytkownika |
 
 Wnioski:
 - **Zielony workflow nie dowodzi, że API działa.** Kroki wdrożenia sprawdzają tylko istnienie katalogów i wynik rsync; stan aplikacji sprawdza dopiero smoke check. Bez ustawionej zmiennej `VHPL_SITE_URL` krok jest pomijany.
@@ -217,9 +217,9 @@ Zakres badania nie objął wszystkich osi; pola oznaczone „do weryfikacji" mia
 3. **Node.js na vh.pl: ROZSTRZYGNIĘTE.** „Setup Node.js App" jest dostępne (Node 24.21.0 działa), subdomeny nielimitowane.
 4. **Kompromis agent-friendly kontra koszt i znajomość: ROZSTRZYGNIĘTE przez użytkownika** na korzyść vh.pl, ze świadomością braku CLI, MCP i `llms.txt` oraz ręcznych bramek w cPanelu.
 5. **OTWARTE: pomiar opóźnienia po bezczynności** (kryterium 6). Zrobić w pierwszym tygodniu implementacji; wynik > 2 s bez obejścia uruchamia plan B.
-6. **OTWARTE: hasło do testowej bazy** (`vh19328_spike`) zostało ujawnione w rozmowie. Do potwierdzenia przez użytkownika, że zostało zmienione; produkcyjna baza ma dostać nowe, losowe hasło.
-7. **OTWARTE: domena.** Kto zarządza DNS `demokratia.pl` i czy `podrodze.demokratia.pl` można skierować na vh.pl; warunki RODO i lokalizacja danych vh.pl (źródło trzecie: Gdańsk/Gdynia) do potwierdzenia przed zapisem danych osobowych.
-8. **OTWARTE: auto-deploy po merge** (`ci_default_flow` w `tech-stack.md`). Workflow jest na razie ręczny (`workflow_dispatch`); zmienić dopiero po stabilizacji.
+6. **ROZSTRZYGNIĘTE 2026-10-19: hasło do bazy.** Użytkownik potwierdził, że hasło do bazy zostało zmienione (testowa baza `vh19328_spike` miała hasło ujawnione w rozmowie). Zmienne `DB_*` nie są jeszcze ustawione w aplikacji produkcyjnej; baza zostanie podłączona przy back endzie.
+7. **ROZSTRZYGNIĘTE 2026-10-19: domena.** Produkcyjny adres MVP to `quiz.demokratia.pl` (subdomena działa bez zmian w DNS); `podrodze.demokratia.pl` odpada. **OTWARTE: warunki RODO i lokalizacja danych vh.pl** (źródło trzecie: Gdańsk/Gdynia), do potwierdzenia przed zapisem danych osobowych.
+8. **ODŁOŻONE 2026-10-19: auto-deploy po merge.** Decyzja użytkownika: na razie wdrożenie zostaje ręczne (`workflow_dispatch`). `ci_default_flow: auto-deploy-on-merge` w `tech-stack.md` jest więc chwilowo niezgodne z praktyką; wrócić do tematu po stabilizacji.
 
 ## Getting Started
 

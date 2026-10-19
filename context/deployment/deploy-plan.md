@@ -62,3 +62,11 @@ Odchylenia od planu:
 - Restart przez `tmp/restart.txt` nadal niepotwierdzony: uruchomić workflow bez zmian i sprawdzić, że `uptimeSeconds` spada do ~0.
 
 Otwarte: pomiar opóźnienia po bezczynności (`scripts/measure-latency.sh`, np. 10 żądań), baza MySQL z nowym losowym hasłem, auto-deploy po merge, domena `podrodze.demokratia.pl`, RODO.
+
+### Aktualizacja (2026-10-19, później)
+
+- Smoke check działa po przeniesieniu `VHPL_SITE_URL` do Variables środowiska `production` (wg użytkownika).
+- Hasło do bazy zostało zmienione (wg użytkownika); `DB_*` nie są jeszcze ustawione w aplikacji produkcyjnej.
+- Domena MVP: `quiz.demokratia.pl` (bez `podrodze.demokratia.pl`).
+- Auto-deploy po merge odłożony; wdrożenie zostaje ręczne.
+- Nadal otwarte: pomiar opóźnienia po bezczynności, RODO i lokalizacja danych, potwierdzenie restartu (`uptimeSeconds` ~0 po deployu bez zmian).

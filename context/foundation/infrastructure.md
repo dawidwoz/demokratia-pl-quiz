@@ -145,6 +145,23 @@ Plan i kryteria: `context/changes/vhpl-deploy-spike/spike-plan.md`; kod na gał�
 - **Limit żądań 429 `rate limited`** pojawił się po około 25 szybkich żądaniach z jednego adresu; źródło limitu nie zostało ustalone. W testach obciążeniowych i monitoringu odpytuj rzadko.
 - **Windows OpenSSH** odrzucał klucz skopiowany ręcznie (`Load key … Operation not supported on socket`); pomogło wygenerowanie nowego klucza w Git Bashu. Po wielu nieudanych próbach logowania serwer chwilowo zerwał połączenie (`Connection reset`), co wskazuje na ochronę przed próbami włamań.
 
+## First Production Deploy: quiz.demokratia.pl (2026-10-19)
+
+Workflow `.github/workflows/deploy-vhpl.yml` (środowisko `production`, ręczny `workflow_dispatch`), plan: `context/deployment/deploy-plan.md`. Wdrożono szkielet Angulara i `GET /api/health`. Źródło wyników: pomiar curl wykonany przez agenta po wdrożeniu, przebieg workflow zgłoszony przez użytkownika.
+
+| Sprawdzenie | Wynik |
+|---|---|
+| `/` | 200, `index.html` |
+| `/quiz/1` (głęboki link SPA) | 200 |
+| `/api/health` | 200, `{"status":"ok","node":"v24.21.0"}`, 0,08 s |
+| Restart po wdrożeniu (`uptimeSeconds` blisko 0 po deployu bez zmian) | niepotwierdzony osobno: po ponownym uruchomieniu workflow `uptimeSeconds` wyniosło 11 s |
+| Smoke check w workflow | pominięty mimo ustawionego `VHPL_SITE_URL`; do wyjaśnienia (zmienna musi być w Variables środowiska `production`, nie w Secrets) |
+
+Wnioski:
+- **Zielony workflow nie dowodzi, że API działa.** Kroki wdrożenia sprawdzają tylko istnienie katalogów i wynik rsync; stan aplikacji sprawdza dopiero smoke check. Bez ustawionej zmiennej `VHPL_SITE_URL` krok jest pomijany.
+- **Kolejność bramek: rejestracja aplikacji w cPanelu, potem wdrożenie, a po każdej zmianie rejestracji (Save, Destroy i ponowna rejestracja) trzeba uruchomić workflow jeszcze raz.** Obserwowane objawy: najpierw `/api/health` zwracało 404 z LiteSpeed (aplikacja niepodpięta pod `/api`), po poprawce rejestracji 503 (Passenger nie uruchamia aplikacji), a dopiero ponowne wdrożenie dało 200. Przyczyna 503 nie została zweryfikowana w `stderr.log`; hipoteza: pusty root aplikacji lub odtworzone środowisko po ponownej rejestracji.
+- Nowa subdomena `demokratia.pl` tworzona w cPanelu działa bez zmian w DNS (jak `spike.demokratia.pl`).
+
 ## Operational Story
 
 Dotyczy wybranej platformy (vh.pl). Pola oznaczone „do potwierdzenia" mają być zamknięte w Plan Mode deploy.

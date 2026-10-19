@@ -51,3 +51,14 @@ Wzorzec: przeniesienie sprawdzonego kodu ze `spike/` do stałych lokalizacji, be
 ## Wyzwalacze wycofania/plan B
 
 Jak w `infrastructure.md`: opóźnienie po bezczynności > 2 s bez obejścia, blokada SSH z GitHub Actions, niestabilność LVE, RODO. Awaryjny rollback: `rollback_to`, albo przywrócenie kopii 2×/dobę z panelu (człowiek).
+
+## Wynik wykonania (2026-10-19)
+
+Wdrożono na `https://quiz.demokratia.pl` z `main` (884d932) workflow `deploy-vhpl.yml`. Weryfikacja: `/` 200, `/quiz/1` 200, `/api/health` 200 (`node` v24.21.0, `uptimeSeconds` 11–12 po ponownym wdrożeniu).
+
+Odchylenia od planu:
+- Pierwszy przebieg workflow był zielony, ale `/api/health` zwracało 404 (LiteSpeed), po poprawie rejestracji aplikacji w cPanelu 503, a 200 dopiero po ponownym uruchomieniu workflow. Zielony status nie wystarcza; potrzebny jest smoke check.
+- Smoke check został pominięty mimo ustawionej `VHPL_SITE_URL` (przyczyna niewyjaśniona; sprawdzić, czy to zmienna w Variables środowiska `production`).
+- Restart przez `tmp/restart.txt` nadal niepotwierdzony: uruchomić workflow bez zmian i sprawdzić, że `uptimeSeconds` spada do ~0.
+
+Otwarte: pomiar opóźnienia po bezczynności (`scripts/measure-latency.sh`, np. 10 żądań), baza MySQL z nowym losowym hasłem, auto-deploy po merge, domena `podrodze.demokratia.pl`, RODO.

@@ -11,7 +11,7 @@ target_scale:
   data_volume: # TODO: target_scale.data_volume — see Open Questions
 timeline_budget:
   mvp_weeks: 5                 # szacunek użytkownika: 4–5 tygodni; zapisano górną granicę
-  hard_deadline: 2026-11-04    # termin 1 (cel MVP); fallback: 2026-12-06
+  hard_deadline: 2026-12-06    # cel MVP (decyzja użytkownika 2026-11-03); wcześniejszy termin 2026-11-04 uznany za nieosiągalny
   after_hours_only: true
 ---
 
@@ -128,7 +128,8 @@ Dwie role: **użytkownik** i **admin**.
 - Quiz jest dostępny **bez konta** (anonimowo).
 - **Konto jest potrzebne**, aby: zapisywać swoje wyniki, eksportować wyniki do obrazów oraz (opcjonalnie) porównywać się z innymi.
 - **Admin** zarządza pytaniami i stanowiskami partii ze wskazaniem źródła.
-- Niepodane (patrz Open Questions): sposób rejestracji/logowania, sposób nadawania roli admina, zasady prywatności porównań z innymi.
+- Rolę admina nadają inni administratorzy (decyzja użytkownika 2026-11-03).
+- Niepodane (patrz Open Questions): sposób rejestracji/logowania, sposób utworzenia pierwszego admina, zasady prywatności porównań z innymi.
 
 ## Non-Goals
 
@@ -141,13 +142,13 @@ Dwie role: **użytkownik** i **admin**.
 
 1. **Jakie są kryteria weryfikacji stanowisk partii z deklaracji (FR-010)?** — Niepodane; ryzyko subiektywności interpretacji deklaracji. Owner: user.
 2. **Jakie są kryteria doboru pytań i partii do quizu?** — Niepodane w danych wejściowych. Owner: user.
-3. **Jaki jest stan testów, dokumentacji i repozytoriów demokratia.pl?** — Nieznany; wiadomo tylko, że demokratia.pl nie ma mechanizmu logowania ani zakładania kont (konta z FR-001 są nową pracą, nie reuse). Owner: user.
-4. **Jak użytkownik zakłada konto / loguje się i jak nadawana jest rola admina?** — Niepodane. Owner: user.
+3. **Jaki jest stan testów, dokumentacji i repozytoriów demokratia.pl?** — Zamknięte 2026-11-03 jako nieistotne: projekt jest całkowicie niezależny od demokratia.pl (współdzieli tylko domenę wdrożenia). Konta z FR-001 to nowa praca, nie reuse. Owner: user.
+4. **Jak użytkownik zakłada konto / loguje się i jak nadawana jest rola admina?** — Częściowo rozstrzygnięte 2026-11-03: rolę admina nadają inni administratorzy. Otwarte pozostają: sposób rejestracji/logowania oraz sposób utworzenia pierwszego admina (bootstrap). Owner: user.
 5. **Jakie są zasady prywatności porównań z innymi (FR-007): kto i co widzi, czy wyniki są domyślnie prywatne?** — Niepodane; przy ~20 uczestnikach statystyki mają bardzo małą próbę (przy 100× tej skali zmieniłyby się tylko statystyki porównawcze, nie reguła domenowa). Owner: user.
 6. **Czy wagi ważności pytań (ustalane przez admina) wpływają na FR-007 (porównanie) i na neutralność wobec partii?** — Niepodane. Owner: user.
 7. **Jak prezentować wynik zgodności, by nie sugerować fałszywej precyzji (FR-003)?** — Z rundy Sokratesa; nierozstrzygnięte. Owner: user.
 8. **Jak weryfikować zapisany wynik po zmianie stanowisk partii (FR-005 bez FR-006)?** — Bez zapisanych odpowiedzi zapisany wynik nie jest weryfikowalny po zmianie stanowisk. Owner: user.
 9. **Jaki jest docelowy ruch (`target_scale.qps`) i wolumen danych (`target_scale.data_volume`)?** — Niepodane; znana tylko liczba użytkowników (min 5, średnio 20, max 50). Owner: user.
-10. **Czy harmonogram jest realny?** — Szacunek 4–5 tygodni (zapisano `mvp_weeks: 5`) przy ok. 4,5 tygodnia do 2026-11-04 (fallback 2026-12-06): brak zapasu. Potwierdzenie z 2026-10-03: „4-week MVP requires sustained dedication; user accepted”, wydane przed ustaleniem, że konta to nowa praca. Owner: user. By: 2026-11-04.
-11. **Czy moment użycia persony jest poprawny?** — „Okres wyborczy, gdy musi zdecydować, na kogo głosować” wyprowadzono z wybranej persony; użytkownik nie opisał momentu osobno. Owner: user.
+10. **Czy harmonogram jest realny?** — Rozstrzygnięte 2026-11-03: użytkownik uznał termin 2026-11-04 za nieosiągalny; celem MVP jest 2026-12-06. Konta są opcjonalne dla użytkownika końcowego, a observability to nice-to-have, jeśli starczy czasu. Wcześniejsze potwierdzenie z 2026-10-03 („4-week MVP requires sustained dedication; user accepted”) wydano przed ustaleniem, że konta to nowa praca. Owner: user.
+11. **Czy moment użycia persony jest poprawny?** — Rozstrzygnięte 2026-11-03: użytkownik potwierdził, że „okres wyborczy, gdy musi zdecydować, na kogo głosować” jest poprawny. Owner: user.
 12. **Jaki mierzalny cel ma kryterium Primary?** — Kryterium opisuje działający przepływ, bez liczbowego progu (np. liczba ukończonych quizów). Owner: user.

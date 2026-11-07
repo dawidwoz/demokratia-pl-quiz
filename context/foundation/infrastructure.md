@@ -18,7 +18,7 @@ tech_stack:
 
 Użytkownik wybrał vh.pl, choć Cloudflare wygrał macierz agent-friendly (24/24 surowo, 27 po wagach, wobec 12/24 i 17 dla vh.pl). Uzasadnienie: koszt marginalny około 0 zł (pakiet 49 zł netto/rok jest już opłacony), MySQL w cenie (preferencja ze stacka spełniona bez zmiany `tech-stack.md`), znajomość platformy, jeden region PL i krótki termin (MVP 2026-11-04). Spike potwierdził łańcuch: SSH kluczem z GitHub Actions, SPA z fallbackiem `.htaccess`, API Node 24 z zapisem i odczytem w MySQL, scrypt około 50 ms, rollback przez `rollback_to` (wg użytkownika). Cena: mniejsze wsparcie dla agenta (brak platformowego CLI, MCP i `llms.txt`) oraz ręczne bramki w cPanelu.
 
-**Zaakceptowane ryzyko:** opóźnienie po bezczynności nie zostało zmierzone. Zmierzyć w pierwszym tygodniu implementacji (`scripts/measure-latency.sh`, jedno żądanie na raz).
+**Zaakceptowane ryzyko (częściowo zamknięte 2026-11-07):** opóźnienie po bezczynności zostało zmierzone na `/api/health/db`: pierwsze żądanie 0,20 s, poniżej celu 2 s (sekcja „First Database Connection"). Zimny start procesu po zatrzymaniu aplikacji przez Passengera nie został zaobserwowany, więc pomiar warto powtórzyć przy realnym ruchu.
 
 **Wyzwalacze przejścia na plan B (Cloudflare):**
 1. pierwsze żądanie po bezczynności konsekwentnie > 2 s (cel PRD) i brak obejścia,
@@ -130,7 +130,7 @@ Plan i kryteria: `context/changes/vhpl-deploy-spike/spike-plan.md`; kod na gał�
 | 3 | API po HTTPS | Pass | `/api/health` 200, Node v24.21.0 |
 | 4 | MySQL z aplikacji | Pass | zapis i odczyt, wiersz id=2, dane z poprzedniego testu zachowane |
 | 5 | Pełna automatyzacja z restartem | Partial | workflow przechodzi bez klikania w cPanelu przy wdrożeniu; rejestracja aplikacji i konfiguracja URL to bramka ręczna, restart przez `tmp/restart.txt` nie został osobno potwierdzony |
-| 6 | Opóźnienie po bezczynności | Niezmierzone | pierwsze żądanie po starcie 0,7 s, kolejne 0,1–0,4 s; brak pomiaru po 30 min |
+| 6 | Opóźnienie po bezczynności | Niezmierzone w spike'u; zmierzone 2026-11-07 (Pass, częściowo) | w spike'u: pierwsze żądanie po starcie 0,7 s, kolejne 0,1–0,4 s, brak pomiaru po 30 min. 2026-11-07 na `/api/health/db`: pierwsze żądanie 0,20 s, p50 0,08 s; szczegóły i ograniczenia w „First Database Connection" |
 | 7 | scrypt | Pass | 49–59 ms (cel < 500 ms) |
 | 8 | Rollback | Pass (wg użytkownika) | przez `rollback_to`: przebudowa i wdrożenie wskazanego commita; czas nie podany, cel < 5 min |
 | 9 | Sekrety poza repo | Pass | `DB_*` w cPanelu, klucz SSH i ścieżki w GitHub Secrets |
@@ -154,13 +154,32 @@ Workflow `.github/workflows/deploy-vhpl.yml` (środowisko `production`, ręczny 
 | `/` | 200, `index.html` |
 | `/quiz/1` (głęboki link SPA) | 200 |
 | `/api/health` | 200, `{"status":"ok","node":"v24.21.0"}`, 0,08 s |
-| Restart po wdrożeniu (`uptimeSeconds` blisko 0 po deployu bez zmian) | niepotwierdzony osobno: po ponownym uruchomieniu workflow `uptimeSeconds` wyniosło 11 s |
+| Restart po wdrożeniu (`uptimeSeconds` blisko 0 po deployu bez zmian) | niepotwierdzony osobno w tym wdrożeniu (po ponownym uruchomieniu workflow `uptimeSeconds` wyniosło 11 s); potwierdzony 2026-11-07, patrz „First Database Connection" |
 | Smoke check w workflow | początkowo pominięty mimo ustawionego `VHPL_SITE_URL`; po poprawce (zmienna w Variables środowiska `production`, nie w Secrets) działa, wg użytkownika |
 
 Wnioski:
 - **Zielony workflow nie dowodzi, że API działa.** Kroki wdrożenia sprawdzają tylko istnienie katalogów i wynik rsync; stan aplikacji sprawdza dopiero smoke check. Bez ustawionej zmiennej `VHPL_SITE_URL` krok jest pomijany.
 - **Kolejność bramek: rejestracja aplikacji w cPanelu, potem wdrożenie, a po każdej zmianie rejestracji (Save, Destroy i ponowna rejestracja) trzeba uruchomić workflow jeszcze raz.** Obserwowane objawy: najpierw `/api/health` zwracało 404 z LiteSpeed (aplikacja niepodpięta pod `/api`), po poprawce rejestracji 503 (Passenger nie uruchamia aplikacji), a dopiero ponowne wdrożenie dało 200. Przyczyna 503 nie została zweryfikowana w `stderr.log`; hipoteza: pusty root aplikacji lub odtworzone środowisko po ponownej rejestracji.
 - Nowa subdomena `demokratia.pl` tworzona w cPanelu działa bez zmian w DNS (jak `spike.demokratia.pl`).
+
+## First Database Connection: quiz.demokratia.pl (2026-11-07)
+
+Zmiana `context/changes/f-01/` (roadmap F-01), PR #1 (squash 33fd61d). Źródło wyników: przebiegi workflow odczytane przez `gh run view`, pomiary curl i `scripts/measure-latency.sh` zgłoszone przez użytkownika.
+
+| Sprawdzenie | Wynik |
+|---|---|
+| Serwer bazy | MariaDB 11.4.13, `wait_timeout` 600 s (wg użytkownika) |
+| `DB_*` z cPanela w nieinteraktywnej sesji SSH po `source …/activate` | niewidoczne (gałąź B, wg użytkownika); migracje dostają dane z sekretów `VHPL_DB_*` |
+| `0001_baseline.sql` na produkcji | zastosowana (przebieg 42373828851, log: `applied 0001_baseline.sql`) |
+| Ponowne wdrożenie bez zmian | `no pending migrations` (przebieg 42375633345) |
+| `/api/health/db` | 200, `{"status":"ok","db":"up"}` (smoke check i ręcznie) |
+| Restart po wdrożeniu | potwierdzony: `uptimeSeconds` 0 w smoke checku przebiegu 42375633345, 180 s w ręcznym odczycie ok. 3 min później |
+| Opóźnienie: `measure-latency.sh https://quiz.demokratia.pl 10 /api/health/db` | żądanie 1: 0,197 s; p50 0,080 s; p95 0,197 s; max 0,197 s; n=10; bezczynność ≥ 30 min wg użytkownika (nie weryfikowana niezależnie) |
+
+Wnioski:
+- Pierwsze żądanie (0,20 s) mieści się z dużym zapasem w celu PRD (< 2 s); wyzwalacz planu B nr 1 nie zachodzi.
+- **Ograniczenie pomiaru:** odczyt `uptimeSeconds` 20223 s o 18:47 UTC pokazuje, że proces działał nieprzerwanie od wdrożenia (ok. 13:10 UTC), czyli Passenger nie zatrzymał aplikacji. Żądanie 1 obejmowało więc nowe połączenie z bazą (pula zamyka bezczynne połączenia po 60 s), ale nie zimny start procesu. Zimny start pozostaje niezmierzony.
+- Rollback do commitów sprzed F-01 działa: workflow pomija synchronizację i krok migracji, gdy brak `api/migrations/`, oraz DB smoke check, gdy brak `api/db.js` (nie wykonano próby rollbacku).
 
 ## Operational Story
 
@@ -199,12 +218,12 @@ Zakres badania nie objął wszystkich osi; pola oznaczone „do weryfikacji" mia
 | Status GA: Hyperdrive MySQL (nieoficjalnie), MCP Cloudflare (bez etykiety), `tls` częściowo; sprawdzone 2026-10-18 | Research finding | M | M | Ponowna weryfikacja przed produkcją |
 | Vercel: licencja Hobby niekomercyjna, Instant Rollback w beta | Research finding | L | M | Dotyczy tylko wyboru Vercel; sprawdzić warunki przed wdrożeniem |
 | vh.pl: brak rollbacku platformowego, stagingu i CLI; wdrożenie przez SSH/rsync | Research finding | H | M | Rollback przez `rollback_to` (przebudowa, w spike'u działa); układ z dowiązaniem `current` odrzucony, bo nie działa z cPanelowym Node selectorem; staging na osobnej subdomenie |
-| vh.pl: Node.js działa (spike), ale restart przez `tmp/restart.txt` nie został osobno potwierdzony, a limity LVE/300 procesów nie były mierzone pod obciążeniem | Research finding | L | M | Potwierdzić restart po kolejnym wdrożeniu (`uptimeSeconds` w `/api/health`); obserwować limity zasobów |
+| vh.pl: Node.js działa (spike); restart przez `tmp/restart.txt` potwierdzony 2026-11-07 (`uptimeSeconds` 0 po wdrożeniu bez zmian); limity LVE/300 procesów nie były mierzone pod obciążeniem | Research finding | L | M | Obserwować limity zasobów; restart potwierdzony |
 | vh.pl: dokumentacja bez `llms.txt` i bez MCP | Research finding | H | L | Zapisać potrzebne kroki w `AGENTS.md`/`lessons.md` zamiast polegać na dokumentacji |
 | vh.pl: konfiguracja aplikacji Node, zmienne i restart tylko w panelu, bez CLI/API (potwierdzone w spike'u: rejestracja aplikacji i URL to ręczna bramka) | Devil's advocate | H | M | Opisać kroki ręczne jako bramki człowieka w planie wdrożenia; jednorazowo przy tworzeniu aplikacji |
 | vh.pl: hasło do bazy jawnym tekstem w `<docroot>/api/.htaccess` i łatwo je ujawnić przy wklejaniu | Research finding | M | H | Nigdy nie kopiować tego pliku do repo ani czatu; wypisywać z filtrem `sed`; rotacja hasła po ujawnieniu |
 | vh.pl: ochrona przed próbami logowania SSH i limit żądań (429) mogą zablokować IP | Research finding | M | M | Nie ponawiać nieudanych logowań; rzadkie odpytywanie; zapisać procedurę odblokowania przez wsparcie vh.pl |
-| vh.pl: opóźnienie po bezczynności NIEZMIERZONE, ryzyko zaakceptowane przez użytkownika bez pomiaru (Passenger może usypiać aplikację; pierwsze żądanie po starcie trwało 0,7 s) | Devil's advocate | M | M | Zmierzyć w pierwszym tygodniu implementacji (`scripts/measure-latency.sh`); próg planu B: pierwsze żądanie po bezczynności > 2 s bez obejścia |
+| vh.pl: opóźnienie po bezczynności: zmierzone 2026-11-07, pierwsze żądanie na `/api/health/db` 0,20 s (< 2 s); zimny start po zatrzymaniu procesu przez Passengera nie zaobserwowany (proces działał nieprzerwanie od wdrożenia, ok. 5,6 h) | Devil's advocate | L | M | Powtórzyć pomiar przy realnym ruchu (np. w S-01) `scripts/measure-latency.sh <url> 10 /api/health/db`; próg planu B: pierwsze żądanie po bezczynności > 2 s bez obejścia |
 | vh.pl: moduły natywne (np. bcrypt) mogą się nie zbudować na hostingu | Devil's advocate | L | M | Używać wbudowanego `crypto.scrypt` (49–59 ms w spike'u) i bibliotek bez kompilacji |
 | vh.pl: wdrożenie SSH z klucza w GitHub Actions i blokady IP po nieudanych logowaniach | Devil's advocate | L | H | W spike'u działa; dedykowany klucz bez hasła, pinowany `known_hosts`, nie ponawiać nieudanych logowań; plan B: SFTP i ręczny restart |
 | vh.pl: aplikacja Node pod Passengerem i port (`app.listen`) | Unknown unknowns | L | L | Zweryfikowane w spike'u: `process.env.PORT \|\| 3000` działa pod Passengerem |
@@ -213,11 +232,11 @@ Zakres badania nie objął wszystkich osi; pola oznaczone „do weryfikacji" mia
 ## Open Decisions
 
 1. **Platforma: ROZSTRZYGNIĘTE 2026-10-18.** vh.pl Wizytówka, Cloudflare jako plan B (decyzja użytkownika, po spike'u). Wyzwalacze planu B: sekcja „Recommendation".
-2. **Baza danych: ROZSTRZYGNIĘTE.** MySQL na vh.pl, więc bez zmiany `tech-stack.md`. Wersja MySQL/MariaDB niezweryfikowana; sprawdzić przed użyciem funkcji zależnych od wersji.
+2. **Baza danych: ROZSTRZYGNIĘTE.** MySQL na vh.pl, więc bez zmiany `tech-stack.md`. Serwer to MariaDB 11.4.13 (`SELECT VERSION()`, 2026-11-07, wg użytkownika), `wait_timeout` 600 s; używać składni zgodnej z MariaDB.
 3. **Node.js na vh.pl: ROZSTRZYGNIĘTE.** „Setup Node.js App" jest dostępne (Node 24.21.0 działa), subdomeny nielimitowane.
 4. **Kompromis agent-friendly kontra koszt i znajomość: ROZSTRZYGNIĘTE przez użytkownika** na korzyść vh.pl, ze świadomością braku CLI, MCP i `llms.txt` oraz ręcznych bramek w cPanelu.
-5. **OTWARTE: pomiar opóźnienia po bezczynności** (kryterium 6). Zrobić w pierwszym tygodniu implementacji; wynik > 2 s bez obejścia uruchamia plan B.
-6. **ROZSTRZYGNIĘTE 2026-10-19: hasło do bazy.** Użytkownik potwierdził, że hasło do bazy zostało zmienione (testowa baza `vh19328_spike` miała hasło ujawnione w rozmowie). Zmienne `DB_*` nie są jeszcze ustawione w aplikacji produkcyjnej; baza zostanie podłączona przy back endzie.
+5. **ZAMKNIĘTE CZĘŚCIOWO 2026-11-07: pomiar opóźnienia po bezczynności** (kryterium 6). Pierwsze żądanie na `/api/health/db` trwało 0,20 s (< 2 s), więc wyzwalacz planu B nr 1 nie zachodzi. Nie zaobserwowano zimnego startu procesu po zatrzymaniu przez Passengera; powtórzyć przy realnym ruchu (wynik > 2 s bez obejścia uruchamia plan B).
+6. **ROZSTRZYGNIĘTE 2026-10-19: hasło do bazy.** Użytkownik potwierdził, że hasło do bazy zostało zmienione (testowa baza `vh19328_spike` miała hasło ujawnione w rozmowie). Od 2026-11-07 produkcyjna baza istnieje (nowe hasło), zmienne `DB_*` są ustawione w aplikacji produkcyjnej, a `/api/health/db` zwraca `"db":"up"` (zmiana `context/changes/f-01/`).
 7. **ROZSTRZYGNIĘTE 2026-10-19: domena.** Produkcyjny adres MVP to `quiz.demokratia.pl` (subdomena działa bez zmian w DNS); `podrodze.demokratia.pl` odpada. **OTWARTE: warunki RODO i lokalizacja danych vh.pl** (źródło trzecie: Gdańsk/Gdynia), do potwierdzenia przed zapisem danych osobowych.
 8. **ODŁOŻONE 2026-10-19: auto-deploy po merge.** Decyzja użytkownika: na razie wdrożenie zostaje ręczne (`workflow_dispatch`). `ci_default_flow: auto-deploy-on-merge` w `tech-stack.md` jest więc chwilowo niezgodne z praktyką; wrócić do tematu po stabilizacji.
 
@@ -236,6 +255,7 @@ Kroki sprawdzono w spike'u (2026-10-18) i przeniesiono do produkcyjnego workflow
 5. **Rollback:** uruchom ten sam workflow z `rollback_to` ustawionym na 40-znakowy SHA commita zawierającego `deploy/vhpl/` i `api/`; zostanie zbudowany i wdrożony od nowa.
 6. **Weryfikacja:** `/` i głęboki link (np. `/quiz/1`) zwracają 200 i aplikację, `/api/health` zwraca `{"status":"ok", "node":"v24…"}`, a `uptimeSeconds` po wdrożeniu jest bliskie 0.
 7. **Czego nie robić:** nie kopiuj `<docroot>/api/.htaccess` do repo ani czatu (zawiera hasło do bazy jawnym tekstem), nie odpytuj strony w pętli (po około 25 szybkich żądaniach pojawiło się 429), nie używaj `npm ci` na serwerze (kasuje `node_modules` linkowane przez cPanel).
+8. **Baza i migracje (od 2026-11-07, zmiana `f-01`):** człowiek tworzy bazę MariaDB i użytkownika w cPanelu (nazwy z prefiksem konta) i ustawia `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` w aplikacji Node. Zmienne cPanela nie są widoczne w nieinteraktywnej sesji SSH (gałąź B), więc migracje dostają te same wartości z sekretów środowiska `production`: `VHPL_DB_HOST`, `VHPL_DB_USER`, `VHPL_DB_PASSWORD`, `VHPL_DB_NAME` (workflow przesyła je w skrypcie na stdin, nigdy w argumentach). Workflow synchronizuje `api/migrations/` z `--delete` i uruchamia `node migrate.js` (pliki `NNNN_nazwa.sql`, rejestr w tabeli `schema_migrations`) przed restartem; nieudana migracja przerywa wdrożenie. Migracje muszą być wstecznie zgodne, bo rollback ich nie cofa; commity sprzed F-01 są wdrażane bez kroków migracji. Smoke check obejmuje `/api/health/db`. Lokalnie: `api/README.md`.
 
 **Plan B (Cloudflare):** na wypadek wyzwalaczy z sekcji „Recommendation". Użyj `wrangler deploy` (nie `wrangler pages deploy`), `[assets] directory` wskazujący `dist/z-kim-mi-po-drodze/browser` i `not_found_handling = "single-page-application"`, a dla API `run_worker_first = ["/api/*"]` (Wrangler ≥ 4.20.0). Te komendy nie były uruchamiane; sprawdź je w bieżącej dokumentacji, bo Wrangler nie jest w `devDependencies`, a lokalny Node to v25.9.0.
 

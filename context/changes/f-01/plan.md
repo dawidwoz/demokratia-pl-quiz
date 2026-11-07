@@ -344,25 +344,25 @@ There is no test runner until F-02, so this change adds none.
 
 #### Automated
 
-- [ ] 3.1 The latest deploy run on `main` succeeded: `gh run list --workflow deploy-vhpl.yml --limit 1 --json conclusion -q '.[0].conclusion'` prints `success`
-- [ ] 3.2 `curl -fsS https://quiz.demokratia.pl/api/health/db` returns a body containing `"db":"up"`
-- [ ] 3.3 `curl -fsS https://quiz.demokratia.pl/api/health` still returns `"status":"ok"`
+- [x] 3.1 The latest deploy run on `main` succeeded: `gh run list --workflow deploy-vhpl.yml --limit 1 --json conclusion -q '.[0].conclusion'` prints `success` — 30eac9b
+- [x] 3.2 `curl -fsS https://quiz.demokratia.pl/api/health/db` returns a body containing `"db":"up"` — 30eac9b
+- [x] 3.3 `curl -fsS https://quiz.demokratia.pl/api/health` still returns `"status":"ok"` — 30eac9b
 
 #### Manual
 
-- [ ] 3.4 The human dispatched the workflow from `main` and approved environment `production`; the "Apply database migrations" log shows `0001_baseline.sql` applied and no `DB_*` values
-- [ ] 3.5 A second dispatch with no new migration logs `no pending migrations`, and `/api/health` shows `uptimeSeconds` near 0 afterwards
-- [ ] 3.6 `<docroot>/api/.htaccess` still exists after the deploy (existence only; its content is not printed)
+- [x] 3.4 The human dispatched the workflow from `main` and approved environment `production`; the "Apply database migrations" log shows `0001_baseline.sql` applied and no `DB_*` values — 30eac9b
+- [x] 3.5 A second dispatch with no new migration logs `no pending migrations`, and `/api/health` shows `uptimeSeconds` near 0 afterwards — 30eac9b
+- [x] 3.6 `<docroot>/api/.htaccess` still exists after the deploy (existence only; its content is not printed) — 30eac9b
 
 ### Phase 4: Latency gate and documentation
 
 #### Automated
 
-- [ ] 4.1 The script parses: `bash -n scripts/measure-latency.sh`
-- [ ] 4.2 Running it without arguments exits non-zero and prints usage: `bash scripts/measure-latency.sh`
+- [x] 4.1 The script parses: `bash -n scripts/measure-latency.sh` — a41bd10
+- [x] 4.2 Running it without arguments exits non-zero and prints usage: `bash scripts/measure-latency.sh` — a41bd10
 
 #### Manual
 
-- [ ] 4.3 After at least 30 minutes without requests, the human ran about 10 requests against `/api/health/db` using the script, and the first-request time and p50/p95 are recorded in `infrastructure.md`
-- [ ] 4.4 `infrastructure.md` reflects the measurement, the DB version, the Phase 1 branch, the migration flow and the restart confirmation
-- [ ] 4.5 Roadmap F-01 Status is `done` in both places
+- [x] 4.3 After at least 30 minutes without requests, the human ran about 10 requests against `/api/health/db` using the script, and the first-request time and p50/p95 are recorded in `infrastructure.md` — a41bd10
+- [x] 4.4 `infrastructure.md` reflects the measurement, the DB version, the Phase 1 branch, the migration flow and the restart confirmation — a41bd10
+- [x] 4.5 Roadmap F-01 Status is `done` in both places — a41bd10

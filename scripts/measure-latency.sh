@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # Response time after idle (spike criterion 6). Run once after >= 30 min without requests.
-# Usage: scripts/measure-latency.sh https://test.example.pl [requests=20]
+# Usage: scripts/measure-latency.sh https://test.example.pl [requests=20] [path=/api/health]
+# Use path=/api/health/db to include the first database connection in the first request.
+# On vh.pl more than about 25 rapid requests from one address returned HTTP 429, so about 10 is enough.
 set -euo pipefail
 
-base_url="${1:?usage: measure-latency.sh <base-url> [requests]}"
+base_url="${1:?usage: measure-latency.sh <base-url> [requests] [path]}"
 requests="${2:-20}"
-url="${base_url%/}/api/health"
+path="${3:-/api/health}"
+url="${base_url%/}/${path#/}"
 
 times=()
 for i in $(seq 1 "$requests"); do

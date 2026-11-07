@@ -1,7 +1,7 @@
 ---
 change_id: f-01
 title: Production database connection (roadmap F-01)
-status: implementing
+status: implemented
 created: 2026-11-07
 updated: 2026-11-07
 archived_at: null

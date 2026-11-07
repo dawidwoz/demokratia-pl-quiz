@@ -3,7 +3,7 @@ project: "Z kim mi po drodze"
 version: 1
 status: draft
 created: 2026-11-03
-updated: 2026-11-03
+updated: 2026-11-07
 prd_version: 1
 main_goal: speed
 top_blocker: capacity
@@ -41,7 +41,7 @@ Wyborca szukający partii zgodnej ze swoimi poglądami nie ma dobrego sposobu, b
 
 | ID   | Change ID                       | Outcome (user can …)                                                         | Prerequisites                         | PRD refs                          | Status   |
 | ---- | ------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------- | --------------------------------- | -------- |
-| F-01 | production-database-connection  | (foundation) produkcyjne API łączy się z bazą, a zmiany schematu da się wdrażać | —                                     | NFR (działanie bez API Sejmu)     | ready    |
+| F-01 | production-database-connection  | (foundation) produkcyjne API łączy się z bazą, a zmiany schematu da się wdrażać | —                                     | NFR (działanie bez API Sejmu)     | done     |
 | F-02 | automated-test-baseline         | (foundation) testy automatyczne uruchamiają się jedną komendą                | —                                     | Business Logic                    | ready    |
 | S-01 | anonymous-quiz-result           | rozwiązać quiz bez konta i zobaczyć zgodność z każdą partią                  | F-01, F-02, seeded quiz content       | US-01, FR-002, FR-003, FR-004     | proposed |
 | S-02 | result-position-justification   | zobaczyć, dlaczego partia ma dane stanowisko (uzasadnienie, źródło, data)    | S-01                                  | FR-003, FR-004                    | proposed |
@@ -90,7 +90,7 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
   - Jak stosować zmiany schematu z workflow wdrożenia (tunel SSH do bazy z GitHub Actions nie był potwierdzony)? — Owner: user. Block: no.
   - Czy opóźnienie pierwszego żądania po bezczynności mieści się w celu < 2 s (niezmierzone; wyzwalacz planu B w `infrastructure.md`)? — Owner: user. Block: no.
 - **Risk:** Sekwencjonowane pierwsze, bo bez bazy żaden wycinek z danymi nie ruszy; ręczna bramka w panelu hostingu (utworzenie bazy i zmiennych `DB_*`) wymaga człowieka, więc zacząć od niej.
-- **Status:** ready
+- **Status:** done
 
 ### F-02: Podstawa testów automatycznych
 

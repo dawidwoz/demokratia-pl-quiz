@@ -358,11 +358,11 @@ There is no test runner until F-02, so this change adds none.
 
 #### Automated
 
-- [x] 4.1 The script parses: `bash -n scripts/measure-latency.sh`
-- [x] 4.2 Running it without arguments exits non-zero and prints usage: `bash scripts/measure-latency.sh`
+- [x] 4.1 The script parses: `bash -n scripts/measure-latency.sh` — a41bd10
+- [x] 4.2 Running it without arguments exits non-zero and prints usage: `bash scripts/measure-latency.sh` — a41bd10
 
 #### Manual
 
-- [x] 4.3 After at least 30 minutes without requests, the human ran about 10 requests against `/api/health/db` using the script, and the first-request time and p50/p95 are recorded in `infrastructure.md`
-- [x] 4.4 `infrastructure.md` reflects the measurement, the DB version, the Phase 1 branch, the migration flow and the restart confirmation
-- [x] 4.5 Roadmap F-01 Status is `done` in both places
+- [x] 4.3 After at least 30 minutes without requests, the human ran about 10 requests against `/api/health/db` using the script, and the first-request time and p50/p95 are recorded in `infrastructure.md` — a41bd10
+- [x] 4.4 `infrastructure.md` reflects the measurement, the DB version, the Phase 1 branch, the migration flow and the restart confirmation — a41bd10
+- [x] 4.5 Roadmap F-01 Status is `done` in both places — a41bd10

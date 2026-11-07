@@ -327,18 +327,18 @@ There is no test runner until F-02, so this change adds none.
 
 #### Automated
 
-- [x] 2.1 Syntax check passes: `node --check api/app.js && node --check api/db.js && node --check api/migrate.js`
-- [x] 2.2 Dependencies install without a native build and the lockfile lists `mysql2`: `cd api && npm install --omit=dev --no-audit --no-fund`
-- [x] 2.3 With no `DB_*` set, `node api/app.js` starts and `curl -fsS localhost:3000/api/health` returns `"status":"ok"`
-- [x] 2.4 With no `DB_*` set, `curl -s -o /dev/null -w '%{http_code}' localhost:3000/api/health/db` prints `503` and the body contains `"db":"down"` and no credential values
-- [x] 2.5 With no `DB_*` set, `node api/migrate.js` exits non-zero and prints only variable names
+- [x] 2.1 Syntax check passes: `node --check api/app.js && node --check api/db.js && node --check api/migrate.js` — 5b997ac
+- [x] 2.2 Dependencies install without a native build and the lockfile lists `mysql2`: `cd api && npm install --omit=dev --no-audit --no-fund` — 5b997ac
+- [x] 2.3 With no `DB_*` set, `node api/app.js` starts and `curl -fsS localhost:3000/api/health` returns `"status":"ok"` — 5b997ac
+- [x] 2.4 With no `DB_*` set, `curl -s -o /dev/null -w '%{http_code}' localhost:3000/api/health/db` prints `503` and the body contains `"db":"down"` and no credential values — 5b997ac
+- [x] 2.5 With no `DB_*` set, `node api/migrate.js` exits non-zero and prints only variable names — 5b997ac
 
 #### Manual
 
-- [x] 2.6 Against a local MySQL, `node migrate.js` applies `0001_baseline.sql`, records it in `schema_migrations`, and a second run prints `no pending migrations`
-- [x] 2.7 A deliberately failing migration file exits non-zero, is not recorded, and a later file is not applied (then remove the failing file)
-- [x] 2.8 A throwaway migration with one `CREATE TABLE` statement applies and is recorded (then remove the file and drop the table), proving DDL goes through the runner
-- [x] 2.9 With `DB_*` set to the local database, `/api/health/db` returns 200 with `"db":"up"`
+- [x] 2.6 Against a local MySQL, `node migrate.js` applies `0001_baseline.sql`, records it in `schema_migrations`, and a second run prints `no pending migrations` — 5b997ac
+- [x] 2.7 A deliberately failing migration file exits non-zero, is not recorded, and a later file is not applied (then remove the failing file) — 5b997ac
+- [x] 2.8 A throwaway migration with one `CREATE TABLE` statement applies and is recorded (then remove the file and drop the table), proving DDL goes through the runner — 5b997ac
+- [x] 2.9 With `DB_*` set to the local database, `/api/health/db` returns 200 with `"db":"up"` — 5b997ac
 
 ### Phase 3: Deploy integration and production verification
 

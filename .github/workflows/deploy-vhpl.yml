@@ -8,8 +8,16 @@
 #             VHPL_NODE_ACTIVATE  absolute path to that app's `bin/activate` (shown at the top of "Setup
 #                              Node.js App"; it is named after VHPL_API_DIR). A non-interactive SSH shell
 #                              has no `node`/`npm` on PATH without it.
+#             VHPL_DB_HOST, VHPL_DB_USER, VHPL_DB_PASSWORD, VHPL_DB_NAME  database credentials for the
+#                              migration step only (the DB_* set in cPanel are not visible to a
+#                              non-interactive SSH shell). They reach the host over stdin, never argv.
 #   variable  VHPL_SITE_URL, e.g. https://quiz.demokratia.pl. When set, the run ends with a smoke check of
-#             /api/health and a SPA deep link.
+#             /api/health, /api/health/db and a SPA deep link.
+#
+# Migrations: api/migrations/ is mirrored to the host (with --delete) and `node migrate.js` applies pending
+# files before the API restarts, so a schema change ships with a normal deploy. A failed migration fails the job.
+# A rollback target without api/migrations/ skips the migration steps, and one without api/db.js skips the DB
+# smoke check. Rollback never undoes applied migrations, so keep them backward-compatible.
 #
 # Why in place (no releases/ + current symlink): the cPanel Node selector records the RESOLVED path of the
 # app root and names its virtualenv after it, so a symlink that moves between releases leaves the app
@@ -57,13 +65,17 @@ jobs:
         env:
           VHPL_SSH_KEY: ${{ secrets.VHPL_SSH_KEY }}
           VHPL_KNOWN_HOSTS: ${{ secrets.VHPL_KNOWN_HOSTS }}
+          VHPL_DB_HOST: ${{ secrets.VHPL_DB_HOST }}
+          VHPL_DB_USER: ${{ secrets.VHPL_DB_USER }}
+          VHPL_DB_PASSWORD: ${{ secrets.VHPL_DB_PASSWORD }}
+          VHPL_DB_NAME: ${{ secrets.VHPL_DB_NAME }}
         run: |
           set -euo pipefail
           if [ -n "$ROLLBACK_TO" ] && ! [[ "$ROLLBACK_TO" =~ ^[0-9a-f]{40}$ ]]; then
             echo "rollback_to must be a 40-char commit SHA" >&2
             exit 1
           fi
-          for name in VHPL_HOST VHPL_USER VHPL_SSH_KEY VHPL_KNOWN_HOSTS VHPL_SPA_DIR VHPL_API_DIR VHPL_NODE_ACTIVATE; do
+          for name in VHPL_HOST VHPL_USER VHPL_SSH_KEY VHPL_KNOWN_HOSTS VHPL_SPA_DIR VHPL_API_DIR VHPL_NODE_ACTIVATE VHPL_DB_HOST VHPL_DB_USER VHPL_DB_PASSWORD VHPL_DB_NAME; do
             if [ -z "${!name:-}" ]; then
               echo "Missing secret: $name" >&2
               exit 1
@@ -144,6 +156,18 @@ jobs:
             --exclude /node_modules --exclude /tmp --exclude /stderr.log \
             api/ "vhpl:$VHPL_API_DIR/"
 
+      - name: Sync migrations folder
+        run: |
+          set -euo pipefail
+          # A rollback target from before migrations existed has no api/migrations/: nothing to sync.
+          if [ ! -d api/migrations ]; then
+            echo "api/migrations/ is absent in this commit; skipping the migrations sync"
+            exit 0
+          fi
+          # Exact mirror (--delete) of the migrations only, so a removed or renamed file does not linger
+          # on the host. The API sync above deliberately has no --delete.
+          rsync -azs --delete api/migrations/ "vhpl:$VHPL_API_DIR/migrations/"
+
       - name: Install API dependencies on the host
         run: |
           set -euo pipefail
@@ -157,6 +181,36 @@ jobs:
           cd "$1"
           npm install --omit=dev --no-audit --no-fund
           REMOTE
+
+      - name: Apply database migrations
+        env:
+          VHPL_DB_HOST: ${{ secrets.VHPL_DB_HOST }}
+          VHPL_DB_USER: ${{ secrets.VHPL_DB_USER }}
+          VHPL_DB_PASSWORD: ${{ secrets.VHPL_DB_PASSWORD }}
+          VHPL_DB_NAME: ${{ secrets.VHPL_DB_NAME }}
+        run: |
+          set -euo pipefail
+          # A rollback target from before migrations existed has nothing to apply.
+          if [ ! -d api/migrations ]; then
+            echo "api/migrations/ is absent in this commit; skipping migrations"
+            exit 0
+          fi
+          # No shell tracing here. The DB_* variables set in cPanel are not visible to a non-interactive SSH
+          # shell, so the credentials travel on stdin: one stream = `export DB_X=<%q-quoted value>` lines
+          # followed by the remote script. Nothing goes into argv, and nothing echoes the export lines.
+          {
+            for pair in DB_HOST:VHPL_DB_HOST DB_USER:VHPL_DB_USER DB_PASSWORD:VHPL_DB_PASSWORD DB_NAME:VHPL_DB_NAME; do
+              src=${pair#*:}
+              printf 'export %s=%q\n' "${pair%%:*}" "${!src}"
+            done
+            cat <<'REMOTE'
+          set -eo pipefail
+          source "$2"
+          set -u
+          cd "$1"
+          node migrate.js </dev/null
+          REMOTE
+          } | ssh vhpl bash -s -- "$VHPL_API_DIR" "$VHPL_NODE_ACTIVATE"
 
       - name: Restart API
         run: |
@@ -179,6 +233,14 @@ jobs:
           body=$(curl -fsS --max-time 30 --retry 5 --retry-delay 5 --retry-all-errors "${SITE_URL%/}/api/health")
           echo "$body"
           echo "$body" | grep -q '"status":"ok"'
+          # Commits from before the DB probe existed (rollback targets) have no /api/health/db.
+          if [ -f api/db.js ]; then
+            db_body=$(curl -fsS --max-time 30 --retry 5 --retry-delay 5 --retry-all-errors "${SITE_URL%/}/api/health/db")
+            echo "$db_body"
+            echo "$db_body" | grep -q '"db":"up"'
+          else
+            echo "api/db.js is absent in this commit; skipping the DB check"
+          fi
           code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "${SITE_URL%/}/quiz/1")
           echo "SPA deep link: HTTP $code"
           [ "$code" = "200" ]

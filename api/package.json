@@ -5,7 +5,10 @@
   "description": "Back-end API for Z kim mi po drodze, run by the cPanel Node.js App on vh.pl",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "migrate": "node migrate.js"
   },
-  "dependencies": {}
+  "dependencies": {
+    "mysql2": "^3.11.0"
+  }
 }

@@ -344,15 +344,15 @@ There is no test runner until F-02, so this change adds none.
 
 #### Automated
 
-- [ ] 3.1 The latest deploy run on `main` succeeded: `gh run list --workflow deploy-vhpl.yml --limit 1 --json conclusion -q '.[0].conclusion'` prints `success`
-- [ ] 3.2 `curl -fsS https://quiz.demokratia.pl/api/health/db` returns a body containing `"db":"up"`
-- [ ] 3.3 `curl -fsS https://quiz.demokratia.pl/api/health` still returns `"status":"ok"`
+- [x] 3.1 The latest deploy run on `main` succeeded: `gh run list --workflow deploy-vhpl.yml --limit 1 --json conclusion -q '.[0].conclusion'` prints `success`
+- [x] 3.2 `curl -fsS https://quiz.demokratia.pl/api/health/db` returns a body containing `"db":"up"`
+- [x] 3.3 `curl -fsS https://quiz.demokratia.pl/api/health` still returns `"status":"ok"`
 
 #### Manual
 
-- [ ] 3.4 The human dispatched the workflow from `main` and approved environment `production`; the "Apply database migrations" log shows `0001_baseline.sql` applied and no `DB_*` values
-- [ ] 3.5 A second dispatch with no new migration logs `no pending migrations`, and `/api/health` shows `uptimeSeconds` near 0 afterwards
-- [ ] 3.6 `<docroot>/api/.htaccess` still exists after the deploy (existence only; its content is not printed)
+- [x] 3.4 The human dispatched the workflow from `main` and approved environment `production`; the "Apply database migrations" log shows `0001_baseline.sql` applied and no `DB_*` values
+- [x] 3.5 A second dispatch with no new migration logs `no pending migrations`, and `/api/health` shows `uptimeSeconds` near 0 afterwards
+- [x] 3.6 `<docroot>/api/.htaccess` still exists after the deploy (existence only; its content is not printed)
 
 ### Phase 4: Latency gate and documentation
 

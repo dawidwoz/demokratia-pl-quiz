@@ -297,11 +297,11 @@ None. No data, schema or deploy changes.
 
 #### Automated
 
-- [x] 3.1 Workflow file exists: `.github/workflows/test.yml`
-- [x] 3.2 Full test command still passes after the doc edits: `npm test`
-- [x] 3.3 The stale note is gone: searching `CLAUDE.md` for "does not work" returns nothing
+- [x] 3.1 Workflow file exists: `.github/workflows/test.yml` — def0758
+- [x] 3.2 Full test command still passes after the doc edits: `npm test` — def0758
+- [x] 3.3 The stale note is gone: searching `CLAUDE.md` for "does not work" returns nothing — def0758
 
 #### Manual
 
-- [ ] 3.4 The test workflow runs and passes on the pull request for this change
-- [x] 3.5 `CLAUDE.md`, `README.md` and `api/README.md` read correctly and name the three commands
+- [x] 3.4 The test workflow runs and passes on the pull request for this change — def0758
+- [x] 3.5 `CLAUDE.md`, `README.md` and `api/README.md` read correctly and name the three commands — def0758

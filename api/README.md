@@ -28,6 +28,15 @@ curl http://localhost:3000/api/health/db
 
 `npm run migrate` is the same as `node migrate.js`.
 
+## Testing
+
+```bash
+cd api
+npm test             # node --test: runs every file in api/test/
+```
+
+Tests use the Node.js built-in runner (`node:test` with `node:assert/strict`), so there are no test dependencies to install. They need no database and no `DB_*` variables. From the repository root, `npm run test:api` runs the same thing and `npm test` runs it after the app tests.
+
 ## Migrations
 
 - Files live in `api/migrations/NNNN_name.sql` and are applied in ascending filename order. Applied names are stored in `schema_migrations`.

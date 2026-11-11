@@ -284,24 +284,24 @@ None. No data, schema or deploy changes.
 
 #### Automated
 
-- [x] 2.1 API tests pass: `npm run test:api`
-- [x] 2.2 Both sides pass with one command: `npm test`
-- [x] 2.3 API files still parse: `node --check api/db.js`
+- [x] 2.1 API tests pass: `npm run test:api` — b481fe0
+- [x] 2.2 Both sides pass with one command: `npm test` — b481fe0
+- [x] 2.3 API files still parse: `node --check api/db.js` — b481fe0
 
 #### Manual
 
-- [x] 2.4 Temporarily breaking one assertion in `api/test/db.test.js` makes `npm test` exit non-zero, and restoring it makes it pass again
-- [x] 2.5 `npm test` output shows the app run followed by the API run
+- [x] 2.4 Temporarily breaking one assertion in `api/test/db.test.js` makes `npm test` exit non-zero, and restoring it makes it pass again — b481fe0
+- [x] 2.5 `npm test` output shows the app run followed by the API run — b481fe0
 
 ### Phase 3: CI and docs
 
 #### Automated
 
-- [ ] 3.1 Workflow file exists: `.github/workflows/test.yml`
-- [ ] 3.2 Full test command still passes after the doc edits: `npm test`
-- [ ] 3.3 The stale note is gone: searching `CLAUDE.md` for "does not work" returns nothing
+- [x] 3.1 Workflow file exists: `.github/workflows/test.yml`
+- [x] 3.2 Full test command still passes after the doc edits: `npm test`
+- [x] 3.3 The stale note is gone: searching `CLAUDE.md` for "does not work" returns nothing
 
 #### Manual
 
 - [ ] 3.4 The test workflow runs and passes on the pull request for this change
-- [ ] 3.5 `CLAUDE.md`, `README.md` and `api/README.md` read correctly and name the three commands
+- [x] 3.5 `CLAUDE.md`, `README.md` and `api/README.md` read correctly and name the three commands

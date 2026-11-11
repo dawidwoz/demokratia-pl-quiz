@@ -18,11 +18,14 @@ The product intent lives in `context/foundation/` (written in Polish); read it b
 npm start                          # ng serve, http://localhost:4200
 npx ng generate component <name>   # schematics default to SCSS and skipTests: true
 npx prettier --write <files>       # no lint script; Prettier is the only formatter
+npm test                           # app tests, then api tests; fails if either fails
+npm run test:app                   # app only: ng test --no-watch (Vitest + jsdom)
+npm run test:api                   # api only: node --test, no database needed
 ```
 
 Other scripts (`build`, `watch`) are in `@package.json`.
 
-As of 2026-10-08, `npm test` / `ng test` does not work: `angular.json` has no `test` target, and Vitest (referenced by `tsconfig.spec.json` and the README) is not in `devDependencies`. Add the runner and a `test` target before relying on tests or running a single test, then delete this paragraph.
+App specs live next to the code as `src/**/*.spec.ts` (not `*.test.ts`, which would be compiled into the app build). API tests live in `api/test/*.test.js` and use `node:test` with `node:assert/strict`. `.github/workflows/test.yml` runs `npm test` on pull requests and pushes to `main`.
 
 ## Known issues
 

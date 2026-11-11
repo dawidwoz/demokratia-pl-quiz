@@ -38,11 +38,20 @@ This will compile your project and store the build artifacts in the `dist/` dire
 
 ## Running unit tests
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+To run all automated tests, the app tests followed by the API tests, use the following command:
 
 ```bash
-ng test
+npm test
 ```
+
+Each side can also be run alone:
+
+```bash
+npm run test:app   # Angular app, with the Vitest test runner (single run, no watch)
+npm run test:api   # API in api/, with the Node.js built-in test runner
+```
+
+App specs are `src/**/*.spec.ts`; API tests are `api/test/*.test.js`. The same `npm test` command runs on GitHub for every pull request and push to `main`.
 
 ## Running end-to-end tests
 

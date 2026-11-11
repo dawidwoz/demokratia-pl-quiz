@@ -6,7 +6,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "migrate": "node migrate.js"
+    "migrate": "node migrate.js",
+    "test": "node --test"
   },
   "dependencies": {
     "mysql2": "^3.11.0"

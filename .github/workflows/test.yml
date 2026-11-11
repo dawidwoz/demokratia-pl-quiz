@@ -1,0 +1,41 @@
+# Runs the automated tests (`npm test`: app tests, then api tests) on every pull request and on pushes
+# to main. Independent of the deploy workflow: a failing run here does not block a manual deploy.
+#
+# Node 24 is the version the vh.pl host runs the API on.
+
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            api/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          npm ci
+          npm ci --prefix api
+
+      - name: Run tests
+        run: npm test

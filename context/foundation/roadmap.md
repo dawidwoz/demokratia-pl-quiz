@@ -1,9 +1,9 @@
 ---
 project: "Z kim mi po drodze"
 version: 1
-status: draft
+status: approved
 created: 2026-11-03
-updated: 2026-11-07
+updated: 2026-11-11
 prd_version: 1
 main_goal: speed
 top_blocker: capacity
@@ -42,7 +42,7 @@ Wyborca szukający partii zgodnej ze swoimi poglądami nie ma dobrego sposobu, b
 | ID   | Change ID                       | Outcome (user can …)                                                         | Prerequisites                         | PRD refs                          | Status   |
 | ---- | ------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------- | --------------------------------- | -------- |
 | F-01 | production-database-connection  | (foundation) produkcyjne API łączy się z bazą, a zmiany schematu da się wdrażać | —                                     | NFR (działanie bez API Sejmu)     | done     |
-| F-02 | automated-test-baseline         | (foundation) testy automatyczne uruchamiają się jedną komendą                | —                                     | Business Logic                    | ready    |
+| F-02 | automated-test-baseline         | (foundation) testy automatyczne uruchamiają się jedną komendą                | —                                     | Business Logic                    | done     |
 | S-01 | anonymous-quiz-result           | rozwiązać quiz bez konta i zobaczyć zgodność z każdą partią                  | F-01, F-02, seeded quiz content       | US-01, FR-002, FR-003, FR-004     | proposed |
 | S-02 | result-position-justification   | zobaczyć, dlaczego partia ma dane stanowisko (uzasadnienie, źródło, data)    | S-01                                  | FR-003, FR-004                    | proposed |
 | S-03 | account-registration-login      | założyć konto i się zalogować                                                | F-01                                  | FR-001                            | blocked  |
@@ -68,7 +68,7 @@ Pomoc nawigacyjna — grupuje elementy ze wspólnym łańcuchem Prerequisites. K
 
 Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone przez użytkownika z korektami). Foundations poniżej nie tworzą ponownie warstw oznaczonych jako present.
 
-- **Frontend:** partial — szkielet aplikacji (`src/app/`), `routes` puste, `app.html` to placeholder; runner testów nie działa (`ng test` bez celu w `angular.json`).
+- **Frontend:** partial — szkielet aplikacji (`src/app/`), `routes` puste, `app.html` to placeholder; testy uruchamia `npm test` (aplikacja: `ng test` z Vitest, API: `node --test`; F-02).
 - **Backend / API:** partial — `api/app.js` obsługuje tylko `GET /api/health`, bez zależności i bez dostępu do bazy.
 - **Data:** absent — baza relacyjna zadeklarowana w `tech-stack.md`, ale brak schematu, migracji i danych; zmienne `DB_*` nieustawione w produkcji.
 - **Auth:** absent — brak kodu kont. Użytkownik: konta są opcjonalne (quiz działa bez konta), więc auth jest zwykłym wycinkiem (S-03), nie fundamentem.
@@ -103,7 +103,7 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Wąski element umożliwiający: tylko tyle, by wzór dało się sprawdzać; bez niego neutralność wobec partii jest nieweryfikowalna, a quality jest drugim naciskiem tej mapy.
-- **Status:** ready
+- **Status:** done
 
 ## Slices
 
@@ -119,6 +119,7 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
   - Jak pokazać wynik, by nie sugerował fałszywej precyzji (PRD Open Question 7)? — Owner: user. Block: no.
   - Jakie pytania i partie wchodzą do pierwszego quizu i skąd pochodzą ich stanowiska (PRD Open Question 2)? — Owner: user. Block: no (wycinek można zaplanować na treści przykładowej; publikacja czeka na treść rzeczywistą — zob. Open Roadmap Questions).
 - **Risk:** Największy wycinek (nowy backend, dane, wzór), ale sekwencjonowany pierwszy, bo dowodzi kryterium Primary; ryzyko, że treść przykładowa zostanie, a nie rzeczywista.
+- **Decyzja (2026-11-11, planowanie F-02):** wzór zgodności powstaje w `api/` jako zwykły moduł CommonJS i jest testowany przez `node --test`.
 - **Status:** proposed
 
 ### S-02: Użytkownik widzi uzasadnienie stanowiska partii
@@ -216,8 +217,8 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
 
 | Roadmap ID | Change ID                      | Suggested issue title                                         | Ready for `/10x-plan` | Notes                                                        |
 | ---------- | ------------------------------ | ------------------------------------------------------------- | --------------------- | ------------------------------------------------------------ |
-| F-01       | production-database-connection | Połączyć produkcyjne API z bazą i ustalić wdrażanie schematu  | yes                   | Run `/10x-plan production-database-connection`               |
-| F-02       | automated-test-baseline        | Uruchomić testy automatyczne jedną komendą                    | yes                   | Run `/10x-plan automated-test-baseline`                      |
+| F-01       | production-database-connection | Połączyć produkcyjne API z bazą i ustalić wdrażanie schematu  | no (done)             | Zrealizowane w zmianie `f-01` (PR #1, #2)                    |
+| F-02       | automated-test-baseline        | Uruchomić testy automatyczne jedną komendą                    | no (done)             | Zrealizowane w zmianie `f-02` (PR #3)                        |
 | S-01       | anonymous-quiz-result          | Anonimowy quiz z wynikiem zgodności z partiami                | no                    | Czeka na F-01, F-02 i treść quizu                            |
 | S-02       | result-position-justification  | Uzasadnienie, źródło i data stanowiska partii przy wyniku     | no                    | Czeka na S-01                                                |
 | S-03       | account-registration-login     | Rejestracja i logowanie                                       | no                    | Zablokowane: RODO / lokalizacja danych vh.pl                 |

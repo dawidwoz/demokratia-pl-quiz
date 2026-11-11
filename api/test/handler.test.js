@@ -164,7 +164,10 @@ test('POST result: ties are ordered by name using the Polish locale', async () =
   const data = fakeData({
     async getScoringData() {
       return {
-        questions: [{ id: 1, weight: 1 }, { id: 2, weight: 1 }],
+        questions: [
+          { id: 1, weight: 1 },
+          { id: 2, weight: 1 },
+        ],
         parties: [
           { id: 1, name: 'Żółć', positions: { 1: 'za', 2: 'za' } },
           { id: 2, name: 'Zebra', positions: { 1: 'za', 2: 'za' } },
@@ -174,7 +177,10 @@ test('POST result: ties are ordered by name using the Polish locale', async () =
   });
   await withServer({ data }, async (base) => {
     const res = await post(base, '/api/quizzes/1/result', { answers: [answer(1, 'za')] });
-    assert.deepEqual((await res.json()).parties.map((p) => p.name), ['Zebra', 'Żółć']);
+    assert.deepEqual(
+      (await res.json()).parties.map((p) => p.name),
+      ['Zebra', 'Żółć'],
+    );
   });
 });
 
@@ -263,7 +269,10 @@ test('health endpoints keep working', async () => {
   await withServer({ data: fakeData() }, async (base) => {
     const health = await (await fetch(`${base}/api/health`)).json();
     assert.equal(health.status, 'ok');
-    assert.deepEqual(await (await fetch(`${base}/api/health/db`)).json(), { status: 'ok', db: 'up' });
+    assert.deepEqual(await (await fetch(`${base}/api/health/db`)).json(), {
+      status: 'ok',
+      db: 'up',
+    });
   });
   const failingPing = async () => {
     const error = new Error('boom');

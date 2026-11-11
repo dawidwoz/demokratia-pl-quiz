@@ -1,0 +1,132 @@
+@if (loadFailed()) {
+  <p class="notice error" role="alert">
+    Nie udało się wczytać quizu.
+    <button type="button" class="link" (click)="load()">Spróbuj ponownie</button>
+    <a routerLink="/">Wróć do listy</a>
+  </p>
+} @else if (quiz(); as quiz) {
+  @if (result(); as result) {
+    <section aria-labelledby="result-heading">
+      <h1 id="result-heading">Twój wynik</h1>
+      @if (quiz.isSample) {
+        <p class="notice">
+          To quiz przykładowy: partie i ich stanowiska są zmyślone i służą tylko do sprawdzenia
+          działania aplikacji.
+        </p>
+      }
+      <p class="lead">
+        Odpowiedziałeś na {{ result.answered }} z {{ result.total }} pytań. Wynik pokazuje, jak
+        często Twoje odpowiedzi zgadzały się ze stanowiskiem każdej partii, z uwzględnieniem wagi
+        pytań. To orientacyjna wskazówka, a nie rekomendacja.
+      </p>
+      <ol class="results">
+        @for (party of result.parties; track party.id) {
+          <li class="card">
+            <div class="row">
+              <strong>{{ party.name }}</strong>
+              @if (party.percent === null) {
+                <span class="value muted">brak danych</span>
+              } @else {
+                <span class="value">{{ party.percent }}%</span>
+              }
+            </div>
+            @if (party.percent !== null) {
+              <div
+                class="bar"
+                role="img"
+                [attr.aria-label]="party.name + ': ' + party.percent + '% zgodności'"
+              >
+                <span [style.width.%]="party.percent"></span>
+              </div>
+            }
+            <p class="meta">
+              @if (party.counted === 0) {
+                Partia nie ma stanowiska w żadnym z pytań, na które odpowiedziałeś.
+              } @else {
+                na podstawie {{ party.counted }} z {{ result.total }} pytań
+              }
+            </p>
+          </li>
+        }
+      </ol>
+      <div class="actions">
+        <button type="button" class="button" (click)="restart()">Rozwiąż jeszcze raz</button>
+        <a class="button" routerLink="/">Inne quizy</a>
+      </div>
+    </section>
+  } @else if (question(); as question) {
+    <section aria-labelledby="question-heading">
+      @if (quiz.isSample) {
+        <p class="notice">Quiz przykładowy: dane są zmyślone.</p>
+      }
+      <p class="meta" aria-live="polite">Pytanie {{ index() + 1 }} z {{ total() }}</p>
+      <h1 id="question-heading">{{ question.text }}</h1>
+      <p class="source">
+        Źródło:
+        @if (question.source.url) {
+          <a [href]="question.source.url" target="_blank" rel="noopener noreferrer">{{
+            question.source.label
+          }}</a>
+        } @else {
+          {{ question.source.label }}
+        }
+        @if (question.source.date) {
+          ({{ question.source.date | date: 'dd.MM.yyyy' }})
+        }
+      </p>
+
+      <div class="answers" role="group" aria-label="Twoja odpowiedź">
+        @for (option of options; track option) {
+          <button
+            type="button"
+            class="button"
+            [class.selected]="selected() === option"
+            [attr.aria-pressed]="selected() === option"
+            [attr.data-answer]="option"
+            (click)="choose(option)"
+          >
+            {{ labels[option] }}
+          </button>
+        }
+        <button type="button" class="button ghost" data-action="skip" (click)="skip()">
+          Pomiń
+        </button>
+      </div>
+
+      <div class="actions">
+        <button
+          type="button"
+          class="button"
+          data-action="back"
+          [disabled]="index() === 0"
+          (click)="back()"
+        >
+          Wstecz
+        </button>
+        @if (isLast()) {
+          <button
+            type="button"
+            class="button primary"
+            data-action="submit"
+            [disabled]="!canSubmit() || submitting()"
+            (click)="submit()"
+          >
+            Pokaż wynik
+          </button>
+        }
+      </div>
+
+      @if (isLast() && !canSubmit()) {
+        <p class="notice" data-testid="gate-hint">
+          Aby zobaczyć wynik, odpowiedz na co najmniej {{ quiz.minAnswered }} z {{ total() }} pytań
+          (masz {{ answeredCount() }}). Pomiń lub cofnij się i uzupełnij odpowiedzi.
+        </p>
+      }
+      @if (submitError(); as error) {
+        <p class="notice error" role="alert">{{ error }}</p>
+      }
+    </section>
+  }
+} @else {
+  <p>Ładowanie…</p>
+}

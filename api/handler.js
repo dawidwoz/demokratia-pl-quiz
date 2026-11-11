@@ -205,7 +205,8 @@ function createHandler({ data, ping }) {
       }
 
       const resultMatch = /^\/api\/quizzes\/(\d{1,9})\/result$/.exec(pathname);
-      if (req.method === 'POST' && resultMatch) return await postResult(req, res, Number(resultMatch[1]));
+      if (req.method === 'POST' && resultMatch)
+        return await postResult(req, res, Number(resultMatch[1]));
 
       return sendJson(res, 404, { status: 'not_found' });
     } catch (error) {

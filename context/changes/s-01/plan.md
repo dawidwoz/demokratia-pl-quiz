@@ -371,31 +371,31 @@ Add-only, re-runnable migrations; rollback redeploys older code against the newe
 
 #### Automated
 
-- [x] 3.1 API tests pass without a database: `npm run test:api`
-- [x] 3.2 Full suite passes: `npm test`
-- [x] 3.3 Handler module loads: `node -e "require('./api/handler')"` exits 0
+- [x] 3.1 API tests pass without a database: `npm run test:api` — 463bfba
+- [x] 3.2 Full suite passes: `npm test` — 463bfba
+- [x] 3.3 Handler module loads: `node -e "require('./api/handler')"` exits 0 — 463bfba
 
 #### Manual
 
-- [x] 3.4 curl list, get and POST (4 of 8 answers) return expected shapes; 3 answers returns 422
-- [x] 3.5 `/api/health` and `/api/health/db` behave as before
-- [x] 3.6 Browser preflight from `http://localhost:4200` succeeds with `CORS_ORIGIN` set and fails without it
+- [x] 3.4 curl list, get and POST (4 of 8 answers) return expected shapes; 3 answers returns 422 — 463bfba
+- [x] 3.5 `/api/health` and `/api/health/db` behave as before — 463bfba
+- [x] 3.6 Browser preflight from `http://localhost:4200` succeeds with `CORS_ORIGIN` set and fails without it — 463bfba
 
 ### Phase 4: Angular quiz flow
 
 #### Automated
 
-- [ ] 4.1 App specs pass: `npm run test:app`
-- [ ] 4.2 Full suite passes: `npm test`
-- [ ] 4.3 Production build succeeds within budgets: `npm run build`
-- [ ] 4.4 Formatting clean: `npx prettier --check src api`
+- [x] 4.1 App specs pass: `npm run test:app`
+- [x] 4.2 Full suite passes: `npm test`
+- [x] 4.3 Production build succeeds within budgets: `npm run build`
+- [x] 4.4 Formatting clean: `npx prettier --check src api`
 
 #### Manual
 
-- [ ] 4.5 Complete the sample quiz at phone width; result renders and "brak danych" appears for the sparse party
-- [ ] 4.6 Answering 3 of 8 disables the button with an explanation; 4 of 8 enables it
-- [ ] 4.7 Reload loses answers and DevTools shows nothing stored
-- [ ] 4.8 Source and date are visible on every question screen
+- [x] 4.5 Complete the sample quiz at phone width; result renders and "brak danych" appears for the sparse party
+- [x] 4.6 Answering 3 of 8 disables the button with an explanation; 4 of 8 enables it
+- [x] 4.7 Reload loses answers and DevTools shows nothing stored
+- [x] 4.8 Source and date are visible on every question screen
 
 ### Phase 5: Verification and docs
 

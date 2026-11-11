@@ -12,7 +12,12 @@ function rejects(body) {
 
 test('returns answers keyed by question id; skipped questions are absent', () => {
   const result = parseAnswers(
-    { answers: [{ questionId: 1, answer: 'za' }, { questionId: 3, answer: 'wstrzymuje' }] },
+    {
+      answers: [
+        { questionId: 1, answer: 'za' },
+        { questionId: 3, answer: 'wstrzymuje' },
+      ],
+    },
     ids,
   );
   assert.deepEqual(result, { 1: 'za', 3: 'wstrzymuje' });

@@ -358,28 +358,28 @@ Add-only, re-runnable migrations; rollback redeploys older code against the newe
 
 #### Automated
 
-- [x] 2.1 Migration files match the runner pattern and sort after baseline
-- [x] 2.2 API tests still pass: `npm run test:api`
+- [x] 2.1 Migration files match the runner pattern and sort after baseline — 56f7214
+- [x] 2.2 API tests still pass: `npm run test:api` — 56f7214
 
 #### Manual
 
-- [x] 2.3 On local MariaDB `node api/migrate.js` applies both migrations and a second run is a no-op
-- [x] 2.4 Sample quiz has at least 8 questions and every position row has a `source_date`
-- [x] 2.5 No table or column can hold user answers
+- [x] 2.3 On local MariaDB `node api/migrate.js` applies both migrations and a second run is a no-op — 56f7214
+- [x] 2.4 Sample quiz has at least 8 questions and every position row has a `source_date` — 56f7214
+- [x] 2.5 No table or column can hold user answers — 56f7214
 
 ### Phase 3: API endpoints
 
 #### Automated
 
-- [ ] 3.1 API tests pass without a database: `npm run test:api`
-- [ ] 3.2 Full suite passes: `npm test`
-- [ ] 3.3 Handler module loads: `node -e "require('./api/handler')"` exits 0
+- [x] 3.1 API tests pass without a database: `npm run test:api`
+- [x] 3.2 Full suite passes: `npm test`
+- [x] 3.3 Handler module loads: `node -e "require('./api/handler')"` exits 0
 
 #### Manual
 
-- [ ] 3.4 curl list, get and POST (4 of 8 answers) return expected shapes; 3 answers returns 422
-- [ ] 3.5 `/api/health` and `/api/health/db` behave as before
-- [ ] 3.6 Browser preflight from `http://localhost:4200` succeeds with `CORS_ORIGIN` set and fails without it
+- [x] 3.4 curl list, get and POST (4 of 8 answers) return expected shapes; 3 answers returns 422
+- [x] 3.5 `/api/health` and `/api/health/db` behave as before
+- [x] 3.6 Browser preflight from `http://localhost:4200` succeeds with `CORS_ORIGIN` set and fails without it
 
 ### Phase 4: Angular quiz flow
 

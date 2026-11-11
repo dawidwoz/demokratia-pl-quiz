@@ -244,3 +244,12 @@ jobs:
           code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "${SITE_URL%/}/quiz/1")
           echo "SPA deep link: HTTP $code"
           [ "$code" = "200" ]
+          # Commits from before the quiz API existed (rollback targets) have no api/quiz-data.js.
+          # GET only: the smoke test never posts answers.
+          if [ -f api/quiz-data.js ]; then
+            quizzes=$(curl -fsS --max-time 30 --retry 5 --retry-delay 5 --retry-all-errors "${SITE_URL%/}/api/quizzes")
+            echo "$quizzes" | cut -c1-200
+            echo "$quizzes" | grep -q '"id":'
+          else
+            echo "api/quiz-data.js is absent in this commit; skipping the quiz API check"
+          fi

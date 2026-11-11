@@ -121,6 +121,8 @@ Aplikacja liczy dla każdej partii ważoną zgodność między odpowiedziami uż
 
 **Wynik.** Zgodność z każdą partią z quizu: suma wag pytań ze zgodną odpowiedzią podzielona przez sumę wag pytań, na które użytkownik odpowiedział i dla których partia ma stanowisko. Zgodność pełna = ta sama odpowiedź (za / przeciw / wstrzymuję się); rozbieżność za↔wstrzymuję się liczy się jako 0,25 pełnej zgodności; za↔przeciw = 0. Pominięte pytania nie biorą udziału w wyniku. Jeśli użytkownik pominął więcej niż połowę pytań, wynik nie jest pokazywany (brak wyniku).
 
+**Doprecyzowania (S-01, 2026-11-11).** Odpowiedź „wstrzymuję się” liczy się jako odpowiedź (nie jako pominięcie); wynik wymaga co najmniej połowy odpowiedzi (dla 8 pytań: 4, dla 9: 5). Rozbieżność przeciw↔wstrzymuję się liczy się, symetrycznie do za↔wstrzymuję się, jako 0,25 pełnej zgodności. Partia, która nie ma stanowiska w żadnym z pytań, na które użytkownik odpowiedział, nie dostaje liczby: pokazujemy „brak danych”, a nie 0%. Wynik pokazujemy jako zaokrąglony do całości procent (połowa w górę) wraz z liczbą pytań, na której się opiera („na podstawie k z M pytań”), co częściowo odpowiada na pytanie otwarte 7.
+
 ## Access Control
 
 Dwie role: **użytkownik** i **admin**.

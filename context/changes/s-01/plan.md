@@ -385,24 +385,24 @@ Add-only, re-runnable migrations; rollback redeploys older code against the newe
 
 #### Automated
 
-- [x] 4.1 App specs pass: `npm run test:app`
-- [x] 4.2 Full suite passes: `npm test`
-- [x] 4.3 Production build succeeds within budgets: `npm run build`
-- [x] 4.4 Formatting clean: `npx prettier --check src api`
+- [x] 4.1 App specs pass: `npm run test:app` — 8e3850d
+- [x] 4.2 Full suite passes: `npm test` — 8e3850d
+- [x] 4.3 Production build succeeds within budgets: `npm run build` — 8e3850d
+- [x] 4.4 Formatting clean: `npx prettier --check src api` — 8e3850d
 
 #### Manual
 
-- [x] 4.5 Complete the sample quiz at phone width; result renders and "brak danych" appears for the sparse party
-- [x] 4.6 Answering 3 of 8 disables the button with an explanation; 4 of 8 enables it
-- [x] 4.7 Reload loses answers and DevTools shows nothing stored
-- [x] 4.8 Source and date are visible on every question screen
+- [x] 4.5 Complete the sample quiz at phone width; result renders and "brak danych" appears for the sparse party — 8e3850d
+- [x] 4.6 Answering 3 of 8 disables the button with an explanation; 4 of 8 enables it — 8e3850d
+- [x] 4.7 Reload loses answers and DevTools shows nothing stored — 8e3850d
+- [x] 4.8 Source and date are visible on every question screen — 8e3850d
 
 ### Phase 5: Verification and docs
 
 #### Automated
 
-- [ ] 5.1 Full suite passes: `npm test`
-- [ ] 5.2 Workflow file still parses and the new smoke check is guarded for older commits
+- [x] 5.1 Full suite passes: `npm test`
+- [x] 5.2 Workflow file still parses and the new smoke check is guarded for older commits
 
 #### Manual
 

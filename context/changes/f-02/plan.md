@@ -272,26 +272,26 @@ None. No data, schema or deploy changes.
 
 #### Automated
 
-- [x] 1.1 App tests pass and the command exits: `npm run test:app`
-- [x] 1.2 Production build still succeeds: `npm run build`
-- [x] 1.3 The spec file exists: `src/app/app.spec.ts`
+- [x] 1.1 App tests pass and the command exits: `npm run test:app` — c65d77c
+- [x] 1.2 Production build still succeeds: `npm run build` — c65d77c
+- [x] 1.3 The spec file exists: `src/app/app.spec.ts` — c65d77c
 
 #### Manual
 
-- [x] 1.4 `npm run test:app` returns to the prompt in an interactive terminal without entering watch mode
+- [x] 1.4 `npm run test:app` returns to the prompt in an interactive terminal without entering watch mode — c65d77c
 
 ### Phase 2: API tests and the single command
 
 #### Automated
 
-- [ ] 2.1 API tests pass: `npm run test:api`
-- [ ] 2.2 Both sides pass with one command: `npm test`
-- [ ] 2.3 API files still parse: `node --check api/db.js`
+- [x] 2.1 API tests pass: `npm run test:api`
+- [x] 2.2 Both sides pass with one command: `npm test`
+- [x] 2.3 API files still parse: `node --check api/db.js`
 
 #### Manual
 
-- [ ] 2.4 Temporarily breaking one assertion in `api/test/db.test.js` makes `npm test` exit non-zero, and restoring it makes it pass again
-- [ ] 2.5 `npm test` output shows the app run followed by the API run
+- [x] 2.4 Temporarily breaking one assertion in `api/test/db.test.js` makes `npm test` exit non-zero, and restoring it makes it pass again
+- [x] 2.5 `npm test` output shows the app run followed by the API run
 
 ### Phase 3: CI and docs
 

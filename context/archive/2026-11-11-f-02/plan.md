@@ -272,36 +272,36 @@ None. No data, schema or deploy changes.
 
 #### Automated
 
-- [x] 1.1 App tests pass and the command exits: `npm run test:app` — c65d77c
-- [x] 1.2 Production build still succeeds: `npm run build` — c65d77c
-- [x] 1.3 The spec file exists: `src/app/app.spec.ts` — c65d77c
+- [x] 1.1 App tests pass and the command exits: `npm run test:app` — c804b6e
+- [x] 1.2 Production build still succeeds: `npm run build` — c804b6e
+- [x] 1.3 The spec file exists: `src/app/app.spec.ts` — c804b6e
 
 #### Manual
 
-- [x] 1.4 `npm run test:app` returns to the prompt in an interactive terminal without entering watch mode — c65d77c
+- [x] 1.4 `npm run test:app` returns to the prompt in an interactive terminal without entering watch mode — c804b6e
 
 ### Phase 2: API tests and the single command
 
 #### Automated
 
-- [x] 2.1 API tests pass: `npm run test:api` — b481fe0
-- [x] 2.2 Both sides pass with one command: `npm test` — b481fe0
-- [x] 2.3 API files still parse: `node --check api/db.js` — b481fe0
+- [x] 2.1 API tests pass: `npm run test:api` — c804b6e
+- [x] 2.2 Both sides pass with one command: `npm test` — c804b6e
+- [x] 2.3 API files still parse: `node --check api/db.js` — c804b6e
 
 #### Manual
 
-- [x] 2.4 Temporarily breaking one assertion in `api/test/db.test.js` makes `npm test` exit non-zero, and restoring it makes it pass again — b481fe0
-- [x] 2.5 `npm test` output shows the app run followed by the API run — b481fe0
+- [x] 2.4 Temporarily breaking one assertion in `api/test/db.test.js` makes `npm test` exit non-zero, and restoring it makes it pass again — c804b6e
+- [x] 2.5 `npm test` output shows the app run followed by the API run — c804b6e
 
 ### Phase 3: CI and docs
 
 #### Automated
 
-- [x] 3.1 Workflow file exists: `.github/workflows/test.yml` — def0758
-- [x] 3.2 Full test command still passes after the doc edits: `npm test` — def0758
-- [x] 3.3 The stale note is gone: searching `CLAUDE.md` for "does not work" returns nothing — def0758
+- [x] 3.1 Workflow file exists: `.github/workflows/test.yml` — c804b6e
+- [x] 3.2 Full test command still passes after the doc edits: `npm test` — c804b6e
+- [x] 3.3 The stale note is gone: searching `CLAUDE.md` for "does not work" returns nothing — c804b6e
 
 #### Manual
 
-- [x] 3.4 The test workflow runs and passes on the pull request for this change — def0758
-- [x] 3.5 `CLAUDE.md`, `README.md` and `api/README.md` read correctly and name the three commands — def0758
+- [x] 3.4 The test workflow runs and passes on the pull request for this change — c804b6e
+- [x] 3.5 `CLAUDE.md`, `README.md` and `api/README.md` read correctly and name the three commands — c804b6e

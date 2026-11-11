@@ -401,8 +401,8 @@ Add-only, re-runnable migrations; rollback redeploys older code against the newe
 
 #### Automated
 
-- [x] 5.1 Full suite passes: `npm test`
-- [x] 5.2 Workflow file still parses and the new smoke check is guarded for older commits
+- [x] 5.1 Full suite passes: `npm test` — 420ff08
+- [x] 5.2 Workflow file still parses and the new smoke check is guarded for older commits — 420ff08
 
 #### Manual
 

@@ -317,52 +317,52 @@ There is no test runner until F-02, so this change adds none.
 
 #### Manual
 
-- [x] 1.1 Production database and dedicated user exist in cPanel, created with a new random password that was not pasted into the repo or chat — 522e704
-- [x] 1.2 `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` are set on the `quiz.demokratia.pl/api` Node app, and the app has been re-saved or restarted — 522e704
-- [x] 1.3 The SSH visibility check was run and its result is recorded as branch A (all four `DB_*` names visible) or branch B (any name missing) — 522e704
-- [x] 1.4 MySQL or MariaDB flavour, version and `wait_timeout` are recorded — 522e704
-- [x] 1.5 Branch B only: the four `VHPL_DB_*` secrets exist in GitHub environment `production` (n/a under branch A) — 522e704
+- [x] 1.1 Production database and dedicated user exist in cPanel, created with a new random password that was not pasted into the repo or chat — 33fd61d
+- [x] 1.2 `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` are set on the `quiz.demokratia.pl/api` Node app, and the app has been re-saved or restarted — 33fd61d
+- [x] 1.3 The SSH visibility check was run and its result is recorded as branch A (all four `DB_*` names visible) or branch B (any name missing) — 33fd61d
+- [x] 1.4 MySQL or MariaDB flavour, version and `wait_timeout` are recorded — 33fd61d
+- [x] 1.5 Branch B only: the four `VHPL_DB_*` secrets exist in GitHub environment `production` (n/a under branch A) — 33fd61d
 
 ### Phase 2: DB layer, migration runner and `/api/health/db`
 
 #### Automated
 
-- [x] 2.1 Syntax check passes: `node --check api/app.js && node --check api/db.js && node --check api/migrate.js` — 5b997ac
-- [x] 2.2 Dependencies install without a native build and the lockfile lists `mysql2`: `cd api && npm install --omit=dev --no-audit --no-fund` — 5b997ac
-- [x] 2.3 With no `DB_*` set, `node api/app.js` starts and `curl -fsS localhost:3000/api/health` returns `"status":"ok"` — 5b997ac
-- [x] 2.4 With no `DB_*` set, `curl -s -o /dev/null -w '%{http_code}' localhost:3000/api/health/db` prints `503` and the body contains `"db":"down"` and no credential values — 5b997ac
-- [x] 2.5 With no `DB_*` set, `node api/migrate.js` exits non-zero and prints only variable names — 5b997ac
+- [x] 2.1 Syntax check passes: `node --check api/app.js && node --check api/db.js && node --check api/migrate.js` — 33fd61d
+- [x] 2.2 Dependencies install without a native build and the lockfile lists `mysql2`: `cd api && npm install --omit=dev --no-audit --no-fund` — 33fd61d
+- [x] 2.3 With no `DB_*` set, `node api/app.js` starts and `curl -fsS localhost:3000/api/health` returns `"status":"ok"` — 33fd61d
+- [x] 2.4 With no `DB_*` set, `curl -s -o /dev/null -w '%{http_code}' localhost:3000/api/health/db` prints `503` and the body contains `"db":"down"` and no credential values — 33fd61d
+- [x] 2.5 With no `DB_*` set, `node api/migrate.js` exits non-zero and prints only variable names — 33fd61d
 
 #### Manual
 
-- [x] 2.6 Against a local MySQL, `node migrate.js` applies `0001_baseline.sql`, records it in `schema_migrations`, and a second run prints `no pending migrations` — 5b997ac
-- [x] 2.7 A deliberately failing migration file exits non-zero, is not recorded, and a later file is not applied (then remove the failing file) — 5b997ac
-- [x] 2.8 A throwaway migration with one `CREATE TABLE` statement applies and is recorded (then remove the file and drop the table), proving DDL goes through the runner — 5b997ac
-- [x] 2.9 With `DB_*` set to the local database, `/api/health/db` returns 200 with `"db":"up"` — 5b997ac
+- [x] 2.6 Against a local MySQL, `node migrate.js` applies `0001_baseline.sql`, records it in `schema_migrations`, and a second run prints `no pending migrations` — 33fd61d
+- [x] 2.7 A deliberately failing migration file exits non-zero, is not recorded, and a later file is not applied (then remove the failing file) — 33fd61d
+- [x] 2.8 A throwaway migration with one `CREATE TABLE` statement applies and is recorded (then remove the file and drop the table), proving DDL goes through the runner — 33fd61d
+- [x] 2.9 With `DB_*` set to the local database, `/api/health/db` returns 200 with `"db":"up"` — 33fd61d
 
 ### Phase 3: Deploy integration and production verification
 
 #### Automated
 
-- [x] 3.1 The latest deploy run on `main` succeeded: `gh run list --workflow deploy-vhpl.yml --limit 1 --json conclusion -q '.[0].conclusion'` prints `success` — 30eac9b
-- [x] 3.2 `curl -fsS https://quiz.demokratia.pl/api/health/db` returns a body containing `"db":"up"` — 30eac9b
-- [x] 3.3 `curl -fsS https://quiz.demokratia.pl/api/health` still returns `"status":"ok"` — 30eac9b
+- [x] 3.1 The latest deploy run on `main` succeeded: `gh run list --workflow deploy-vhpl.yml --limit 1 --json conclusion -q '.[0].conclusion'` prints `success` — 17d9a1d
+- [x] 3.2 `curl -fsS https://quiz.demokratia.pl/api/health/db` returns a body containing `"db":"up"` — 17d9a1d
+- [x] 3.3 `curl -fsS https://quiz.demokratia.pl/api/health` still returns `"status":"ok"` — 17d9a1d
 
 #### Manual
 
-- [x] 3.4 The human dispatched the workflow from `main` and approved environment `production`; the "Apply database migrations" log shows `0001_baseline.sql` applied and no `DB_*` values — 30eac9b
-- [x] 3.5 A second dispatch with no new migration logs `no pending migrations`, and `/api/health` shows `uptimeSeconds` near 0 afterwards — 30eac9b
-- [x] 3.6 `<docroot>/api/.htaccess` still exists after the deploy (existence only; its content is not printed) — 30eac9b
+- [x] 3.4 The human dispatched the workflow from `main` and approved environment `production`; the "Apply database migrations" log shows `0001_baseline.sql` applied and no `DB_*` values — 17d9a1d
+- [x] 3.5 A second dispatch with no new migration logs `no pending migrations`, and `/api/health` shows `uptimeSeconds` near 0 afterwards — 17d9a1d
+- [x] 3.6 `<docroot>/api/.htaccess` still exists after the deploy (existence only; its content is not printed) — 17d9a1d
 
 ### Phase 4: Latency gate and documentation
 
 #### Automated
 
-- [x] 4.1 The script parses: `bash -n scripts/measure-latency.sh` — a41bd10
-- [x] 4.2 Running it without arguments exits non-zero and prints usage: `bash scripts/measure-latency.sh` — a41bd10
+- [x] 4.1 The script parses: `bash -n scripts/measure-latency.sh` — 17d9a1d
+- [x] 4.2 Running it without arguments exits non-zero and prints usage: `bash scripts/measure-latency.sh` — 17d9a1d
 
 #### Manual
 
-- [x] 4.3 After at least 30 minutes without requests, the human ran about 10 requests against `/api/health/db` using the script, and the first-request time and p50/p95 are recorded in `infrastructure.md` — a41bd10
-- [x] 4.4 `infrastructure.md` reflects the measurement, the DB version, the Phase 1 branch, the migration flow and the restart confirmation — a41bd10
-- [x] 4.5 Roadmap F-01 Status is `done` in both places — a41bd10
+- [x] 4.3 After at least 30 minutes without requests, the human ran about 10 requests against `/api/health/db` using the script, and the first-request time and p50/p95 are recorded in `infrastructure.md` — 17d9a1d
+- [x] 4.4 `infrastructure.md` reflects the measurement, the DB version, the Phase 1 branch, the migration flow and the restart confirmation — 17d9a1d
+- [x] 4.5 Roadmap F-01 Status is `done` in both places — 17d9a1d

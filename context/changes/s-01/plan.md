@@ -406,7 +406,7 @@ Add-only, re-runnable migrations; rollback redeploys older code against the newe
 
 #### Manual
 
-- [x] 5.3 After a `workflow_dispatch` deploy the smoke checks are green and the sample quiz works end to end on the real host
-- [x] 5.4 First request after idle is under 2 s and the value is recorded in `infrastructure.md`
-- [x] 5.5 No answer content appears in host `stderr.log` or access logs after a test run
-- [x] 5.6 PRD, roadmap, `api/README.md` and `CLAUDE.md` updated, including the sample-content caveat
+- [x] 5.3 After a `workflow_dispatch` deploy the smoke checks are green and the sample quiz works end to end on the real host — 65ac19c
+- [x] 5.4 First request after idle is under 2 s and the value is recorded in `infrastructure.md` — 65ac19c
+- [x] 5.5 No answer content appears in host `stderr.log` or access logs after a test run — 65ac19c
+- [x] 5.6 PRD, roadmap, `api/README.md` and `CLAUDE.md` updated, including the sample-content caveat — 65ac19c

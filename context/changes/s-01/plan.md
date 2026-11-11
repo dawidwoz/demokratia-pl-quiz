@@ -346,26 +346,26 @@ Add-only, re-runnable migrations; rollback redeploys older code against the newe
 
 #### Automated
 
-- [x] 1.1 API tests pass: `npm run test:api`
-- [x] 1.2 Full suite passes: `npm test`
-- [x] 1.3 Module has no dependencies: `grep -c "require(" api/scoring.js` returns 0
+- [x] 1.1 API tests pass: `npm run test:api` — a0b54d1
+- [x] 1.2 Full suite passes: `npm test` — a0b54d1
+- [x] 1.3 Module has no dependencies: `grep -c "require(" api/scoring.js` returns 0 — a0b54d1
 
 #### Manual
 
-- [x] 1.4 Hand-compute one 3-party PRD example and confirm it equals a test's expected value
+- [x] 1.4 Hand-compute one 3-party PRD example and confirm it equals a test's expected value — a0b54d1
 
 ### Phase 2: Schema and sample seed
 
 #### Automated
 
-- [ ] 2.1 Migration files match the runner pattern and sort after baseline
-- [ ] 2.2 API tests still pass: `npm run test:api`
+- [x] 2.1 Migration files match the runner pattern and sort after baseline
+- [x] 2.2 API tests still pass: `npm run test:api`
 
 #### Manual
 
-- [ ] 2.3 On local MariaDB `node api/migrate.js` applies both migrations and a second run is a no-op
-- [ ] 2.4 Sample quiz has at least 8 questions and every position row has a `source_date`
-- [ ] 2.5 No table or column can hold user answers
+- [x] 2.3 On local MariaDB `node api/migrate.js` applies both migrations and a second run is a no-op
+- [x] 2.4 Sample quiz has at least 8 questions and every position row has a `source_date`
+- [x] 2.5 No table or column can hold user answers
 
 ### Phase 3: API endpoints
 

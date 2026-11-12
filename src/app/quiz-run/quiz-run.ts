@@ -1,7 +1,17 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { QuizApi } from '../quiz-api';
 import { ANSWER_LABELS, Answer, Quiz, QuizResult } from '../quiz.models';
@@ -17,8 +27,10 @@ import { ANSWER_LABELS, Answer, Quiz, QuizResult } from '../quiz.models';
   templateUrl: './quiz-run.html',
   styleUrl: './quiz-run.scss',
 })
-export class QuizRun implements OnInit {
+export class QuizRun {
   private readonly api = inject(QuizApi);
+  private loading: Subscription | null = null;
+  private submitting$: Subscription | null = null;
 
   /** Route parameter `id` (bound via withComponentInputBinding). */
   readonly id = input.required<string>();
@@ -47,18 +59,36 @@ export class QuizRun implements OnInit {
     return question ? (this.answers()[question.id] ?? null) : null;
   });
 
-  ngOnInit(): void {
-    this.load();
+  constructor() {
+    // Angular reuses this component when only the route id changes (browser Back/Forward between two
+    // quizzes), so (re)load whenever `id` changes and drop everything that belonged to the old quiz.
+    effect(() => {
+      this.id();
+      untracked(() => this.load());
+    });
+    inject(DestroyRef).onDestroy(() => {
+      this.loading?.unsubscribe();
+      this.submitting$?.unsubscribe();
+    });
   }
 
   protected load(): void {
-    const id = Number(this.id());
+    this.loading?.unsubscribe();
+    this.submitting$?.unsubscribe();
+    this.quiz.set(null);
     this.loadFailed.set(false);
+    this.index.set(0);
+    this.answers.set({});
+    this.result.set(null);
+    this.submitting.set(false);
+    this.submitError.set(null);
+
+    const id = Number(this.id());
     if (!Number.isInteger(id) || id < 1) {
       this.loadFailed.set(true);
       return;
     }
-    this.api.getQuiz(id).subscribe({
+    this.loading = this.api.getQuiz(id).subscribe({
       next: (quiz) => this.quiz.set(quiz),
       error: () => this.loadFailed.set(true),
     });
@@ -96,7 +126,7 @@ export class QuizRun implements OnInit {
 
     this.submitting.set(true);
     this.submitError.set(null);
-    this.api.submitAnswers(quiz.id, payload).subscribe({
+    this.submitting$ = this.api.submitAnswers(quiz.id, payload).subscribe({
       next: (result) => {
         this.result.set(result);
         this.submitting.set(false);

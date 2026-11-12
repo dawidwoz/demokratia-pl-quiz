@@ -13,6 +13,10 @@ const quizData = require('./quiz-data');
 
 const server = http.createServer(createHandler({ data: quizData, ping }));
 
+// Bound slow or stalled clients: a whole request must arrive within 30 s (Node's default is 300 s).
+server.requestTimeout = 30000;
+server.headersTimeout = 15000;
+
 // Passenger supplies the port; 3000 is the local fallback.
 const port = process.env.PORT || 3000;
 server.listen(port, () => console.log(`api listening on ${port}`));

@@ -1,23 +1,24 @@
 -- SAMPLE CONTENT ONLY (S-01). Fictional parties and invented stances, flagged is_sample = 1.
 -- Replace with real, sourced content before any public launch (roadmap open question 13).
 -- No row means "party has no stance on this question" (e.g. a 50/50 club split).
--- Data statements only; INSERT IGNORE + a transaction keep a re-run after a failure harmless.
+-- Data statements only, plain INSERTs in one transaction: any error aborts the file and closing the
+-- connection rolls everything back (api/migrate.js records a file only after it succeeded).
 
 START TRANSACTION;
 
-INSERT IGNORE INTO quizzes (id, title, description, is_sample) VALUES
+INSERT INTO quizzes (id, title, description, is_sample) VALUES
   (1, 'Quiz przykładowy (dane przykładowe)',
    'Przykładowy quiz do sprawdzenia działania aplikacji. Partie i ich stanowiska są zmyślone.', 1);
 
-INSERT IGNORE INTO parties (id, name) VALUES
+INSERT INTO parties (id, name) VALUES
   (1, 'Partia Przykładowa A'),
   (2, 'Partia Przykładowa B'),
   (3, 'Partia Przykładowa C'),
   (4, 'Partia Przykładowa D');
 
-INSERT IGNORE INTO quiz_parties (quiz_id, party_id) VALUES (1, 1), (1, 2), (1, 3), (1, 4);
+INSERT INTO quiz_parties (quiz_id, party_id) VALUES (1, 1), (1, 2), (1, 3), (1, 4);
 
-INSERT IGNORE INTO questions (id, quiz_id, sort_order, text, weight, source_label, source_url, source_date) VALUES
+INSERT INTO questions (id, quiz_id, sort_order, text, weight, source_label, source_url, source_date) VALUES
   (1, 1, 1, 'Czy ustawa powinna wprowadzić czterodniowy tydzień pracy?', 2,
    'Dane przykładowe: projekt ustawy S-1', NULL, '2025-02-11'),
   (2, 1, 2, 'Czy ceny biletów komunikacji miejskiej powinny być obniżone kosztem budżetu państwa?', 1,
@@ -37,7 +38,7 @@ INSERT IGNORE INTO questions (id, quiz_id, sort_order, text, weight, source_labe
 
 -- Party A: stance on all 8. Party B: all 8. Party C: 7 (no stance on question 8).
 -- Party D: only questions 1, 4 and 6 (sparse on purpose, so "brak danych" can occur).
-INSERT IGNORE INTO positions (question_id, party_id, stance, source_label, source_date) VALUES
+INSERT INTO positions (question_id, party_id, stance, source_label, source_date) VALUES
   (1, 1, 'za',         'Dane przykładowe: głosowanie klubu', '2025-02-11'),
   (2, 1, 'za',         'Dane przykładowe: głosowanie klubu', '2025-03-05'),
   (3, 1, 'przeciw',    'Dane przykładowe: głosowanie klubu', '2025-04-16'),

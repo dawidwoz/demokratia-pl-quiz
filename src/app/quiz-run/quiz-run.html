@@ -43,7 +43,7 @@
               @if (party.counted === 0) {
                 Partia nie ma stanowiska w żadnym z pytań, na które odpowiedziałeś.
               } @else {
-                na podstawie {{ party.counted }} z {{ result.total }} pytań
+                na podstawie {{ party.counted }} z {{ result.answered }} pytań
               }
             </p>
           </li>
@@ -126,6 +126,11 @@
         <p class="notice error" role="alert">{{ error }}</p>
       }
     </section>
+  } @else {
+    <p class="notice">
+      Ten quiz nie ma jeszcze pytań.
+      <a routerLink="/">Wróć do listy</a>
+    </p>
   }
 } @else {
   <p>Ładowanie…</p>

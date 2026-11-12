@@ -20,7 +20,10 @@ class PayloadTooLargeError extends Error {
 }
 
 function sendJson(res, status, body) {
-  res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
+  res.writeHead(status, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'X-Content-Type-Options': 'nosniff',
+  });
   res.end(JSON.stringify(body));
 }
 
@@ -46,11 +49,11 @@ function errorCode(error) {
   return typeof error?.code === 'string' ? error.code : 'UNKNOWN';
 }
 
-// Same sanitising as the DB health probe: a short code, never a raw message or credentials.
+// The real error code goes to the log only; the public response carries a fixed code so the quiz
+// endpoints do not reveal infrastructure state (never a raw message or credentials either).
 function sendUnavailable(res, error) {
-  const code = errorCode(error);
-  console.error(`quiz api request failed: ${code}`);
-  return sendJson(res, 503, { status: 'error', code });
+  console.error(`quiz api request failed: ${errorCode(error)}`);
+  return sendJson(res, 503, { status: 'error', code: 'unavailable' });
 }
 
 function readJsonBody(req) {
@@ -118,11 +121,14 @@ function createHandler({ data, ping }) {
   }
 
   async function postResult(req, res, quizId) {
+    // Results are personal: never let an intermediary or the browser cache them.
+    res.setHeader('Cache-Control', 'no-store');
     let body;
     try {
       body = await readJsonBody(req);
     } catch (error) {
       if (error instanceof PayloadTooLargeError) {
+        res.setHeader('Connection', 'close'); // do not keep reading an oversized body
         return sendJson(res, 413, { status: 'error', code: 'payload_too_large' });
       }
       return sendJson(res, 400, { status: 'error', code: 'invalid_request' });
@@ -149,11 +155,18 @@ function createHandler({ data, ping }) {
       throw error;
     }
 
-    const result = computeResult({
-      questions: scoring.questions,
-      parties: scoring.parties,
-      answers,
-    });
+    let result;
+    try {
+      result = computeResult({
+        questions: scoring.questions,
+        parties: scoring.parties,
+        answers,
+      });
+    } catch (error) {
+      // Invalid quiz data in the database (for example an out-of-range weight): not the caller's fault.
+      if (error instanceof RangeError) return sendUnavailable(res, { code: 'INVALID_QUIZ_DATA' });
+      throw error;
+    }
     if (result.status === 'insufficient_answers') {
       return sendJson(res, 422, {
         status: 'error',
@@ -174,7 +187,8 @@ function createHandler({ data, ping }) {
   return async function handler(req, res) {
     try {
       applyCors(res);
-      const { pathname } = new URL(req.url, 'http://localhost');
+      // req.url always starts with "/"; splitting avoids new URL() reading "//host/path" as a host.
+      const pathname = String(req.url).split('?')[0];
 
       if (req.method === 'OPTIONS' && corsOrigin() && pathname.startsWith('/api/')) {
         res.writeHead(204);
@@ -191,7 +205,7 @@ function createHandler({ data, ping }) {
         }
       }
 
-      const quizMatch = /^\/api\/quizzes\/(\d{1,9})$/.exec(pathname);
+      const quizMatch = /^\/api\/quizzes\/([1-9]\d{0,8})$/.exec(pathname);
       if (req.method === 'GET' && quizMatch) {
         const id = Number(quizMatch[1]);
         let quiz;
@@ -204,7 +218,7 @@ function createHandler({ data, ping }) {
         return sendJson(res, 200, { ...quiz, minAnswered: Math.ceil(quiz.questions.length / 2) });
       }
 
-      const resultMatch = /^\/api\/quizzes\/(\d{1,9})\/result$/.exec(pathname);
+      const resultMatch = /^\/api\/quizzes\/([1-9]\d{0,8})\/result$/.exec(pathname);
       if (req.method === 'POST' && resultMatch)
         return await postResult(req, res, Number(resultMatch[1]));
 

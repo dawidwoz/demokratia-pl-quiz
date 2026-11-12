@@ -129,7 +129,8 @@ describe('QuizRun', () => {
     fixture.detectChanges();
 
     expect(el.textContent).toContain('63%');
-    expect(el.textContent).toContain('na podstawie 4 z 8 pytań');
+    // The denominator is the number of questions the user answered (4), not the quiz total (8).
+    expect(el.textContent).toContain('na podstawie 4 z 4 pytań');
     expect(el.textContent).toContain('brak danych');
   });
 
@@ -153,5 +154,63 @@ describe('QuizRun', () => {
     http.expectOne(`${environment.apiBaseUrl}/quizzes/1/result`).flush(result);
     fixture.detectChanges();
     expect(storageWrites).not.toHaveBeenCalled();
+  });
+
+  it('reloads the quiz and drops old answers when only the route id changes', () => {
+    answer('za');
+    expect(el.querySelector('[aria-pressed="true"]')).toBeNull(); // moved on to question 2
+    click('[data-action="back"]');
+    expect(el.querySelector('[aria-pressed="true"]')).not.toBeNull(); // question 1 is answered
+
+    fixture.componentRef.setInput('id', '2');
+    fixture.detectChanges();
+    http.expectOne(`${environment.apiBaseUrl}/quizzes/2`).flush({
+      ...quiz,
+      id: 2,
+      questions: [
+        { id: 21, text: 'Inne pytanie', source: { label: 'Inne źródło', url: null, date: null } },
+      ],
+      minAnswered: 1,
+    });
+    fixture.detectChanges();
+
+    expect(el.textContent).toContain('Inne pytanie');
+    expect(el.textContent).toContain('Pytanie 1 z 1');
+    expect(el.querySelector('[aria-pressed="true"]')).toBeNull();
+  });
+
+  it('ignores a late response from a previous id', () => {
+    fixture.componentRef.setInput('id', '2');
+    fixture.detectChanges();
+    const second = http.expectOne(`${environment.apiBaseUrl}/quizzes/2`);
+    fixture.componentRef.setInput('id', '3');
+    fixture.detectChanges();
+    const third = http.expectOne(`${environment.apiBaseUrl}/quizzes/3`);
+    expect(second.cancelled).toBe(true);
+    third.flush({ ...quiz, id: 3 });
+    fixture.detectChanges();
+    expect(el.textContent).toContain('Pytanie 1 z 8');
+  });
+});
+
+describe('QuizRun with a quiz that has no questions', () => {
+  it('shows a message with a way back instead of a blank page', () => {
+    TestBed.configureTestingModule({
+      imports: [QuizRun],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+    });
+    const http = TestBed.inject(HttpTestingController);
+    const fixture = TestBed.createComponent(QuizRun);
+    fixture.componentRef.setInput('id', '1');
+    fixture.detectChanges();
+    http
+      .expectOne(`${environment.apiBaseUrl}/quizzes/1`)
+      .flush({ ...quiz, questions: [], minAnswered: 0 });
+    fixture.detectChanges();
+
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.textContent).toContain('Ten quiz nie ma jeszcze pytań');
+    expect(el.querySelector('a[href="/"]')).not.toBeNull();
+    http.verify();
   });
 });

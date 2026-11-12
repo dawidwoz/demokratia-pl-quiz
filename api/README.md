@@ -54,8 +54,8 @@ Tests use the Node.js built-in runner (`node:test` with `node:assert/strict`), s
 ## Migrations
 
 - Files live in `api/migrations/NNNN_name.sql` and are applied in ascending filename order. Applied names are stored in `schema_migrations`.
-- To add one: take the next number (for example `0002_create_parties.sql`) and put exactly one DDL statement in it. MySQL DDL commits implicitly and the runner cannot roll it back, so a file with several statements can fail half-applied.
-- Seed files contain data statements only (`INSERT IGNORE` inside a transaction), so several statements per file are fine there; DDL files keep exactly one.
+- To add one: take the next number (for example `0008_create_something.sql`) and put exactly one DDL statement in it. MySQL DDL commits implicitly and the runner cannot roll it back, so a file with several statements can fail half-applied.
+- Seed files contain data statements only (plain `INSERT`s inside one transaction, so an error aborts the file and closing the connection rolls it back), so several statements per file are fine there; DDL files keep exactly one.
 - A file is recorded only after it runs successfully. The first failure stops the run with a non-zero exit code and later files are not attempted.
 - Migrations must be backward-compatible: the previous app version may still be running against the new schema during a deploy.
 - Never commit the DB password or any other secret; set `DB_*` through the environment only.

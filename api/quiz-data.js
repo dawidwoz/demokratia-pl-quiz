@@ -10,7 +10,8 @@ async function listQuizzes() {
   const [rows] = await query(
     'SELECT q.id, q.title, q.description, q.is_sample, COUNT(qs.id) AS question_count ' +
       'FROM quizzes q LEFT JOIN questions qs ON qs.quiz_id = q.id ' +
-      'GROUP BY q.id, q.title, q.description, q.is_sample ORDER BY q.id',
+      // Quizzes without questions are not playable, so they are not offered.
+      'GROUP BY q.id, q.title, q.description, q.is_sample HAVING COUNT(qs.id) > 0 ORDER BY q.id',
   );
   return rows.map((row) => ({
     id: row.id,
@@ -38,6 +39,7 @@ async function getQuiz(id) {
       [id],
     ).then(([rows]) => rows),
   ]);
+  if (questionRows.length === 0) return null; // not playable: same as an unknown quiz
   return {
     id: quizRows[0].id,
     title: quizRows[0].title,
@@ -68,6 +70,7 @@ async function getScoringData(id) {
       [id],
     ),
   ]);
+  if (questionRows.length === 0) return null; // not playable: same as an unknown quiz
   const parties = partyRows.map((row) => ({ id: row.id, name: row.name, positions: {} }));
   const byId = new Map(parties.map((party) => [party.id, party]));
   for (const row of positionRows) {

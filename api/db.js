@@ -10,6 +10,12 @@ const REQUIRED = ['DB_USER', 'DB_PASSWORD', 'DB_NAME'];
 const IDLE_TIMEOUT_MS = 60000;
 const CONNECTION_LIMIT = 3;
 const CONNECT_TIMEOUT_MS = 10000;
+// With 3 connections and no app-level rate limiting, a hung database must fail fast instead of piling
+// up requests: at most 50 waiters (~12 POSTs at 4 queries each), the rest get an immediate error (-> 503).
+const QUEUE_LIMIT = 50;
+// Each quiz query is a primary-key/small-table read; 5 s is far above normal and bounds a hung query.
+const QUERY_TIMEOUT_MS = 5000;
+const QUERY_TIMEOUT_CODE = 'PROTOCOL_SEQUENCE_TIMEOUT';
 
 const LOST_CONNECTION_CODES = new Set([
   'PROTOCOL_CONNECTION_LOST',
@@ -50,6 +56,7 @@ function getPool() {
     ...config,
     waitForConnections: true,
     connectionLimit: CONNECTION_LIMIT,
+    queueLimit: QUEUE_LIMIT,
     maxIdle: CONNECTION_LIMIT,
     idleTimeout: IDLE_TIMEOUT_MS,
     connectTimeout: CONNECT_TIMEOUT_MS,
@@ -75,12 +82,16 @@ async function ping() {
 
 // Runs a read query on the pool with the same single retry as ping(): a pooled connection that went
 // stale during a long idle must not surface as an error to the visitor.
+// Every attempt has QUERY_TIMEOUT_MS; a timeout is never retried (the database is hanging, a second
+// wait would only double the latency and the load).
 async function query(sql, params) {
+  const options = { sql, values: params, timeout: QUERY_TIMEOUT_MS };
   try {
-    return await getPool().query(sql, params);
+    return await getPool().query(options);
   } catch (error) {
+    if (error && error.code === QUERY_TIMEOUT_CODE) throw error;
     if (!isConnectionLost(error)) throw error;
-    return getPool().query(sql, params);
+    return getPool().query(options);
   }
 }
 

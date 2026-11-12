@@ -10,8 +10,22 @@ CommonJS Node API started by Passenger via `app.js`. The database is MariaDB/MyS
 | `DB_USER`     | yes      |                            |
 | `DB_PASSWORD` | yes      | never commit this value    |
 | `DB_NAME`     | yes      |                            |
+| `CORS_ORIGIN` | no       | development only: set to `http://localhost:4200` so `ng serve` can call the API; never set it in production (same origin there) |
 
 Missing variables are reported by name only, never by value.
+
+## Endpoints
+
+| Method and path                | Purpose |
+| ------------------------------ | ------- |
+| `GET /api/health`, `/api/health/db` | liveness; database connectivity |
+| `GET /api/quizzes`             | list of quizzes (`id`, `title`, `description`, `isSample`, `questionCount`) |
+| `GET /api/quizzes/:id`         | questions with their source, parties and `minAnswered`; no weights or party stances |
+| `POST /api/quizzes/:id/result` | body `{"answers":[{"questionId":1,"answer":"za"}]}` (`za`, `przeciw`, `wstrzymuje`; skipped questions are omitted); returns agreement per party. 400 `invalid_request`, 413 `payload_too_large`, 422 `insufficient_answers` (fewer than half answered), 503 with a short code |
+
+Answers are scored statelessly: they are never written to the database or logged, and they only travel in the POST body, never in a URL.
+
+The sample quiz seeded by `migrations/0007_seed_sample_quiz.sql` has fictional parties and invented stances (`is_sample = 1`). Replace it with real, sourced content before launch.
 
 ## Running locally
 
@@ -40,7 +54,8 @@ Tests use the Node.js built-in runner (`node:test` with `node:assert/strict`), s
 ## Migrations
 
 - Files live in `api/migrations/NNNN_name.sql` and are applied in ascending filename order. Applied names are stored in `schema_migrations`.
-- To add one: take the next number (for example `0002_create_parties.sql`) and put exactly one DDL statement in it. MySQL DDL commits implicitly and the runner cannot roll it back, so a file with several statements can fail half-applied.
+- To add one: take the next number (for example `0008_create_something.sql`) and put exactly one DDL statement in it. MySQL DDL commits implicitly and the runner cannot roll it back, so a file with several statements can fail half-applied.
+- Seed files contain data statements only (plain `INSERT`s inside one transaction, so an error aborts the file and closing the connection rolls it back), so several statements per file are fine there; DDL files keep exactly one.
 - A file is recorded only after it runs successfully. The first failure stops the run with a non-zero exit code and later files are not attempted.
 - Migrations must be backward-compatible: the previous app version may still be running against the new schema during a deploy.
 - Never commit the DB password or any other secret; set `DB_*` through the environment only.

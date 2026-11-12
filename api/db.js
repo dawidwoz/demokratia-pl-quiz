@@ -73,6 +73,17 @@ async function ping() {
   }
 }
 
+// Runs a read query on the pool with the same single retry as ping(): a pooled connection that went
+// stale during a long idle must not surface as an error to the visitor.
+async function query(sql, params) {
+  try {
+    return await getPool().query(sql, params);
+  } catch (error) {
+    if (!isConnectionLost(error)) throw error;
+    return getPool().query(sql, params);
+  }
+}
+
 async function closePool() {
   if (!pool) return;
   const closing = pool;
@@ -80,4 +91,4 @@ async function closePool() {
   await closing.end();
 }
 
-module.exports = { getPool, ping, closePool, readConfig, MissingConfigError };
+module.exports = { getPool, ping, query, closePool, readConfig, MissingConfigError };

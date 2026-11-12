@@ -55,7 +55,7 @@ test('query() retries once after a lost connection and returns the second result
   const [rows] = await db.query('SELECT ?', [1]);
   assert.deepEqual(rows, [{ id: 1 }]);
   assert.equal(pool.calls.length, 2);
-  assert.deepEqual(pool.calls[1], { sql: 'SELECT ?', params: [1] });
+  assert.deepEqual(pool.calls[1].sql, { sql: 'SELECT ?', values: [1], timeout: 5000 });
 });
 
 test('query() gives up after one retry when the connection is lost again', async () => {

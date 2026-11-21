@@ -3,7 +3,7 @@ project: "Z kim mi po drodze"
 version: 1
 status: approved
 created: 2026-11-03
-updated: 2026-11-11
+updated: 2026-11-21
 prd_version: 1
 main_goal: speed
 top_blocker: capacity
@@ -43,7 +43,7 @@ Wyborca szukający partii zgodnej ze swoimi poglądami nie ma dobrego sposobu, b
 | ---- | ------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------- | --------------------------------- | -------- |
 | F-01 | production-database-connection  | (foundation) produkcyjne API łączy się z bazą, a zmiany schematu da się wdrażać | —                                     | NFR (działanie bez API Sejmu)     | done     |
 | F-02 | automated-test-baseline         | (foundation) testy automatyczne uruchamiają się jedną komendą                | —                                     | Business Logic                    | done     |
-| S-01 | anonymous-quiz-result           | rozwiązać quiz bez konta i zobaczyć zgodność z każdą partią                  | F-01, F-02, seeded quiz content       | US-01, FR-002, FR-003, FR-004     | proposed |
+| S-01 | anonymous-quiz-result           | rozwiązać quiz bez konta i zobaczyć zgodność z każdą partią                  | F-01, F-02, seeded quiz content       | US-01, FR-002, FR-003, FR-004     | done     |
 | S-02 | result-position-justification   | zobaczyć, dlaczego partia ma dane stanowisko (uzasadnienie, źródło, data)    | S-01                                  | FR-003, FR-004                    | proposed |
 | S-03 | account-registration-login      | założyć konto i się zalogować                                                | F-01                                  | FR-001                            | blocked  |
 | S-04 | save-quiz-result                | zapisać swój wynik na koncie i zobaczyć go ponownie (tylko ja)               | S-01, S-03                            | FR-005                            | proposed |
@@ -121,7 +121,7 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
 - **Risk:** Największy wycinek (nowy backend, dane, wzór), ale sekwencjonowany pierwszy, bo dowodzi kryterium Primary; ryzyko, że treść przykładowa zostanie, a nie rzeczywista.
 - **Decyzja (2026-11-11, planowanie F-02):** wzór zgodności powstaje w `api/` jako zwykły moduł CommonJS i jest testowany przez `node --test`.
 - **Decyzja (2026-11-11, wdrożenie S-01):** wynik liczy API bezstanowo (`POST /api/quizzes/:id/result`, bez zapisu i logowania odpowiedzi); przeciw↔wstrzymuję się = 0,25, brak stanowiska we wszystkich odpowiedzianych pytaniach = „brak danych”, wynik jako całkowity procent z liczbą pytań (zob. PRD, Business Logic). Treść quizu to przykładowe dane (`is_sample`, wymyślone partie) w migracji `0007`; **przed publikacją trzeba je zastąpić treścią rzeczywistą** (Open Roadmap Question 13).
-- **Status:** proposed
+- **Status:** done
 
 ### S-02: Użytkownik widzi uzasadnienie stanowiska partii
 
@@ -262,4 +262,4 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
 
 ## Done
 
-(Puste. `/10x-archive` dopisuje wpisy przy archiwizacji zmian, których `Change ID` pasuje do elementu.)
+- **S-01: rozwiązać quiz bez konta i zobaczyć zgodność z każdą partią** — Archived 2026-11-21 → `context/archive/2026-11-11-s-01/`. Lesson: —. (Folder zmiany nazywa się `s-01`, a `Change ID` w roadmapie to `anonymous-quiz-result`, więc element zamknięto ręcznie.)

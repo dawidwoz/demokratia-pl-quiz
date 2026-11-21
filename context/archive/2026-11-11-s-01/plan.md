@@ -358,55 +358,55 @@ Add-only, re-runnable migrations; rollback redeploys older code against the newe
 
 #### Automated
 
-- [x] 2.1 Migration files match the runner pattern and sort after baseline — 56f7214
-- [x] 2.2 API tests still pass: `npm run test:api` — 56f7214
+- [x] 2.1 Migration files match the runner pattern and sort after baseline — d938283
+- [x] 2.2 API tests still pass: `npm run test:api` — d938283
 
 #### Manual
 
-- [x] 2.3 On local MariaDB `node api/migrate.js` applies both migrations and a second run is a no-op — 56f7214
-- [x] 2.4 Sample quiz has at least 8 questions and every position row has a `source_date` — 56f7214
-- [x] 2.5 No table or column can hold user answers — 56f7214
+- [x] 2.3 On local MariaDB `node api/migrate.js` applies both migrations and a second run is a no-op — d938283
+- [x] 2.4 Sample quiz has at least 8 questions and every position row has a `source_date` — d938283
+- [x] 2.5 No table or column can hold user answers — d938283
 
 ### Phase 3: API endpoints
 
 #### Automated
 
-- [x] 3.1 API tests pass without a database: `npm run test:api` — 463bfba
-- [x] 3.2 Full suite passes: `npm test` — 463bfba
-- [x] 3.3 Handler module loads: `node -e "require('./api/handler')"` exits 0 — 463bfba
+- [x] 3.1 API tests pass without a database: `npm run test:api` — d938283
+- [x] 3.2 Full suite passes: `npm test` — d938283
+- [x] 3.3 Handler module loads: `node -e "require('./api/handler')"` exits 0 — d938283
 
 #### Manual
 
-- [x] 3.4 curl list, get and POST (4 of 8 answers) return expected shapes; 3 answers returns 422 — 463bfba
-- [x] 3.5 `/api/health` and `/api/health/db` behave as before — 463bfba
-- [x] 3.6 Browser preflight from `http://localhost:4200` succeeds with `CORS_ORIGIN` set and fails without it — 463bfba
+- [x] 3.4 curl list, get and POST (4 of 8 answers) return expected shapes; 3 answers returns 422 — d938283
+- [x] 3.5 `/api/health` and `/api/health/db` behave as before — d938283
+- [x] 3.6 Browser preflight from `http://localhost:4200` succeeds with `CORS_ORIGIN` set and fails without it — d938283
 
 ### Phase 4: Angular quiz flow
 
 #### Automated
 
-- [x] 4.1 App specs pass: `npm run test:app` — 8e3850d
-- [x] 4.2 Full suite passes: `npm test` — 8e3850d
-- [x] 4.3 Production build succeeds within budgets: `npm run build` — 8e3850d
-- [x] 4.4 Formatting clean: `npx prettier --check src api` — 8e3850d
+- [x] 4.1 App specs pass: `npm run test:app` — d938283
+- [x] 4.2 Full suite passes: `npm test` — d938283
+- [x] 4.3 Production build succeeds within budgets: `npm run build` — d938283
+- [x] 4.4 Formatting clean: `npx prettier --check src api` — d938283
 
 #### Manual
 
-- [x] 4.5 Complete the sample quiz at phone width; result renders and "brak danych" appears for the sparse party — 8e3850d
-- [x] 4.6 Answering 3 of 8 disables the button with an explanation; 4 of 8 enables it — 8e3850d
-- [x] 4.7 Reload loses answers and DevTools shows nothing stored — 8e3850d
-- [x] 4.8 Source and date are visible on every question screen — 8e3850d
+- [x] 4.5 Complete the sample quiz at phone width; result renders and "brak danych" appears for the sparse party — d938283
+- [x] 4.6 Answering 3 of 8 disables the button with an explanation; 4 of 8 enables it — d938283
+- [x] 4.7 Reload loses answers and DevTools shows nothing stored — d938283
+- [x] 4.8 Source and date are visible on every question screen — d938283
 
 ### Phase 5: Verification and docs
 
 #### Automated
 
-- [x] 5.1 Full suite passes: `npm test` — 420ff08
-- [x] 5.2 Workflow file still parses and the new smoke check is guarded for older commits — 420ff08
+- [x] 5.1 Full suite passes: `npm test` — d938283
+- [x] 5.2 Workflow file still parses and the new smoke check is guarded for older commits — d938283
 
 #### Manual
 
-- [x] 5.3 After a `workflow_dispatch` deploy the smoke checks are green and the sample quiz works end to end on the real host — 65ac19c
-- [x] 5.4 First request after idle is under 2 s and the value is recorded in `infrastructure.md` — 65ac19c
-- [x] 5.5 No answer content appears in host `stderr.log` or access logs after a test run — 65ac19c
-- [x] 5.6 PRD, roadmap, `api/README.md` and `CLAUDE.md` updated, including the sample-content caveat — 65ac19c
+- [x] 5.3 After a `workflow_dispatch` deploy the smoke checks are green and the sample quiz works end to end on the real host — d938283
+- [x] 5.4 First request after idle is under 2 s and the value is recorded in `infrastructure.md` — d938283
+- [x] 5.5 No answer content appears in host `stderr.log` or access logs after a test run — d938283
+- [x] 5.6 PRD, roadmap, `api/README.md` and `CLAUDE.md` updated, including the sample-content caveat — d938283

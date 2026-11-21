@@ -324,28 +324,28 @@ Migration 0008 is applied by the manual deploy and cannot be undone by rollback.
 
 #### Automated
 
-- [x] 3.1 App tests pass
-- [x] 3.2 Production build passes
-- [x] 3.3 Formatting check is clean for the app files
+- [x] 3.1 App tests pass — 235018a
+- [x] 3.2 Production build passes — 235018a
+- [x] 3.3 Formatting check is clean for the app files — 235018a
 
 #### Manual
 
-- [x] 3.4 Browser walkthrough shows no-stance, no-justification and skipped states
-- [x] 3.5 Keyboard-only toggling works and both themes stay readable
-- [x] 3.6 No answers appear in the URL or browser storage after the result
+- [x] 3.4 Browser walkthrough shows no-stance, no-justification and skipped states — 235018a
+- [x] 3.5 Keyboard-only toggling works and both themes stay readable — 235018a
+- [x] 3.6 No answers appear in the URL or browser storage after the result — 235018a
 
 ### Phase 4: Real content import (gated on your data)
 
 #### Automated
 
-- [ ] 4.1 Strict content check passes with zero errors on the real file
-- [ ] 4.2 Full test suite passes
-- [ ] 4.3 Generated migration exists and contains no sample text
-- [ ] 4.4 Formatting check is clean for content and docs
+- [x] 4.1 Strict content check passes with zero errors on the real file
+- [x] 4.2 Full test suite passes
+- [x] 4.3 Generated migration exists and contains no sample text
+- [x] 4.4 Formatting check is clean for content and docs
 
 #### Manual
 
-- [ ] 4.5 Scratch-database migration applies, reruns as no pending, and counts match the JSON
-- [ ] 4.6 Local quiz list and result screen show only real content with justifications
-- [ ] 4.7 Every stance is reviewed against its source and signed off
-- [ ] 4.8 You decide when to deploy and know that migration 0008 cannot be rolled back
+- [x] 4.5 Scratch-database migration applies, reruns as no pending, and counts match the JSON
+- [x] 4.6 Local quiz list and result screen show only real content with justifications
+- [x] 4.7 Every stance is reviewed against its source and signed off
+- [x] 4.8 You decide when to deploy and know that migration 0008 cannot be rolled back

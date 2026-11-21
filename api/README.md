@@ -25,7 +25,7 @@ Missing variables are reported by name only, never by value.
 
 Answers are scored statelessly: they are never written to the database or logged, and they only travel in the POST body, never in a URL.
 
-The sample quiz seeded by `migrations/0007_seed_sample_quiz.sql` has fictional parties and invented stances (`is_sample = 1`). Replace it with real, sourced content before launch.
+Quiz content is generated, not hand-written: `migrations/0008_seed_real_quiz.sql` is built from `content/quizzes/sejm-x-kadencja.json` (format, validator and commands: `content/README.md`). It deletes the fictional sample quiz seeded by `migrations/0007_seed_sample_quiz.sql` (`is_sample = 1`) and inserts the real one. Never edit an applied migration: correct the JSON and generate a new migration.
 
 ## Running locally
 

@@ -1,0 +1,36 @@
+<section>
+  <h1>Wybierz quiz</h1>
+  <p class="lead">
+    Odpowiedz na pytania o głosowania w Sejmie i zobacz, z którymi partiami jest Ci po drodze. Konto
+    nie jest potrzebne, a Twoje odpowiedzi nie są nigdzie zapisywane.
+  </p>
+
+  @if (failed()) {
+    <p class="notice error" role="alert">
+      Nie udało się wczytać listy quizów.
+      <button type="button" class="link" (click)="load()">Spróbuj ponownie</button>
+    </p>
+  } @else if (quizzes() === null) {
+    <p>Ładowanie…</p>
+  } @else if (quizzes()!.length === 0) {
+    <p>Na razie nie ma żadnego quizu.</p>
+  } @else {
+    <ul class="quizzes">
+      @for (quiz of quizzes(); track quiz.id) {
+        <li class="card">
+          <h2>
+            {{ quiz.title }}
+            @if (quiz.isSample) {
+              <span class="badge">przykładowy</span>
+            }
+          </h2>
+          @if (quiz.description) {
+            <p>{{ quiz.description }}</p>
+          }
+          <p class="meta">Liczba pytań: {{ quiz.questionCount }}</p>
+          <a class="button primary" [routerLink]="['/quiz', quiz.id]">Rozpocznij quiz</a>
+        </li>
+      }
+    </ul>
+  }
+</section>

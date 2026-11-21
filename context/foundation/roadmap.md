@@ -120,6 +120,7 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
   - Jakie pytania i partie wchodzą do pierwszego quizu i skąd pochodzą ich stanowiska (PRD Open Question 2)? — Owner: user. Block: no (wycinek można zaplanować na treści przykładowej; publikacja czeka na treść rzeczywistą — zob. Open Roadmap Questions).
 - **Risk:** Największy wycinek (nowy backend, dane, wzór), ale sekwencjonowany pierwszy, bo dowodzi kryterium Primary; ryzyko, że treść przykładowa zostanie, a nie rzeczywista.
 - **Decyzja (2026-11-11, planowanie F-02):** wzór zgodności powstaje w `api/` jako zwykły moduł CommonJS i jest testowany przez `node --test`.
+- **Decyzja (2026-11-11, wdrożenie S-01):** wynik liczy API bezstanowo (`POST /api/quizzes/:id/result`, bez zapisu i logowania odpowiedzi); przeciw↔wstrzymuję się = 0,25, brak stanowiska we wszystkich odpowiedzianych pytaniach = „brak danych”, wynik jako całkowity procent z liczbą pytań (zob. PRD, Business Logic). Treść quizu to przykładowe dane (`is_sample`, wymyślone partie) w migracji `0007`; **przed publikacją trzeba je zastąpić treścią rzeczywistą** (Open Roadmap Question 13).
 - **Status:** proposed
 
 ### S-02: Użytkownik widzi uzasadnienie stanowiska partii

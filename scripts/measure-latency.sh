@@ -5,6 +5,15 @@
 # On vh.pl more than about 25 rapid requests from one address returned HTTP 429, so about 10 is enough.
 set -euo pipefail
 
+# When started in its own window (double-click, "Run" button), keep the window open so the results can
+# be copied. Applies on success and on failure, only when attached to a terminal (never in CI or pipes).
+pause_before_exit() {
+  if [ -t 0 ] && [ -t 1 ]; then
+    read -r -p "Press Enter to close this window..." _ || true
+  fi
+}
+trap pause_before_exit EXIT
+
 base_url="${1:?usage: measure-latency.sh <base-url> [requests] [path]}"
 requests="${2:-20}"
 path="${3:-/api/health}"

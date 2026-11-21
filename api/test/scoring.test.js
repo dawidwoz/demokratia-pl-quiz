@@ -83,7 +83,10 @@ test('gate with an even total: 4 of 8 answered is enough, 3 of 8 is not', () => 
   const party = { id: 'a', positions: {} };
   const answer = (count) =>
     Object.fromEntries(Array.from({ length: count }, (_, i) => [i + 1, 'za']));
-  assert.equal(computeResult({ questions: eight, parties: [party], answers: answer(4) }).status, 'ok');
+  assert.equal(
+    computeResult({ questions: eight, parties: [party], answers: answer(4) }).status,
+    'ok',
+  );
   assert.deepEqual(computeResult({ questions: eight, parties: [party], answers: answer(3) }), {
     status: 'insufficient_answers',
     answered: 3,
@@ -100,7 +103,10 @@ test('gate with an odd total: 4 of 9 is not enough, 5 of 9 is', () => {
     computeResult({ questions: nine, parties: [party], answers: answer(4) }).status,
     'insufficient_answers',
   );
-  assert.equal(computeResult({ questions: nine, parties: [party], answers: answer(5) }).status, 'ok');
+  assert.equal(
+    computeResult({ questions: nine, parties: [party], answers: answer(5) }).status,
+    'ok',
+  );
 });
 
 test('wstrzymuje counts as answered for the gate', () => {

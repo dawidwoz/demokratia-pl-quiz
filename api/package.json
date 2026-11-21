@@ -7,6 +7,8 @@
   "scripts": {
     "start": "node app.js",
     "migrate": "node migrate.js",
+    "content:check": "node scripts/build-content-migration.js check",
+    "content:build": "node scripts/build-content-migration.js build",
     "test": "node --test"
   },
   "dependencies": {

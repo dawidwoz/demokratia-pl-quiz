@@ -298,27 +298,27 @@ Migration 0008 is applied by the manual deploy and cannot be undone by rollback.
 
 #### Automated
 
-- [x] 1.1 API tests pass including the new content tests
-- [x] 1.2 Template passes the content check in draft mode
-- [x] 1.3 Template fails the content check in strict mode with a non-zero exit
-- [x] 1.4 Formatting check is clean for the content files
+- [x] 1.1 API tests pass including the new content tests — 33ed789
+- [x] 1.2 Template passes the content check in draft mode — 33ed789
+- [x] 1.3 Template fails the content check in strict mode with a non-zero exit — 33ed789
+- [x] 1.4 Formatting check is clean for the content files — 33ed789
 
 #### Manual
 
-- [x] 1.5 Following the README, a filled-in question can be checked and errors are understandable
-- [x] 1.6 Draft SQL for the template reads correctly (sample deletion first, quoting, no brak row)
+- [x] 1.5 Following the README, a filled-in question can be checked and errors are understandable — 33ed789
+- [x] 1.6 Draft SQL for the template reads correctly (sample deletion first, quoting, no brak row) — 33ed789
 
 ### Phase 2: API contract — stances in the result response
 
 #### Automated
 
-- [ ] 2.1 API tests pass with the new result-response cases
-- [ ] 2.2 Formatting check is clean for the API files
+- [x] 2.1 API tests pass with the new result-response cases
+- [x] 2.2 Formatting check is clean for the API files
 
 #### Manual
 
-- [ ] 2.3 Local POST of eight answers returns positions with justification null and source label and date
-- [ ] 2.4 GET quiz still shows no stances
+- [x] 2.3 Local POST of eight answers returns positions with justification null and source label and date
+- [x] 2.4 GET quiz still shows no stances
 
 ### Phase 3: Result UI — per-question stance blocks
 

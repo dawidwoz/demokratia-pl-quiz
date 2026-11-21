@@ -53,7 +53,39 @@ async function getQuiz(id) {
   };
 }
 
-// Everything the formula needs: question weights and each party's stances (missing = no stance).
+// Pure assembly of the scoring rows (no I/O, so it is unit-tested without a database).
+// - questions/parties: what the formula needs; each party's `positions` maps questionId -> stance
+//   (a missing key = no stance).
+// - details: for every question (in quiz order) the stance, justification and source of each party
+//   that has one, ordered by party id. The order never depends on the score, for neutrality.
+function assembleScoringData(questionRows, partyRows, positionRows) {
+  const parties = partyRows.map((row) => ({ id: row.id, name: row.name, positions: {} }));
+  const byId = new Map(parties.map((party) => [party.id, party]));
+  const byQuestion = new Map(questionRows.map((row) => [row.id, []]));
+  for (const row of positionRows) {
+    const party = byId.get(row.party_id);
+    const inQuestion = byQuestion.get(row.question_id);
+    if (!party || !inQuestion) continue; // a position of a party outside this quiz is ignored
+    party.positions[row.question_id] = row.stance;
+    inQuestion.push({
+      partyId: row.party_id,
+      stance: row.stance,
+      justification: row.justification ?? null,
+      source: { label: row.source_label, url: row.source_url ?? null, date: row.source_date },
+    });
+  }
+  return {
+    questions: questionRows.map((row) => ({ id: row.id, weight: row.weight })),
+    parties,
+    details: questionRows.map((row) => ({
+      questionId: row.id,
+      positions: byQuestion.get(row.id).sort((a, b) => a.partyId - b.partyId),
+    })),
+  };
+}
+
+// Everything the formula needs (question weights, each party's stances) plus the justification,
+// source and date of every stance, which the result shows after the user has answered.
 async function getScoringData(id) {
   const [quizRows] = await query('SELECT id FROM quizzes WHERE id = ?', [id]);
   if (quizRows.length === 0) return null;
@@ -65,22 +97,14 @@ async function getScoringData(id) {
       [id],
     ),
     query(
-      'SELECT pos.question_id, pos.party_id, pos.stance FROM positions pos ' +
-        'JOIN questions q ON q.id = pos.question_id WHERE q.quiz_id = ?',
+      'SELECT pos.question_id, pos.party_id, pos.stance, pos.justification, pos.source_label, ' +
+        "pos.source_url, DATE_FORMAT(pos.source_date, '%Y-%m-%d') AS source_date " +
+        'FROM positions pos JOIN questions q ON q.id = pos.question_id WHERE q.quiz_id = ?',
       [id],
     ),
   ]);
   if (questionRows.length === 0) return null; // not playable: same as an unknown quiz
-  const parties = partyRows.map((row) => ({ id: row.id, name: row.name, positions: {} }));
-  const byId = new Map(parties.map((party) => [party.id, party]));
-  for (const row of positionRows) {
-    const party = byId.get(row.party_id);
-    if (party) party.positions[row.question_id] = row.stance;
-  }
-  return {
-    questions: questionRows.map((row) => ({ id: row.id, weight: row.weight })),
-    parties,
-  };
+  return assembleScoringData(questionRows, partyRows, positionRows);
 }
 
-module.exports = { listQuizzes, getQuiz, getScoringData };
+module.exports = { listQuizzes, getQuiz, getScoringData, assembleScoringData };

@@ -40,6 +40,25 @@ function fakeData(overrides = {}) {
           { id: 2, name: 'B', positions: positions('przeciw') },
           { id: 3, name: 'C', positions: {} },
         ],
+        // Stances shown after answering: A and B have one on every question, C none. B has no
+        // justification (as in the sample seed) and no source URL.
+        details: [1, 2, 3, 4].map((n) => ({
+          questionId: n,
+          positions: [
+            {
+              partyId: 1,
+              stance: 'za',
+              justification: `Uzasadnienie A${n}`,
+              source: { label: 'Źródło A', url: 'https://example.org/a', date: '2025-01-02' },
+            },
+            {
+              partyId: 2,
+              stance: 'przeciw',
+              justification: null,
+              source: { label: 'Źródło B', url: null, date: '2025-01-03' },
+            },
+          ],
+        })),
       };
     },
     ...overrides,
@@ -135,7 +154,9 @@ test('POST result: percents, counted, and ordering (null last)', async () => {
       answers: [answer(1, 'za'), answer(2, 'za'), answer(3, 'za')],
     });
     assert.equal(res.status, 200);
-    assert.deepEqual(await res.json(), {
+    const { questions, ...summary } = await res.json(); // the stance details have their own tests
+    assert.equal(questions.length, 4);
+    assert.deepEqual(summary, {
       answered: 3,
       total: 4,
       parties: [
@@ -144,6 +165,70 @@ test('POST result: percents, counted, and ordering (null last)', async () => {
         { id: 3, name: 'C', percent: null, counted: 0 },
       ],
     });
+  });
+});
+
+test('POST result returns every party stance with justification and source for every question', async () => {
+  await withServer({ data: fakeData() }, async (base) => {
+    // Question 3 and 4 are skipped: their stances are still returned.
+    const res = await post(base, '/api/quizzes/1/result', {
+      answers: [answer(1, 'za'), answer(2, 'za')],
+    });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.deepEqual(
+      body.questions.map((question) => question.id),
+      [1, 2, 3, 4],
+    );
+    assert.deepEqual(body.questions[0].positions, [
+      {
+        partyId: 1,
+        stance: 'za',
+        justification: 'Uzasadnienie A1',
+        source: { label: 'Źródło A', url: 'https://example.org/a', date: '2025-01-02' },
+      },
+      {
+        partyId: 2,
+        stance: 'przeciw',
+        justification: null, // stays null: the client decides how to show a missing justification
+        source: { label: 'Źródło B', url: null, date: '2025-01-03' },
+      },
+    ]);
+    // Party C has no stance: it is simply absent from the list of every question.
+    for (const question of body.questions) {
+      assert.ok(question.positions.every((position) => position.partyId !== 3));
+    }
+  });
+});
+
+test('POST result lists stances in party-id order, not in score order', async () => {
+  await withServer({ data: fakeData() }, async (base) => {
+    // 'przeciw' everywhere: party B scores 100% and ranks above A, but stays second in each list.
+    const res = await post(base, '/api/quizzes/1/result', {
+      answers: [answer(1, 'przeciw'), answer(2, 'przeciw'), answer(3, 'przeciw')],
+    });
+    const body = await res.json();
+    assert.deepEqual(
+      body.parties.map((party) => party.id),
+      [2, 1, 3],
+    );
+    for (const question of body.questions) {
+      assert.deepEqual(
+        question.positions.map((position) => position.partyId),
+        [1, 2],
+      );
+    }
+  });
+});
+
+test('POST result: the 422 body carries no stances', async () => {
+  await withServer({ data: fakeData() }, async (base) => {
+    const res = await post(base, '/api/quizzes/1/result', { answers: [answer(1, 'za')] });
+    assert.equal(res.status, 422);
+    const text = JSON.stringify(await res.json());
+    assert.ok(
+      !text.includes('questions') && !text.includes('stance') && !text.includes('positions'),
+    );
   });
 });
 
@@ -172,6 +257,7 @@ test('POST result: ties are ordered by name using the Polish locale', async () =
           { id: 1, name: 'Żółć', positions: { 1: 'za', 2: 'za' } },
           { id: 2, name: 'Zebra', positions: { 1: 'za', 2: 'za' } },
         ],
+        details: [],
       };
     },
   });

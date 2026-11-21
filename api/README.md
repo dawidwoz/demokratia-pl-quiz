@@ -4,24 +4,24 @@ CommonJS Node API started by Passenger via `app.js`. The database is MariaDB/MyS
 
 ## Environment variables
 
-| Variable      | Required | Notes                      |
-| ------------- | -------- | -------------------------- |
-| `DB_HOST`     | no       | defaults to `localhost`    |
-| `DB_USER`     | yes      |                            |
-| `DB_PASSWORD` | yes      | never commit this value    |
-| `DB_NAME`     | yes      |                            |
+| Variable      | Required | Notes                                                                                                                           |
+| ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `DB_HOST`     | no       | defaults to `localhost`                                                                                                         |
+| `DB_USER`     | yes      |                                                                                                                                 |
+| `DB_PASSWORD` | yes      | never commit this value                                                                                                         |
+| `DB_NAME`     | yes      |                                                                                                                                 |
 | `CORS_ORIGIN` | no       | development only: set to `http://localhost:4200` so `ng serve` can call the API; never set it in production (same origin there) |
 
 Missing variables are reported by name only, never by value.
 
 ## Endpoints
 
-| Method and path                | Purpose |
-| ------------------------------ | ------- |
-| `GET /api/health`, `/api/health/db` | liveness; database connectivity |
-| `GET /api/quizzes`             | list of quizzes (`id`, `title`, `description`, `isSample`, `questionCount`) |
-| `GET /api/quizzes/:id`         | questions with their source, parties and `minAnswered`; no weights or party stances |
-| `POST /api/quizzes/:id/result` | body `{"answers":[{"questionId":1,"answer":"za"}]}` (`za`, `przeciw`, `wstrzymuje`; skipped questions are omitted); returns agreement per party. 400 `invalid_request`, 413 `payload_too_large`, 422 `insufficient_answers` (fewer than half answered), 503 with a short code |
+| Method and path                     | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/health`, `/api/health/db` | liveness; database connectivity                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `GET /api/quizzes`                  | list of quizzes (`id`, `title`, `description`, `isSample`, `questionCount`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `GET /api/quizzes/:id`              | questions with their source, parties and `minAnswered`; no weights or party stances                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `POST /api/quizzes/:id/result`      | body `{"answers":[{"questionId":1,"answer":"za"}]}` (`za`, `przeciw`, `wstrzymuje`; skipped questions are omitted); returns `answered`, `total`, agreement per party (`parties`) and, for every question of the quiz (skipped ones too), `questions: [{id, positions: [{partyId, stance, justification, source: {label, url, date}}]}]`: each party's stance, in quiz order and party-id order, never score order. A party without a stance is absent from `positions`; `justification` and `source.url` can be `null`. Stances appear only here, after answering. 400 `invalid_request`, 413 `payload_too_large`, 422 `insufficient_answers` (fewer than half answered), 503 with a short code |
 
 Answers are scored statelessly: they are never written to the database or logged, and they only travel in the POST body, never in a URL.
 

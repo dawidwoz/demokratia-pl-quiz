@@ -338,14 +338,14 @@ Migration 0008 is applied by the manual deploy and cannot be undone by rollback.
 
 #### Automated
 
-- [x] 4.1 Strict content check passes with zero errors on the real file
-- [x] 4.2 Full test suite passes
-- [x] 4.3 Generated migration exists and contains no sample text
-- [x] 4.4 Formatting check is clean for content and docs
+- [x] 4.1 Strict content check passes with zero errors on the real file — 20927fe
+- [x] 4.2 Full test suite passes — 20927fe
+- [x] 4.3 Generated migration exists and contains no sample text — 20927fe
+- [x] 4.4 Formatting check is clean for content and docs — 20927fe
 
 #### Manual
 
-- [x] 4.5 Scratch-database migration applies, reruns as no pending, and counts match the JSON
-- [x] 4.6 Local quiz list and result screen show only real content with justifications
-- [x] 4.7 Every stance is reviewed against its source and signed off
-- [x] 4.8 You decide when to deploy and know that migration 0008 cannot be rolled back
+- [x] 4.5 Scratch-database migration applies, reruns as no pending, and counts match the JSON — 20927fe
+- [x] 4.6 Local quiz list and result screen show only real content with justifications — 20927fe
+- [x] 4.7 Every stance is reviewed against its source and signed off — 20927fe
+- [x] 4.8 You decide when to deploy and know that migration 0008 cannot be rolled back — 20927fe

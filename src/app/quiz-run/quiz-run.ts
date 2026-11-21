@@ -59,6 +59,39 @@ export class QuizRun {
     return question ? (this.answers()[question.id] ?? null) : null;
   });
 
+  /**
+   * The result's "why" section: for each question, the user's own answer next to every party's
+   * stance. Parties follow the quiz's party order for every question, never the score ranking.
+   * Built only from state this component already holds (nothing is stored anywhere).
+   */
+  protected readonly details = computed(() => {
+    const quiz = this.quiz();
+    const result = this.result();
+    if (!quiz || !result) return [];
+    const answers = this.answers();
+    const positionsByQuestion = new Map(result.questions.map((item) => [item.id, item.positions]));
+    return quiz.questions.map((question, index) => {
+      const byParty = new Map(
+        (positionsByQuestion.get(question.id) ?? []).map((position) => [
+          position.partyId,
+          position,
+        ]),
+      );
+      const answer = answers[question.id];
+      return {
+        id: question.id,
+        number: index + 1,
+        text: question.text,
+        answer: answer ? ANSWER_LABELS[answer] : null,
+        parties: quiz.parties.map((party) => ({
+          id: party.id,
+          name: party.name,
+          position: byParty.get(party.id) ?? null,
+        })),
+      };
+    });
+  });
+
   constructor() {
     // Angular reuses this component when only the route id changes (browser Back/Forward between two
     // quizzes), so (re)load whenever `id` changes and drop everything that belonged to the old quiz.

@@ -30,6 +30,33 @@ const result: QuizResult = {
     { id: 1, name: 'Partia A', percent: 63, counted: 4 },
     { id: 2, name: 'Partia B', percent: null, counted: 0 },
   ],
+  // Partia A has a stance on every question (the first with a linked source); Partia B only on the
+  // first one, and without a justification.
+  questions: quiz.questions.map((question) => ({
+    id: question.id,
+    positions: [
+      {
+        partyId: 1,
+        stance: 'za' as const,
+        justification: `Uzasadnienie A${question.id}`,
+        source: {
+          label: `Źródło stanowiska ${question.id}`,
+          url: question.id === 1 ? 'https://example.org/glosowanie' : null,
+          date: '2025-03-05',
+        },
+      },
+      ...(question.id === 1
+        ? [
+            {
+              partyId: 2,
+              stance: 'przeciw' as const,
+              justification: null,
+              source: { label: 'Źródło B1', url: null, date: '2025-04-01' },
+            },
+          ]
+        : []),
+    ],
+  })),
 };
 
 describe('QuizRun', () => {
@@ -132,6 +159,114 @@ describe('QuizRun', () => {
     // The denominator is the number of questions the user answered (4), not the quiz total (8).
     expect(el.textContent).toContain('na podstawie 4 z 4 pytań');
     expect(el.textContent).toContain('brak danych');
+  });
+
+  describe('result details ("Dlaczego taki wynik")', () => {
+    // Answers 1-3 and 7, skips the rest, submits and shows the given result.
+    const showResult = (shown: QuizResult = result) => {
+      answerThreeSkipRest();
+      click('[data-action="back"]');
+      answer('za');
+      click('[data-action="submit"]');
+      http.expectOne(`${environment.apiBaseUrl}/quizzes/1/result`).flush(shown);
+      fixture.detectChanges();
+    };
+    const blocks = () => Array.from(el.querySelectorAll('[data-testid="question-details"]'));
+    const block = (number: number) => blocks()[number - 1] as HTMLDetailsElement;
+
+    it('renders one collapsed block per question, skipped ones included', () => {
+      showResult();
+      expect(blocks().length).toBe(8);
+      expect(blocks().every((item) => !(item as HTMLDetailsElement).open)).toBe(true);
+      expect(block(1).textContent).toContain('1. Pytanie 1');
+      expect(block(8).textContent).toContain('8. Pytanie 8');
+    });
+
+    it('shows the user’s own answer, or that the question was skipped', () => {
+      showResult();
+      expect(block(1).querySelector('summary')?.textContent).toContain('Twoja odpowiedź: Za');
+      expect(block(2).querySelector('summary')?.textContent).toContain('Twoja odpowiedź: Przeciw');
+      expect(block(3).querySelector('summary')?.textContent).toContain(
+        'Twoja odpowiedź: Wstrzymuję się',
+      );
+      expect(block(4).querySelector('summary')?.textContent).toContain('Pominięte');
+      expect(block(4).querySelector('summary')?.textContent).not.toContain('Twoja odpowiedź');
+    });
+
+    it('shows each party’s stance with justification, source link and date', () => {
+      showResult();
+      const text = block(1).textContent ?? '';
+      expect(text).toContain('Partia A:');
+      expect(text).toContain('Uzasadnienie A1');
+      expect(text).toContain('Źródło stanowiska 1');
+      expect(text).toContain('05.03.2025');
+      const link = block(1).querySelector<HTMLAnchorElement>(
+        'a[href="https://example.org/glosowanie"]',
+      );
+      expect(link?.textContent).toContain('Źródło stanowiska 1');
+      expect(link?.getAttribute('rel')).toBe('noopener noreferrer');
+      expect(link?.getAttribute('target')).toBe('_blank');
+      // Without a URL the label is shown as plain text, not as a link.
+      expect(block(2).querySelector('a')).toBeNull();
+      expect(block(2).textContent).toContain('Źródło stanowiska 2');
+    });
+
+    it('names the stance as text', () => {
+      showResult();
+      const rows = block(1).querySelectorAll('.stance');
+      expect(Array.from(rows).map((row) => row.textContent?.trim())).toEqual(['Za', 'Przeciw']);
+    });
+
+    it('shows "Brak stanowiska" for a party without a stance and a note for a missing justification', () => {
+      showResult();
+      expect(block(2).textContent).toMatch(/Partia B:\s*Brak stanowiska/);
+      expect(block(1).textContent).toContain('Brak uzasadnienia w danych');
+      expect(block(2).textContent).not.toContain('Brak uzasadnienia w danych');
+    });
+
+    it('lists parties in the quiz order, whatever the ranking of the result is', () => {
+      // The API ranks Partia B first here; the details must still start with Partia A.
+      const ranked: QuizResult = {
+        ...result,
+        parties: [
+          { id: 2, name: 'Partia B', percent: 80, counted: 1 },
+          { id: 1, name: 'Partia A', percent: 10, counted: 4 },
+        ],
+        questions: result.questions.map((item) => ({
+          ...item,
+          positions: item.id === 1 ? [...item.positions].reverse() : item.positions,
+        })),
+      };
+      showResult(ranked);
+      const names = Array.from(block(1).querySelectorAll('.positions li strong')).map((n) =>
+        n.textContent?.trim(),
+      );
+      expect(names).toEqual(['Partia A:', 'Partia B:']);
+    });
+
+    it('renders justification text as text, never as HTML', () => {
+      const hostile: QuizResult = {
+        ...result,
+        questions: result.questions.map((item) => ({
+          ...item,
+          positions: item.positions.map((position) => ({
+            ...position,
+            justification: '<b>pogrubione</b><img src="x" onerror="alert(1)">',
+          })),
+        })),
+      };
+      showResult(hostile);
+      expect(block(1).textContent).toContain('<b>pogrubione</b>');
+      expect(block(1).querySelector('b')).toBeNull();
+      expect(block(1).querySelector('img')).toBeNull();
+    });
+
+    it('"Rozwiąż jeszcze raz" clears the details together with the answers', () => {
+      showResult();
+      click('.actions button.button');
+      expect(blocks().length).toBe(0);
+      expect(el.textContent).toContain('Pytanie 1 z 8');
+    });
   });
 
   it('shows an explanation when the API answers 422', () => {

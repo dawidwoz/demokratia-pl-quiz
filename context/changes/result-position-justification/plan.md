@@ -312,27 +312,27 @@ Migration 0008 is applied by the manual deploy and cannot be undone by rollback.
 
 #### Automated
 
-- [x] 2.1 API tests pass with the new result-response cases
-- [x] 2.2 Formatting check is clean for the API files
+- [x] 2.1 API tests pass with the new result-response cases — c84b9dd
+- [x] 2.2 Formatting check is clean for the API files — c84b9dd
 
 #### Manual
 
-- [x] 2.3 Local POST of eight answers returns positions with justification null and source label and date
-- [x] 2.4 GET quiz still shows no stances
+- [x] 2.3 Local POST of eight answers returns positions with justification null and source label and date — c84b9dd
+- [x] 2.4 GET quiz still shows no stances — c84b9dd
 
 ### Phase 3: Result UI — per-question stance blocks
 
 #### Automated
 
-- [ ] 3.1 App tests pass
-- [ ] 3.2 Production build passes
-- [ ] 3.3 Formatting check is clean for the app files
+- [x] 3.1 App tests pass
+- [x] 3.2 Production build passes
+- [x] 3.3 Formatting check is clean for the app files
 
 #### Manual
 
-- [ ] 3.4 Browser walkthrough shows no-stance, no-justification and skipped states
-- [ ] 3.5 Keyboard-only toggling works and both themes stay readable
-- [ ] 3.6 No answers appear in the URL or browser storage after the result
+- [x] 3.4 Browser walkthrough shows no-stance, no-justification and skipped states
+- [x] 3.5 Keyboard-only toggling works and both themes stay readable
+- [x] 3.6 No answers appear in the URL or browser storage after the result
 
 ### Phase 4: Real content import (gated on your data)
 

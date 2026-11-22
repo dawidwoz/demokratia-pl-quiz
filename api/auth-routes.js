@@ -27,8 +27,18 @@ const ROUTES = {
   'GET /api/auth/me': { name: 'me', body: false },
 };
 
+// What goes into the log for a failure: the short code and, for a missing or invalid setting
+// (MISSING_CONFIG), the NAMES of the settings (fixed upper-case identifiers such as PUBLIC_BASE_URL),
+// never their values and never a message, so the operator can see what to fix without secrets in logs.
 function errorCode(error) {
-  return typeof error?.code === 'string' ? error.code : 'UNKNOWN';
+  const code = typeof error?.code === 'string' ? error.code : 'UNKNOWN';
+  if (code === 'MISSING_CONFIG' && Array.isArray(error.missing)) {
+    const names = error.missing.filter(
+      (name) => typeof name === 'string' && /^[A-Z][A-Z0-9_]*$/.test(name),
+    );
+    if (names.length > 0) return `${code}: ${names.join(', ')}`;
+  }
+  return code;
 }
 
 function isSameOriginRequest(req) {

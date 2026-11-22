@@ -557,3 +557,38 @@ test('across a whole flow nothing is logged, and no email, password or token eve
     );
   });
 });
+
+test('a mail failure caused by missing settings logs the setting NAMES only, never their values', async () => {
+  await withAuth(async (api) => {
+    const { MailConfigError } = require('../mailer');
+    api.mailer.failWith = new MailConfigError(['PUBLIC_BASE_URL', 'SMTP_HOST']);
+    const lines = await captureConsole(async () => {
+      const response = await api.post('/api/auth/register', {
+        email: 'jan@example.com',
+        password: PASSWORD,
+        acceptTerms: true,
+      });
+      assert.equal(response.status, 202);
+      await settle();
+    });
+    assert.deepEqual(lines, ['auth mail failed: MISSING_CONFIG: PUBLIC_BASE_URL, SMTP_HOST']);
+  });
+});
+
+test('only upper-case setting names are ever logged from a MISSING_CONFIG error', async () => {
+  await withAuth(async (api) => {
+    api.mailer.failWith = Object.assign(new Error('x'), {
+      code: 'MISSING_CONFIG',
+      missing: ['smtp-secret-password', 'secret host.example', 'SMTP_USER'],
+    });
+    const lines = await captureConsole(async () => {
+      await api.post('/api/auth/register', {
+        email: 'jan@example.com',
+        password: PASSWORD,
+        acceptTerms: true,
+      });
+      await settle();
+    });
+    assert.deepEqual(lines, ['auth mail failed: MISSING_CONFIG: SMTP_USER']);
+  });
+});

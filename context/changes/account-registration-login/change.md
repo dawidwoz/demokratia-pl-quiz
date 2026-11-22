@@ -1,7 +1,7 @@
 ---
 change_id: account-registration-login
 title: Account registration login
-status: implementing
+status: implemented
 created: 2026-11-22
 updated: 2026-11-22
 archived_at: null

@@ -1,0 +1,82 @@
+<section>
+  <h1>Załóż konto</h1>
+
+  @if (auth.user(); as user) {
+    <p class="notice" role="status">Jesteś zalogowany jako {{ user.email }}.</p>
+  } @else if (sentTo(); as email) {
+    <div class="notice" role="status" data-testid="sent">
+      <p>
+        <strong>Sprawdź skrzynkę.</strong> Wysłaliśmy wiadomość na adres {{ email }}. Znajdziesz w
+        niej dalsze kroki: link potwierdzający albo informację, że konto już istnieje.
+      </p>
+      <p>Nie widzisz wiadomości? Zajrzyj do folderu ze spamem.</p>
+    </div>
+    <p><a routerLink="/logowanie">Przejdź do logowania</a></p>
+  } @else {
+    <p class="lead">
+      Konto jest opcjonalne: quiz działa bez niego. Konto przyda się, gdy będziesz chciał zapisać
+      swój wynik.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label for="register-email">Adres e-mail</label>
+        <input
+          id="register-email"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          inputmode="email"
+          [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <p class="field-error" role="alert">Podaj poprawny adres e-mail.</p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="register-password">Hasło</label>
+        <input
+          id="register-password"
+          type="password"
+          formControlName="password"
+          autocomplete="new-password"
+          aria-describedby="register-password-hint"
+          [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid"
+        />
+        <p class="hint" id="register-password-hint">
+          Co najmniej {{ minLength }} znaków. Najlepiej kilka słów, których nikt nie zgadnie.
+        </p>
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <p class="field-error" role="alert">
+            Hasło musi mieć co najmniej {{ minLength }} znaków.
+          </p>
+        }
+      </div>
+
+      <div class="field checkbox">
+        <input id="register-terms" type="checkbox" formControlName="acceptTerms" />
+        <label for="register-terms">
+          Akceptuję <a routerLink="/regulamin" target="_blank">Regulamin</a> i
+          <a routerLink="/polityka-prywatnosci" target="_blank">Politykę Prywatności</a>.
+        </label>
+      </div>
+      @if (form.controls.acceptTerms.touched && form.controls.acceptTerms.invalid) {
+        <p class="field-error" role="alert">
+          Aby założyć konto, zaakceptuj Regulamin i Politykę Prywatności.
+        </p>
+      }
+
+      @if (error(); as message) {
+        <p class="notice error" role="alert" data-testid="form-error">{{ message }}</p>
+      }
+
+      <div class="form-actions">
+        <button type="submit" class="button primary" [disabled]="submitting()">
+          {{ submitting() ? 'Wysyłanie…' : 'Załóż konto' }}
+        </button>
+        <a routerLink="/logowanie">Mam już konto</a>
+      </div>
+    </form>
+  }
+</section>

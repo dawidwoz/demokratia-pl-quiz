@@ -78,6 +78,14 @@ curl http://localhost:3000/api/health/db
 
 `npm run migrate` is the same as `node migrate.js`.
 
+Together with the Angular app (`npm start` in the repository root), the browser talks to `http://localhost:4200` only: `ng serve` forwards `/api/**` to this API on port 3000 (`src/proxy.conf.json`), so development is same-origin like production and `CORS_ORIGIN` is no longer needed. To try accounts locally, start the API with the dev-only variables (PowerShell):
+
+```powershell
+$env:AUTH_INSECURE_COOKIES = "1"; $env:MAIL_TRANSPORT = "console"; $env:PUBLIC_BASE_URL = "http://localhost:4200"; node app.js
+```
+
+Mails are then printed in this terminal, including their links (copy the link into the browser). Restart `ng serve` after changing `src/proxy.conf.json`.
+
 ## Testing
 
 ```bash

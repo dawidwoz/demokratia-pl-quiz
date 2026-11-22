@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
+
+import { AuthState } from './auth/auth-state';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +9,15 @@ import { RouterLink, RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App {}
+export class App {
+  protected readonly auth = inject(AuthState);
+  private readonly router = inject(Router);
+
+  protected logout(): void {
+    this.auth.logout().subscribe({
+      next: () => void this.router.navigateByUrl('/'),
+      // If the server could not end the session, ask it what is true instead of guessing.
+      error: () => this.auth.refresh(),
+    });
+  }
+}

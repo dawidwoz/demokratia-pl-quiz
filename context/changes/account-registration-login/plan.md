@@ -416,31 +416,31 @@ Migrations are add-only and backward-compatible with the previous app version (n
 
 #### Automated
 
-- [x] 2.1 API tests pass, including new `mailer`, `auth-service` (fake store), `auth-routes` (real server on port 0, in-memory fake store) tests: `npm run test:api`
-- [x] 2.2 Tests prove anti-enumeration (identical 202 bodies for new/existing/unknown emails; same 401 for unknown and wrong-password), the CSRF guard (cross-origin, missing headers, `same-site` rejected), single-use and expired tokens, session regeneration at login, password-reset session invalidation, limiter 429s, 413 on oversized bodies, and that `console` output during these flows contains no email, password or token
-- [x] 2.3 Existing quiz endpoint tests pass unchanged: `npm run test:api`
-- [x] 2.4 Formatting passes: `npx prettier --check api`
+- [x] 2.1 API tests pass, including new `mailer`, `auth-service` (fake store), `auth-routes` (real server on port 0, in-memory fake store) tests: `npm run test:api` — 5f77d21
+- [x] 2.2 Tests prove anti-enumeration (identical 202 bodies for new/existing/unknown emails; same 401 for unknown and wrong-password), the CSRF guard (cross-origin, missing headers, `same-site` rejected), single-use and expired tokens, session regeneration at login, password-reset session invalidation, limiter 429s, 413 on oversized bodies, and that `console` output during these flows contains no email, password or token — 5f77d21
+- [x] 2.3 Existing quiz endpoint tests pass unchanged: `npm run test:api` — 5f77d21
+- [x] 2.4 Formatting passes: `npx prettier --check api` — 5f77d21
 
 #### Manual
 
-- [x] 2.5 With a scratch database, `MAIL_TRANSPORT=console` and `AUTH_INSECURE_COOKIES=1`, a PowerShell/curl run of register → verify (token from console) → login → `me` → logout works and `me` is `{user:null}` afterwards
-- [x] 2.6 A POST with `Origin: https://evil.example` (and without `Sec-Fetch-Site`) to `/api/auth/login` returns 403 `csrf_rejected`
-- [x] 2.7 Password reset invalidates a second logged-in session and the old password no longer works
+- [x] 2.5 With a scratch database, `MAIL_TRANSPORT=console` and `AUTH_INSECURE_COOKIES=1`, a PowerShell/curl run of register → verify (token from console) → login → `me` → logout works and `me` is `{user:null}` afterwards — 5f77d21
+- [x] 2.6 A POST with `Origin: https://evil.example` (and without `Sec-Fetch-Site`) to `/api/auth/login` returns 403 `csrf_rejected` — 5f77d21
+- [x] 2.7 Password reset invalidates a second logged-in session and the old password no longer works — 5f77d21
 
 ### Phase 3: Angular auth UI and dev proxy
 
 #### Automated
 
-- [ ] 3.1 App tests pass (new `AuthApi`, `AuthState`, page specs and the updated `App` spec): `npm run test:app`
-- [ ] 3.2 Production build stays within budgets: `npm run build`
-- [ ] 3.3 Full suite passes: `npm test`
-- [ ] 3.4 Formatting passes: `npx prettier --check src`
+- [x] 3.1 App tests pass (new `AuthApi`, `AuthState`, page specs and the updated `App` spec): `npm run test:app`
+- [x] 3.2 Production build stays within budgets: `npm run build`
+- [x] 3.3 Full suite passes: `npm test`
+- [x] 3.4 Formatting passes: `npx prettier --check src`
 
 #### Manual
 
-- [ ] 3.5 With `npm start` (proxy) and the API on `:3000` using `MAIL_TRANSPORT=console`, the full browser flow works: register → verification link → login (header shows email) → logout → forgot/reset
-- [ ] 3.6 The anonymous quiz still works end to end, with no failing network calls or console errors (`GET /api/auth/me` returns 200 `{user:null}`)
-- [ ] 3.7 Forms are usable at phone width and in dark mode, with visible focus and screen-reader error announcements
+- [x] 3.5 With `npm start` (proxy) and the API on `:3000` using `MAIL_TRANSPORT=console`, the full browser flow works: register → verification link → login (header shows email) → logout → forgot/reset
+- [x] 3.6 The anonymous quiz still works end to end, with no failing network calls or console errors (`GET /api/auth/me` returns 200 `{user:null}`)
+- [x] 3.7 Forms are usable at phone width and in dark mode, with visible focus and screen-reader error announcements
 
 ### Phase 4: Legal pages and go-live readiness
 

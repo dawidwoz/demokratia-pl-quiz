@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-"Z kim mi po drodze" (npm name `z-kim-mi-po-drodze`) is a Polish-language voter quiz that computes a user's agreement with parties from actual Sejm votes. As of 2026-11-11 the anonymous flow (US-01, change S-01) exists: Angular 21 front end in `src/` (quiz list at `/`, quiz run and result at `/quiz/:id`) and a Node API in `api/` (`GET /api/quizzes`, `GET /api/quizzes/:id`, stateless `POST /api/quizzes/:id/result`; formula in `api/scoring.js`, MariaDB schema and seed in `api/migrations/`). The seeded quiz is **sample content** (`is_sample`, fictional parties) and must be replaced before launch. Accounts, saving results, admin and export (S-02…S-08) are not implemented. For local dev run the API with `CORS_ORIGIN=http://localhost:4200` (see `api/README.md`) and restart `ng serve` after editing `angular.json`.
+"Z kim mi po drodze" (npm name `z-kim-mi-po-drodze`) is a Polish-language voter quiz that computes a user's agreement with parties from actual Sejm votes. As of 2026-11-21 the anonymous flow (US-01, change S-01) and the result justification (S-02) exist: Angular 21 front end in `src/` (quiz list at `/`, quiz run and result at `/quiz/:id`, the result shows each party's stance with justification, source and date per question) and a Node API in `api/` (`GET /api/quizzes`, `GET /api/quizzes/:id` which hides stances, stateless `POST /api/quizzes/:id/result` which returns them; formula in `api/scoring.js`, MariaDB schema and seed in `api/migrations/`). Quiz content is real: 20 Sejm votes of the X term in `content/quizzes/sejm-x-kadencja.json`, loaded by the generated migration `0008_seed_real_quiz.sql`, which also deletes the sample quiz from `0007`; it reaches production only with a manual deploy (format and commands: `content/README.md`). Accounts, saving results, admin and export (S-03…S-08) are not implemented. For local dev run the API with `CORS_ORIGIN=http://localhost:4200` (see `api/README.md`) and restart `ng serve` after editing `angular.json`.
 
 The product intent lives in `context/foundation/` (written in Polish); read it before building features:
 - `@context/foundation/prd.md` — requirements FR-001…FR-011. The scoring formula is under "Business Logic" and privacy and role rules are under "Non-Functional Requirements" and "Access Control"; follow them exactly.
@@ -21,6 +21,7 @@ npx prettier --write <files>       # no lint script; Prettier is the only format
 npm test                           # app tests, then api tests; fails if either fails
 npm run test:app                   # app only: ng test --no-watch (Vitest + jsdom)
 npm run test:api                   # api only: node --test, no database needed
+node api/scripts/build-content-migration.js check content/quizzes/<slug>.json   # validate quiz content (see content/README.md)
 ```
 
 Other scripts (`build`, `watch`) are in `@package.json`.

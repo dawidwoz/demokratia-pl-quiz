@@ -181,6 +181,13 @@ function createHandler({ data, ping }) {
       answered: result.answered,
       total: result.total,
       parties: formatParties(result.parties, names),
+      // Every party's stance with justification and source for every question, in quiz order and
+      // party-id order (not score order). Stances are only revealed here, after answering; the
+      // GET quiz response still hides them.
+      questions: scoring.details.map((detail) => ({
+        id: detail.questionId,
+        positions: detail.positions,
+      })),
     });
   }
 

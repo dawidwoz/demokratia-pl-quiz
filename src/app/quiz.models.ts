@@ -56,8 +56,25 @@ export interface PartyResult {
   counted: number;
 }
 
+/** One party's stance on one question, with the reasoning and where it comes from. */
+export interface PartyPosition {
+  partyId: number;
+  stance: Answer;
+  /** Null when the data has no justification (the sample content has none). */
+  justification: string | null;
+  source: QuestionSource;
+}
+
+/** Stances of the parties that have one on this question; a party without a stance is absent. */
+export interface QuestionPositions {
+  id: number;
+  positions: PartyPosition[];
+}
+
 export interface QuizResult {
   answered: number;
   total: number;
   parties: PartyResult[];
+  /** Every question of the quiz in quiz order (also the skipped ones), positions by party id. */
+  questions: QuestionPositions[];
 }

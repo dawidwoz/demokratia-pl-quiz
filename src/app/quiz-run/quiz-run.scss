@@ -42,6 +42,80 @@ h1 {
   font-weight: 700;
 }
 
+.muted {
+  color: var(--muted);
+}
+
+.details {
+  margin: 1.5rem 0;
+
+  h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.2rem;
+  }
+}
+
+.question {
+  margin-top: 0.6rem;
+  padding: 0.75rem 1rem;
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+
+    &:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 0.25rem;
+    }
+  }
+
+  .your-answer {
+    display: block;
+    margin-top: 0.15rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 400;
+  }
+}
+
+.positions {
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+
+  li {
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+
+    // Angular drops the whitespace between the name and the stance, so space them in CSS.
+    strong {
+      margin-right: 0.35rem;
+    }
+
+    &:first-child {
+      padding-top: 0;
+      border-top: 0;
+    }
+  }
+}
+
+.stance {
+  font-weight: 600;
+}
+
+.justification {
+  margin: 0.25rem 0;
+}
+
+.position-source {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 .bar {
   height: 0.6rem;
   margin: 0.5rem 0;

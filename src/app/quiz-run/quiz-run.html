@@ -49,6 +49,59 @@
           </li>
         }
       </ol>
+      <section class="details" aria-labelledby="details-heading">
+        <h2 id="details-heading">Dlaczego taki wynik</h2>
+        <p class="meta">
+          Stanowisko każdej partii w każdym pytaniu, z uzasadnieniem i źródłem. Rozwiń pytanie, aby
+          je zobaczyć.
+        </p>
+        @for (item of details(); track item.id) {
+          <details class="card question" data-testid="question-details">
+            <summary>
+              {{ item.number }}. {{ item.text }}
+              <span class="your-answer">
+                @if (item.answer) {
+                  Twoja odpowiedź: {{ item.answer }}
+                } @else {
+                  Pominięte
+                }
+              </span>
+            </summary>
+            <ul class="positions">
+              @for (row of item.parties; track row.id) {
+                <li>
+                  <strong>{{ row.name }}:</strong>
+                  @if (row.position; as position) {
+                    <span class="stance">{{ labels[position.stance] }}</span>
+                    <p class="justification">
+                      @if (position.justification) {
+                        {{ position.justification }}
+                      } @else {
+                        <span class="muted">Brak uzasadnienia w danych</span>
+                      }
+                    </p>
+                    <p class="position-source">
+                      Źródło:
+                      @if (position.source.url) {
+                        <a [href]="position.source.url" target="_blank" rel="noopener noreferrer">{{
+                          position.source.label
+                        }}</a>
+                      } @else {
+                        {{ position.source.label }}
+                      }
+                      @if (position.source.date) {
+                        ({{ position.source.date | date: 'dd.MM.yyyy' }})
+                      }
+                    </p>
+                  } @else {
+                    <span class="muted">Brak stanowiska</span>
+                  }
+                </li>
+              }
+            </ul>
+          </details>
+        }
+      </section>
       <div class="actions">
         <button type="button" class="button" (click)="restart()">Rozwiąż jeszcze raz</button>
         <a class="button" routerLink="/">Inne quizy</a>

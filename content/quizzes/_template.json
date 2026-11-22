@@ -1,0 +1,85 @@
+{
+  "_note": "TEMPLATE with invented content. Copy to content/quizzes/<slug>.json, replace everything and see content/README.md. Keys starting with _ are ignored. This file passes only with --draft because a real quiz needs at least 8 questions.",
+  "quiz": {
+    "id": 101,
+    "title": "Tytuł quizu",
+    "description": "Krótki opis quizu widoczny na liście quizów."
+  },
+  "parties": [
+    { "id": 101, "name": "Klub Przykładowy A" },
+    { "id": 102, "name": "Klub Przykładowy B" }
+  ],
+  "questions": [
+    {
+      "id": 101,
+      "text": "Czy ustawa o przykładowej sprawie powinna zostać uchwalona?",
+      "weight": 2,
+      "source": {
+        "label": "Sejm, głosowanie nr 12 na posiedzeniu nr 3",
+        "url": "https://www.sejm.gov.pl/",
+        "date": "2025-02-11"
+      },
+      "positions": [
+        {
+          "party": 101,
+          "basis": "vote",
+          "stance": "za",
+          "votes": { "clubSize": 100, "za": 90, "przeciw": 3, "wstrzymuje": 2 },
+          "justification": "Klub głosował za: 90 ze 100 posłów (3 przeciw, 2 wstrzymało się, 5 nieobecnych).",
+          "source": {
+            "label": "Sejm, głosowanie nr 12 – wyniki imienne",
+            "url": "https://www.sejm.gov.pl/",
+            "date": "2025-02-11"
+          }
+        },
+        {
+          "party": 102,
+          "basis": "vote",
+          "stance": "brak",
+          "votes": { "clubSize": 100, "za": 40, "przeciw": 40, "wstrzymuje": 10 },
+          "justification": "Klub podzielił się po równo (40 za, 40 przeciw, 10 wstrzymało się, 10 nieobecnych): żadna opcja nie ma ponad połowy klubu.",
+          "source": {
+            "label": "Sejm, głosowanie nr 12 – wyniki imienne",
+            "url": "https://www.sejm.gov.pl/",
+            "date": "2025-02-11"
+          }
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "text": "Czy podatek od przykładowych zysków powinien zostać utrzymany?",
+      "weight": 3,
+      "source": {
+        "label": "Projekt ustawy, druk sejmowy nr 123",
+        "url": null,
+        "date": "2025-03-05"
+      },
+      "positions": [
+        {
+          "party": 101,
+          "basis": "declaration",
+          "stance": "przeciw",
+          "justification": "Program wyborczy klubu mówi wprost, że podatek zostanie zniesiony (rozdział 4).",
+          "source": {
+            "label": "Program wyborczy Klubu A, rozdział 4",
+            "url": "https://example.org/program.pdf",
+            "date": "2023-09-01"
+          }
+        },
+        {
+          "party": 102,
+          "basis": "vote",
+          "stance": "wstrzymuje",
+          "votes": { "clubSize": 60, "za": 10, "przeciw": 12, "wstrzymuje": 35 },
+          "justification": "Większość klubu (35 z 60 posłów) wstrzymała się od głosu.",
+          "source": {
+            "label": "Sejm, głosowanie nr 40 – wyniki imienne",
+            "url": "https://www.sejm.gov.pl/",
+            "date": "2025-03-05"
+          }
+        }
+      ]
+    }
+  ]
+}

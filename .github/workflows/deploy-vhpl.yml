@@ -12,7 +12,12 @@
 #                              migration step only (the DB_* set in cPanel are not visible to a
 #                              non-interactive SSH shell). They reach the host over stdin, never argv.
 #   variable  VHPL_SITE_URL, e.g. https://quiz.demokratia.pl. When set, the run ends with a smoke check of
-#             /api/health, /api/health/db and a SPA deep link.
+#             /api/health, /api/health/db, a SPA deep link, /api/quizzes and the anonymous /api/auth/me.
+#
+# Accounts go live with a deploy: before building, scripts/check-go-live.mjs refuses to continue while the
+# Polityka Prywatności / Regulamin still hold their placeholders (src/app/legal/legal.config.ts) or have not
+# been marked as reviewed. The mail settings (SMTP_*, MAIL_FROM, PUBLIC_BASE_URL) are set by hand in the
+# cPanel Node app, like DB_*; see api/README.md.
 #
 # Migrations: api/migrations/ is mirrored to the host (with --delete) and `node migrate.js` applies pending
 # files before the API restarts, so a schema change ships with a normal deploy. A failed migration fails the job.
@@ -109,6 +114,12 @@ jobs:
           set -euo pipefail
           test -f deploy/vhpl/.htaccess || { echo "deploy/vhpl/ is missing in this commit" >&2; exit 1; }
           test -f api/app.js || { echo "api/ is missing in this commit" >&2; exit 1; }
+          # Commits from before the account pages existed (rollback targets) have no legal config to check.
+          if [ -f scripts/check-go-live.mjs ]; then
+            node scripts/check-go-live.mjs
+          else
+            echo "scripts/check-go-live.mjs is absent in this commit; skipping the go-live check"
+          fi
           npm ci
           npm run build
           cp deploy/vhpl/.htaccess dist/z-kim-mi-po-drodze/browser/.htaccess
@@ -252,4 +263,13 @@ jobs:
             echo "$quizzes" | grep -q '"id":'
           else
             echo "api/quiz-data.js is absent in this commit; skipping the quiz API check"
+          fi
+          # Commits from before accounts existed (rollback targets) have no api/auth-routes.js. GET only and
+          # anonymous: it never registers or logs anyone in, and answers 200 {"user":null} without a cookie.
+          if [ -f api/auth-routes.js ]; then
+            me=$(curl -fsS --max-time 30 --retry 5 --retry-delay 5 --retry-all-errors "${SITE_URL%/}/api/auth/me")
+            echo "$me"
+            echo "$me" | grep -q '"user":null'
+          else
+            echo "api/auth-routes.js is absent in this commit; skipping the accounts check"
           fi

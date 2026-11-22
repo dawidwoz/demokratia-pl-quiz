@@ -131,7 +131,8 @@ Dwie role: **użytkownik** i **admin**.
 - **Konto jest potrzebne**, aby: zapisywać swoje wyniki, eksportować wyniki do obrazów oraz (opcjonalnie) porównywać się z innymi.
 - **Admin** zarządza pytaniami i stanowiskami partii ze wskazaniem źródła.
 - Rolę admina nadają inni administratorzy (decyzja użytkownika 2026-11-03).
-- Niepodane (patrz Open Questions): sposób rejestracji/logowania, sposób utworzenia pierwszego admina, zasady prywatności porównań z innymi.
+- Rejestracja i logowanie (decyzja 2026-11-22, zmiana `account-registration-login`): adres e-mail i hasło, adres potwierdzany linkiem z wiadomości, reset hasła linkiem, sesja w ciasteczku HttpOnly.
+- Niepodane (patrz Open Questions): sposób utworzenia pierwszego admina, zasady prywatności porównań z innymi.
 
 ## Non-Goals
 
@@ -145,7 +146,7 @@ Dwie role: **użytkownik** i **admin**.
 1. **Jakie są kryteria weryfikacji stanowisk partii z deklaracji (FR-010)?** — Niepodane; ryzyko subiektywności interpretacji deklaracji. Owner: user.
 2. **Jakie są kryteria doboru pytań i partii do quizu?** — Niepodane w danych wejściowych. Owner: user.
 3. **Jaki jest stan testów, dokumentacji i repozytoriów demokratia.pl?** — Zamknięte 2026-11-03 jako nieistotne: projekt jest całkowicie niezależny od demokratia.pl (współdzieli tylko domenę wdrożenia). Konta z FR-001 to nowa praca, nie reuse. Owner: user.
-4. **Jak użytkownik zakłada konto / loguje się i jak nadawana jest rola admina?** — Częściowo rozstrzygnięte 2026-11-03: rolę admina nadają inni administratorzy. Otwarte pozostają: sposób rejestracji/logowania oraz sposób utworzenia pierwszego admina (bootstrap). Owner: user.
+4. **Jak użytkownik zakłada konto / loguje się i jak nadawana jest rola admina?** — Częściowo rozstrzygnięte: rolę admina nadają inni administratorzy (2026-11-03); rejestracja i logowanie to adres e-mail i hasło z potwierdzeniem adresu i resetem hasła (2026-11-22). Otwarte pozostaje tylko utworzenie pierwszego admina (bootstrap). Owner: user.
 5. **Jakie są zasady prywatności porównań z innymi (FR-007): kto i co widzi, czy wyniki są domyślnie prywatne?** — Niepodane; przy ~20 uczestnikach statystyki mają bardzo małą próbę (przy 100× tej skali zmieniłyby się tylko statystyki porównawcze, nie reguła domenowa). Owner: user.
 6. **Czy wagi ważności pytań (ustalane przez admina) wpływają na FR-007 (porównanie) i na neutralność wobec partii?** — Niepodane. Owner: user.
 7. **Jak prezentować wynik zgodności, by nie sugerować fałszywej precyzji (FR-003)?** — Z rundy Sokratesa; nierozstrzygnięte. Owner: user.

@@ -227,7 +227,7 @@ Zakres badania nie objął wszystkich osi; pola oznaczone „do weryfikacji" mia
 | vh.pl: moduły natywne (np. bcrypt) mogą się nie zbudować na hostingu | Devil's advocate | L | M | Używać wbudowanego `crypto.scrypt` (49–59 ms w spike'u) i bibliotek bez kompilacji |
 | vh.pl: wdrożenie SSH z klucza w GitHub Actions i blokady IP po nieudanych logowaniach | Devil's advocate | L | H | W spike'u działa; dedykowany klucz bez hasła, pinowany `known_hosts`, nie ponawiać nieudanych logowań; plan B: SFTP i ręczny restart |
 | vh.pl: aplikacja Node pod Passengerem i port (`app.listen`) | Unknown unknowns | L | L | Zweryfikowane w spike'u: `process.env.PORT \|\| 3000` działa pod Passengerem |
-| vh.pl: DNS `demokratia.pl` i RODO (lokalizacja DC, powierzenie danych) niezweryfikowane | Unknown unknowns | M | H | Potwierdzić, kto zarządza DNS, oraz warunki RODO u vh.pl przed zapisem danych osobowych |
+| vh.pl: DNS `demokratia.pl` i RODO (lokalizacja DC, powierzenie danych) niezweryfikowane | Unknown unknowns | M | H | RODO rozstrzygnięte 2026-11-22 (zob. Open Decisions, pkt 7). Do sprawdzenia: kto zarządza DNS `demokratia.pl` (SPF/DKIM dla poczty kont) |
 
 ## Open Decisions
 
@@ -237,7 +237,7 @@ Zakres badania nie objął wszystkich osi; pola oznaczone „do weryfikacji" mia
 4. **Kompromis agent-friendly kontra koszt i znajomość: ROZSTRZYGNIĘTE przez użytkownika** na korzyść vh.pl, ze świadomością braku CLI, MCP i `llms.txt` oraz ręcznych bramek w cPanelu.
 5. **ZAMKNIĘTE CZĘŚCIOWO 2026-11-07: pomiar opóźnienia po bezczynności** (kryterium 6). Pierwsze żądanie na `/api/health/db` trwało 0,20 s (< 2 s), więc wyzwalacz planu B nr 1 nie zachodzi. Nie zaobserwowano zimnego startu procesu po zatrzymaniu przez Passengera; powtórzyć przy realnym ruchu (wynik > 2 s bez obejścia uruchamia plan B).
 6. **ROZSTRZYGNIĘTE 2026-10-19: hasło do bazy.** Użytkownik potwierdził, że hasło do bazy zostało zmienione (testowa baza `vh19328_spike` miała hasło ujawnione w rozmowie). Od 2026-11-07 produkcyjna baza istnieje (nowe hasło), zmienne `DB_*` są ustawione w aplikacji produkcyjnej, a `/api/health/db` zwraca `"db":"up"` (zmiana `context/changes/f-01/`).
-7. **ROZSTRZYGNIĘTE 2026-10-19: domena.** Produkcyjny adres MVP to `quiz.demokratia.pl` (subdomena działa bez zmian w DNS); `podrodze.demokratia.pl` odpada. **OTWARTE: warunki RODO i lokalizacja danych vh.pl** (źródło trzecie: Gdańsk/Gdynia), do potwierdzenia przed zapisem danych osobowych.
+7. **ROZSTRZYGNIĘTE 2026-10-19: domena.** Produkcyjny adres MVP to `quiz.demokratia.pl` (subdomena działa bez zmian w DNS); `podrodze.demokratia.pl` odpada. **ROZSTRZYGNIĘTE 2026-11-22: RODO i lokalizacja danych vh.pl.** Lokalizacja (Gdańsk i Gdynia, UE; oficjalnie na `vh.pl/serwerownia`) i kopie zapasowe do 31 dni zostały zaakceptowane przez użytkownika. Umowy powierzenia z vh.pl nie zawarto (decyzja użytkownika: informowanie użytkowników Polityką Prywatności i Regulaminem; vh.pl oferuje taką umowę na żądanie pod `bok@vh.pl`); wyzwalacz nr 4 planu B nie zachodzi. Poczta wychodząca kont: `support@quiz.demokratia.pl` przez SMTP vh.pl (limit 250 wiadomości na godzinę), do sprawdzenia przy uruchomieniu kont.
 8. **ODŁOŻONE 2026-10-19: auto-deploy po merge.** Decyzja użytkownika: na razie wdrożenie zostaje ręczne (`workflow_dispatch`). `ci_default_flow: auto-deploy-on-merge` w `tech-stack.md` jest więc chwilowo niezgodne z praktyką; wrócić do tematu po stabilizacji.
 
 ## Getting Started

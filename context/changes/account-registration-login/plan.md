@@ -431,29 +431,29 @@ Migrations are add-only and backward-compatible with the previous app version (n
 
 #### Automated
 
-- [x] 3.1 App tests pass (new `AuthApi`, `AuthState`, page specs and the updated `App` spec): `npm run test:app`
-- [x] 3.2 Production build stays within budgets: `npm run build`
-- [x] 3.3 Full suite passes: `npm test`
-- [x] 3.4 Formatting passes: `npx prettier --check src`
+- [x] 3.1 App tests pass (new `AuthApi`, `AuthState`, page specs and the updated `App` spec): `npm run test:app` — 84a382d
+- [x] 3.2 Production build stays within budgets: `npm run build` — 84a382d
+- [x] 3.3 Full suite passes: `npm test` — 84a382d
+- [x] 3.4 Formatting passes: `npx prettier --check src` — 84a382d
 
 #### Manual
 
-- [x] 3.5 With `npm start` (proxy) and the API on `:3000` using `MAIL_TRANSPORT=console`, the full browser flow works: register → verification link → login (header shows email) → logout → forgot/reset
-- [x] 3.6 The anonymous quiz still works end to end, with no failing network calls or console errors (`GET /api/auth/me` returns 200 `{user:null}`)
-- [x] 3.7 Forms are usable at phone width and in dark mode, with visible focus and screen-reader error announcements
+- [x] 3.5 With `npm start` (proxy) and the API on `:3000` using `MAIL_TRANSPORT=console`, the full browser flow works: register → verification link → login (header shows email) → logout → forgot/reset — 84a382d
+- [x] 3.6 The anonymous quiz still works end to end, with no failing network calls or console errors (`GET /api/auth/me` returns 200 `{user:null}`) — 84a382d
+- [x] 3.7 Forms are usable at phone width and in dark mode, with visible focus and screen-reader error announcements — 84a382d
 
 ### Phase 4: Legal pages and go-live readiness
 
 #### Automated
 
-- [ ] 4.1 Full suite passes, including the `TERMS_VERSION` consistency test and legal page specs: `npm test`
-- [ ] 4.2 Go-live guard fails while the placeholder is present: `node scripts/check-go-live.mjs` exits non-zero
-- [ ] 4.3 Production build succeeds: `npm run build`
-- [ ] 4.4 Formatting passes on changed files: `npx prettier --check src api scripts`
+- [x] 4.1 Full suite passes, including the `TERMS_VERSION` consistency test and legal page specs: `npm test`
+- [x] 4.2 Go-live guard fails while the placeholder is present: `node scripts/check-go-live.mjs` exits non-zero
+- [x] 4.3 Production build succeeds: `npm run build`
+- [x] 4.4 Formatting passes on changed files: `npx prettier --check src api scripts`
 
 #### Manual
 
-- [ ] 4.5 The owner reads and approves (or edits) the draft Polityka Prywatności and Regulamin, and sets `CONTROLLER_NAME`, `PRIVACY_CONTACT` and `EFFECTIVE_DATE`; the guard then passes
+- [x] 4.5 The owner reads and approves (or edits) the draft Polityka Prywatności and Regulamin, and sets `CONTROLLER_NAME`, `PRIVACY_CONTACT` and `EFFECTIVE_DATE`; the guard then passes
 - [ ] 4.6 Go-live gates done: a sender mailbox exists for `MAIL_FROM`; `SMTP_*`, `MAIL_FROM` and `PUBLIC_BASE_URL` are set in the cPanel Node app, which is re-saved
 - [ ] 4.7 On the host, `node api/scripts/measure-scrypt.js` shows an acceptable hash time (target under 500 ms) and no memory errors; otherwise adjust the scrypt constants to another OWASP-listed equivalent
 - [ ] 4.8 After the manual deploy workflow, the smoke check passes, and a real registration, verification mail, login, logout, and password-reset mail work on `quiz.demokratia.pl`

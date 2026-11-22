@@ -1,0 +1,80 @@
+<article class="legal">
+  <h1>Regulamin</h1>
+  <p class="meta">Wersja {{ version }}, obowiązuje od {{ effectiveDate }}</p>
+
+  @if (!reviewed()) {
+    <p class="notice" role="note" data-testid="draft-banner">
+      <strong>Wersja robocza.</strong> Ten tekst czeka na przegląd właściciela serwisu, nie stanowi
+      porady prawnej i nie obowiązuje, dopóki nie zostanie zatwierdzony.
+    </p>
+  }
+
+  <h2>1. Postanowienia ogólne</h2>
+  <p>
+    Regulamin określa zasady korzystania z serwisu „Z kim mi po drodze” dostępnego pod adresem
+    quiz.demokratia.pl. Zasady przetwarzania danych osobowych opisuje
+    <a routerLink="/polityka-prywatnosci">Polityka Prywatności</a>. Kontakt:
+    <span data-testid="contact">{{ contact }}</span
+    >.
+  </p>
+
+  <h2>2. Na czym polega serwis</h2>
+  <p>
+    Serwis pozwala odpowiedzieć na pytania oparte na głosowaniach w Sejmie i zobaczyć, z którymi
+    partiami Twoje odpowiedzi są najbardziej zgodne. Z quizu korzystasz bez konta, bezpłatnie i bez
+    podawania danych. Odpowiedzi nie są zapisywane.
+  </p>
+
+  <h2>3. Konto</h2>
+  <ul>
+    <li>Konto jest dobrowolne i bezpłatne. Zakładasz je, podając adres e-mail i hasło.</li>
+    <li>
+      Konto zostaje aktywne po potwierdzeniu adresu e-mail linkiem, który wysyłamy w wiadomości.
+      Link jest jednorazowy i wygasa po 24 godzinach.
+    </li>
+    <li>Podajesz własny, prawdziwy adres e-mail i dbasz o poufność swojego hasła.</li>
+    <li>
+      Przy zakładaniu konta akceptujesz Regulamin i Politykę Prywatności; zapisujemy numer wersji i
+      czas akceptacji.
+    </li>
+  </ul>
+
+  <h2>4. Charakter wyników</h2>
+  <p>
+    Wynik quizu ma charakter informacyjny. Opiera się na publicznych głosowaniach w Sejmie i na
+    deklaracjach partii, a przy każdym pytaniu i stanowisku wskazujemy źródło i datę. Wynik jest
+    uproszczeniem i nie jest rekomendacją wyborczą ani poradą. Nie ponosimy odpowiedzialności za
+    decyzje podjęte na jego podstawie.
+  </p>
+
+  <h2>5. Zasady korzystania</h2>
+  <p>
+    Zabronione jest zakłócanie działania serwisu, automatyczne masowe wysyłanie żądań, próby
+    uzyskania dostępu do cudzych kont oraz wykorzystywanie serwisu niezgodnie z prawem. Dokładamy
+    starań, by serwis działał nieprzerwanie, ale nie gwarantujemy jego stałej dostępności.
+  </p>
+
+  <h2>6. Odpowiedzialność</h2>
+  <p>
+    Serwis udostępniamy w stanie, w jakim jest, w granicach dozwolonych przez prawo. Nie wyłączamy
+    odpowiedzialności, której zgodnie z przepisami wyłączyć nie można.
+  </p>
+
+  <h2>7. Reklamacje</h2>
+  <p>Uwagi i reklamacje możesz zgłaszać na adres {{ contact }}. Odpowiadamy w ciągu 14 dni.</p>
+
+  <h2>8. Zakończenie korzystania z konta</h2>
+  <p>
+    Możesz w każdej chwili poprosić o usunięcie konta (adres w punkcie 1); usuniemy je wraz ze
+    wszystkimi powiązanymi danymi. Możemy zablokować konto, jeśli narusza ono Regulamin.
+  </p>
+
+  <h2>9. Zmiany Regulaminu</h2>
+  <p>
+    O istotnych zmianach poinformujemy w serwisie i zmienimy numer wersji. Zmieniony tekst
+    obowiązuje od daty podanej na początku dokumentu.
+  </p>
+
+  <h2>10. Postanowienia końcowe</h2>
+  <p>W sprawach nieuregulowanych stosuje się prawo polskie.</p>
+</article>

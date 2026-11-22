@@ -5,6 +5,8 @@ import { Login } from './auth/login/login';
 import { Register } from './auth/register/register';
 import { ResetPassword } from './auth/reset-password/reset-password';
 import { VerifyEmail } from './auth/verify-email/verify-email';
+import { PrivacyPolicy } from './legal/privacy-policy/privacy-policy';
+import { Terms } from './legal/terms/terms';
 import { QuizList } from './quiz-list/quiz-list';
 import { QuizRun } from './quiz-run/quiz-run';
 
@@ -24,5 +26,11 @@ export const routes: Routes = [
     title: 'Nie pamiętam hasła | Z kim mi po drodze',
   },
   { path: 'reset-hasla', component: ResetPassword, title: 'Nowe hasło | Z kim mi po drodze' },
+  { path: 'regulamin', component: Terms, title: 'Regulamin | Z kim mi po drodze' },
+  {
+    path: 'polityka-prywatnosci',
+    component: PrivacyPolicy,
+    title: 'Polityka Prywatności | Z kim mi po drodze',
+  },
   { path: '**', redirectTo: '' },
 ];

@@ -1,0 +1,30 @@
+<section>
+  <h1>Potwierdzenie adresu e-mail</h1>
+
+  @switch (state()) {
+    @case ('loading') {
+      <p aria-live="polite">Potwierdzamy Twój adres…</p>
+    }
+    @case ('ok') {
+      <p class="notice" role="status" data-testid="verified">
+        Adres e-mail został potwierdzony. Możesz się zalogować.
+      </p>
+      <p><a class="button primary" routerLink="/logowanie">Zaloguj się</a></p>
+    }
+    @case ('invalid') {
+      <p class="notice error" role="alert" data-testid="invalid">
+        Ten link jest nieważny, wygasł albo został już użyty.
+      </p>
+      <p>
+        Jeśli konto nadal czeka na potwierdzenie, zaloguj się i poproś o nowy link, albo
+        <a routerLink="/rejestracja">załóż konto jeszcze raz</a>.
+      </p>
+      <p><a routerLink="/logowanie">Przejdź do logowania</a></p>
+    }
+    @case ('error') {
+      <p class="notice error" role="alert" data-testid="error">
+        Nie udało się potwierdzić adresu. Spróbuj ponownie za chwilę, otwierając link z wiadomości.
+      </p>
+    }
+  }
+</section>

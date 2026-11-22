@@ -45,7 +45,7 @@ Wyborca szukający partii zgodnej ze swoimi poglądami nie ma dobrego sposobu, b
 | F-02 | automated-test-baseline         | (foundation) testy automatyczne uruchamiają się jedną komendą                | —                                     | Business Logic                    | done     |
 | S-01 | anonymous-quiz-result           | rozwiązać quiz bez konta i zobaczyć zgodność z każdą partią                  | F-01, F-02, seeded quiz content       | US-01, FR-002, FR-003, FR-004     | done     |
 | S-02 | result-position-justification   | zobaczyć, dlaczego partia ma dane stanowisko (uzasadnienie, źródło, data)    | S-01                                  | FR-003, FR-004                    | done     |
-| S-03 | account-registration-login      | założyć konto i się zalogować                                                | F-01                                  | FR-001                            | blocked  |
+| S-03 | account-registration-login      | założyć konto i się zalogować                                                | F-01                                  | FR-001                            | in-progress |
 | S-04 | save-quiz-result                | zapisać swój wynik na koncie i zobaczyć go ponownie (tylko ja)               | S-01, S-03                            | FR-005                            | proposed |
 | S-05 | admin-quiz-management           | jako admin dodać i zmienić quiz z pytaniami, źródłem i wagą                  | S-01, S-03                            | FR-009                            | proposed |
 | S-06 | admin-party-positions           | jako admin dodać i zmienić stanowisko partii ze źródłem i uzasadnieniem      | S-05                                  | FR-010                            | proposed |
@@ -142,12 +142,12 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
 - **PRD refs:** FR-001
 - **Prerequisites:** F-01
 - **Parallel with:** F-02, S-01, S-02
-- **Blockers:** potwierdzenie warunków RODO i lokalizacji danych vh.pl (zewnętrzne, po stronie dostawcy)
+- **Blockers:** — (RODO rozstrzygnięte decyzją użytkownika 2026-11-22; do uruchomienia na produkcji zostają bramki z planu: kontakt i teksty prawne, skrzynka `support@quiz.demokratia.pl` z działającym SMTP)
 - **Unknowns:**
-  - Czy warunki RODO i lokalizacja danych vh.pl są akceptowalne przed zapisem danych osobowych (spełnienie wyzwalacza nr 4 przejścia na plan B)? — Owner: user. Block: yes.
-  - Jak użytkownik zakłada konto i się loguje (PRD Open Question 4)? — Owner: user. Block: no.
+  - Czy warunki RODO i lokalizacja danych vh.pl są akceptowalne? — Rozstrzygnięte 2026-11-22: tak (lokalizacja i 31 dni kopii zaakceptowane, bez umowy powierzenia, użytkownicy informowani Polityką Prywatności i Regulaminem; wyzwalacz nr 4 nie zachodzi).
+  - Jak użytkownik zakłada konto i się loguje (PRD Open Question 4)? — Rozstrzygnięte 2026-11-22: adres e-mail i hasło, potwierdzenie adresu, reset hasła.
 - **Risk:** Pierwszy wycinek zapisujący dane osobowe, więc RODO jest bramką; konta są opcjonalne dla quizu, dlatego wycinek jest poza ścieżką gwiazdy przewodniej.
-- **Status:** blocked
+- **Status:** in-progress
 
 ### S-04: Zalogowany użytkownik zapisuje wynik
 
@@ -222,7 +222,7 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
 | F-02       | automated-test-baseline        | Uruchomić testy automatyczne jedną komendą                    | no (done)             | Zrealizowane w zmianie `f-02` (PR #3)                        |
 | S-01       | anonymous-quiz-result          | Anonimowy quiz z wynikiem zgodności z partiami                | no                    | Czeka na F-01, F-02 i treść quizu                            |
 | S-02       | result-position-justification  | Uzasadnienie, źródło i data stanowiska partii przy wyniku     | no                    | Czeka na S-01                                                |
-| S-03       | account-registration-login     | Rejestracja i logowanie                                       | no                    | Zablokowane: RODO / lokalizacja danych vh.pl                 |
+| S-03       | account-registration-login     | Rejestracja i logowanie                                       | no (w realizacji)     | Plan i kod gotowe; produkcja po bramkach go-live (zob. plan, faza 4) |
 | S-04       | save-quiz-result               | Zapis wyniku na koncie                                        | no                    | Czeka na S-01, S-03                                          |
 | S-05       | admin-quiz-management          | Panel admina: quizy i pytania                                 | no                    | Czeka na S-01, S-03                                          |
 | S-06       | admin-party-positions          | Panel admina: stanowiska partii ze źródłem                    | no                    | Czeka na S-05                                                |
@@ -234,7 +234,7 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
 1. **Jakie są kryteria weryfikacji stanowisk partii z deklaracji (FR-010)?** — Niepodane; ryzyko subiektywności interpretacji deklaracji. Owner: user. Block: S-06.
 2. **Jakie są kryteria doboru pytań i partii do quizu?** — Niepodane w danych wejściowych. Owner: user. Block: publikacja (zob. pytanie 13).
 3. **Jaki jest stan testów, dokumentacji i repozytoriów demokratia.pl?** — Nieznany; demokratia.pl nie ma mechanizmu logowania ani kont (konta z FR-001 to nowa praca, nie reuse). Owner: user. Block: roadmap-wide (informacyjnie).
-4. **Jak użytkownik zakłada konto / loguje się i jak nadawana jest rola admina?** — Niepodane. Owner: user. Block: S-03, S-05.
+4. **Jak użytkownik zakłada konto / loguje się i jak nadawana jest rola admina?** — Częściowo rozstrzygnięte: rejestracja i logowanie (adres e-mail + hasło, potwierdzenie, reset) 2026-11-22; rolę admina nadają inni administratorzy; otwarte: utworzenie pierwszego admina (bootstrap). Owner: user. Block: S-05.
 5. **Jakie są zasady prywatności porównań z innymi (FR-007)?** — Niepodane; przy ~20 uczestnikach statystyki mają bardzo małą próbę. Owner: user. Block: — (FR-007 jest w Parked).
 6. **Czy wagi ważności pytań wpływają na FR-007 i na neutralność wobec partii?** — Niepodane. Owner: user. Block: S-05.
 7. **Jak prezentować wynik zgodności, by nie sugerować fałszywej precyzji (FR-003)?** — Z rundy Sokratesa; nierozstrzygnięte. Owner: user. Block: S-01.

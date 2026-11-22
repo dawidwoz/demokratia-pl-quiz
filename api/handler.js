@@ -9,23 +9,7 @@
 
 const { computeResult } = require('./scoring');
 const { parseAnswers, InvalidRequestError } = require('./validate');
-
-const MAX_BODY_BYTES = 16 * 1024;
-
-class PayloadTooLargeError extends Error {
-  constructor() {
-    super('payload too large');
-    this.code = 'payload_too_large';
-  }
-}
-
-function sendJson(res, status, body) {
-  res.writeHead(status, {
-    'Content-Type': 'application/json; charset=utf-8',
-    'X-Content-Type-Options': 'nosniff',
-  });
-  res.end(JSON.stringify(body));
-}
+const { MAX_BODY_BYTES, PayloadTooLargeError, sendJson, readJsonBody } = require('./http');
 
 function health() {
   return { status: 'ok', node: process.version, uptimeSeconds: Math.round(process.uptime()) };
@@ -56,41 +40,6 @@ function sendUnavailable(res, error) {
   return sendJson(res, 503, { status: 'error', code: 'unavailable' });
 }
 
-function readJsonBody(req) {
-  return new Promise((resolve, reject) => {
-    const contentType = String(req.headers['content-type'] || '');
-    if (!contentType.toLowerCase().startsWith('application/json')) {
-      reject(new InvalidRequestError('content-type must be application/json'));
-      req.resume();
-      return;
-    }
-    const chunks = [];
-    let size = 0;
-    let failed = false;
-    req.on('data', (chunk) => {
-      if (failed) return;
-      size += chunk.length;
-      if (size > MAX_BODY_BYTES) {
-        failed = true;
-        reject(new PayloadTooLargeError());
-        return;
-      }
-      chunks.push(chunk);
-    });
-    req.on('end', () => {
-      if (failed) return;
-      try {
-        resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
-      } catch (_) {
-        reject(new InvalidRequestError('body is not valid JSON'));
-      }
-    });
-    req.on('error', () => {
-      if (!failed) reject(new InvalidRequestError('request stream error'));
-    });
-  });
-}
-
 function formatParties(parties, names) {
   return parties
     .map((party) => ({
@@ -107,8 +56,10 @@ function formatParties(parties, names) {
     });
 }
 
-// deps: { data: { listQuizzes, getQuiz, getScoringData }, ping }
-function createHandler({ data, ping }) {
+// deps: { data: { listQuizzes, getQuiz, getScoringData }, ping, auth }
+// `auth` (optional, see auth-routes.js) serves /api/auth/*; without it those paths are a plain 404.
+// The quiz routes never use it: anonymous quiz-taking has no account or session code in its path.
+function createHandler({ data, ping, auth }) {
   async function healthDb(res) {
     try {
       await ping();
@@ -228,6 +179,8 @@ function createHandler({ data, ping }) {
       const resultMatch = /^\/api\/quizzes\/([1-9]\d{0,8})\/result$/.exec(pathname);
       if (req.method === 'POST' && resultMatch)
         return await postResult(req, res, Number(resultMatch[1]));
+
+      if (auth && pathname.startsWith('/api/auth/')) return await auth.handle(req, res, pathname);
 
       return sendJson(res, 404, { status: 'not_found' });
     } catch (error) {

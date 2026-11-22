@@ -1,0 +1,115 @@
+<article class="legal">
+  <h1>Polityka Prywatności</h1>
+  <p class="meta">Wersja {{ version }}, obowiązuje od {{ effectiveDate }}</p>
+
+  @if (!reviewed()) {
+    <p class="notice" role="note" data-testid="draft-banner">
+      <strong>Wersja robocza.</strong> Ten tekst czeka na przegląd właściciela serwisu, nie stanowi
+      porady prawnej i nie obowiązuje, dopóki nie zostanie zatwierdzony.
+    </p>
+  }
+
+  <h2>1. Kto jest administratorem danych</h2>
+  <p>
+    Administratorem danych osobowych jest {{ controller }} (serwis „Z kim mi po drodze” dostępny pod
+    adresem quiz.demokratia.pl). Kontakt w sprawach danych osobowych:
+    <span data-testid="contact">{{ contact }}</span
+    >.
+  </p>
+
+  <h2>2. Jakie dane przetwarzamy</h2>
+  <p>
+    <strong>Bez konta</strong> nie podajesz nam żadnych danych. Odpowiedzi w quizie nie są
+    zapisywane w bazie ani w logach: wynik jest liczony na bieżąco i wraca do Twojej przeglądarki.
+  </p>
+  <p><strong>Jeśli założysz konto</strong>, przetwarzamy:</p>
+  <ul>
+    <li>adres e-mail i skrót hasła (samego hasła nie przechowujemy);</li>
+    <li>informację, czy adres e-mail został potwierdzony, oraz datę założenia konta;</li>
+    <li>
+      wersję Regulaminu i Polityki Prywatności, które zaakceptowałeś, wraz z czasem akceptacji;
+    </li>
+    <li>
+      dane sesji po zalogowaniu: losowy identyfikator sesji (w bazie zapisujemy tylko jego skrót)
+      oraz czasy utworzenia, ostatniej aktywności i wygaśnięcia sesji;
+    </li>
+    <li>
+      jednorazowe linki z wiadomości (potwierdzenie adresu, ustawienie hasła): w bazie zapisujemy
+      tylko ich skrót i czas ważności.
+    </li>
+  </ul>
+  <p>
+    Adres IP jest używany wyłącznie tymczasowo, w pamięci serwera, do ograniczania liczby prób
+    logowania i rejestracji. Nie zapisujemy go w bazie danych ani w naszych logach. Nasze logi
+    zawierają tylko krótkie kody błędów, bez adresów e-mail, haseł i odpowiedzi z quizu. Dostawca
+    hostingu może prowadzić własne, techniczne logi serwera, na które nie mamy wpływu.
+  </p>
+
+  <h2>3. W jakim celu i na jakiej podstawie</h2>
+  <ul>
+    <li>
+      założenie i prowadzenie konta oraz wysyłanie wiadomości związanych z kontem (potwierdzenie
+      adresu, ustawienie hasła) – art. 6 ust. 1 lit. b RODO (wykonanie umowy o prowadzenie konta);
+    </li>
+    <li>
+      bezpieczeństwo serwisu i zapobieganie nadużyciom, w tym ograniczanie liczby prób logowania –
+      art. 6 ust. 1 lit. f RODO (prawnie uzasadniony interes administratora).
+    </li>
+  </ul>
+  <p>Nie wysyłamy wiadomości marketingowych i nie profilujemy użytkowników.</p>
+
+  <h2>4. Jak długo przechowujemy dane</h2>
+  <ul>
+    <li>konto i jego dane – do czasu usunięcia konta;</li>
+    <li>konto, którego adres nie został potwierdzony – usuwamy po 7 dniach;</li>
+    <li>sesja – wygasa po 30 minutach bezczynności, najpóźniej po 8 godzinach od zalogowania;</li>
+    <li>
+      link z wiadomości – ważny 24 godziny (potwierdzenie adresu) lub 1 godzinę (hasło),
+      jednorazowy;
+    </li>
+    <li>
+      kopie zapasowe wykonywane przez dostawcę hostingu – do 31 dni, także po usunięciu danych z
+      systemu produkcyjnego.
+    </li>
+  </ul>
+
+  <h2>5. Komu powierzamy dane</h2>
+  <p>
+    Serwis działa na hostingu firmy Prociv Sp. z o.o. z siedzibą we Wrocławiu (vh.pl). Serwery
+    znajdują się w dwóch lokalizacjach w Polsce (Gdańsk i Gdynia), w Unii Europejskiej. Wiadomości
+    e-mail wysyłamy przez serwer pocztowy tego hostingu. Nie przekazujemy danych do państw spoza
+    Europejskiego Obszaru Gospodarczego ani innym odbiorcom.
+  </p>
+
+  <h2>6. Pliki cookie i pamięć przeglądarki</h2>
+  <p>
+    Po zalogowaniu ustawiamy jeden techniczny plik cookie <code>__Host-sid</code> z identyfikatorem
+    sesji (HttpOnly, Secure, SameSite=Lax, ważny do 8 godzin). Jest niezbędny do działania konta i
+    znika po wylogowaniu. Nie używamy plików cookie analitycznych ani reklamowych i nie zapisujemy
+    niczego w pamięci lokalnej przeglądarki.
+  </p>
+
+  <h2>7. Twoje prawa</h2>
+  <p>
+    Masz prawo dostępu do swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania,
+    przenoszenia oraz sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie. Masz
+    też prawo wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych.
+  </p>
+  <p>
+    Aby skorzystać z tych praw, napisz na adres {{ contact }}. Samodzielne usuwanie konta w serwisie
+    jest planowane; do czasu jego udostępnienia usuniemy konto wraz ze wszystkimi powiązanymi danymi
+    na Twoją prośbę.
+  </p>
+
+  <h2>8. Czy podanie danych jest obowiązkowe</h2>
+  <p>
+    Nie. Z quizu korzystasz bez konta i bez podawania danych. Adres e-mail i hasło są potrzebne
+    tylko wtedy, gdy chcesz mieć konto.
+  </p>
+
+  <h2>9. Zmiany polityki</h2>
+  <p>
+    O istotnych zmianach poinformujemy w serwisie i zmienimy numer wersji. Obowiązujący
+    <a routerLink="/regulamin">Regulamin</a> znajdziesz na osobnej stronie.
+  </p>
+</article>

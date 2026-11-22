@@ -10,8 +10,20 @@ const http = require('node:http');
 const { ping } = require('./db');
 const { createHandler } = require('./handler');
 const quizData = require('./quiz-data');
+const passwords = require('./passwords');
+const authStore = require('./auth-store');
+const { createMailer } = require('./mailer');
+const { createAuthService } = require('./auth-service');
+const { createAuthRoutes } = require('./auth-routes');
 
-const server = http.createServer(createHandler({ data: quizData, ping }));
+// Accounts: SQL store, SMTP mailer and the in-memory limiters are wired here; mail settings are read
+// from the environment when a mail is sent, so a missing SMTP variable never stops the API starting.
+const auth = createAuthRoutes({
+  service: createAuthService({ store: authStore, mailer: createMailer(process.env), passwords }),
+  env: process.env,
+});
+
+const server = http.createServer(createHandler({ data: quizData, ping, auth }));
 
 // Bound slow or stalled clients: a whole request must arrive within 30 s (Node's default is 300 s).
 server.requestTimeout = 30000;

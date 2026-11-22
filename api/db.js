@@ -95,6 +95,38 @@ async function query(sql, params) {
   }
 }
 
+// Runs a write (INSERT/UPDATE/DELETE) with the per-query timeout and NO retry: unlike a read, a retry
+// after a lost connection could apply the statement twice if the first attempt reached the server.
+async function write(sql, params) {
+  return getPool().query({ sql, values: params, timeout: QUERY_TIMEOUT_MS });
+}
+
+// Runs fn(tx) in one transaction on a dedicated pooled connection: COMMIT when it resolves, ROLLBACK
+// and rethrow the original error when it throws. tx.query(sql, params) has the same timeout and, like
+// write(), never retries. The connection is always released. Do not hash passwords inside fn: it
+// holds one of the pool's few connections.
+async function transaction(fn) {
+  const conn = await getPool().getConnection();
+  try {
+    await conn.beginTransaction();
+    const tx = {
+      query: (sql, params) => conn.query({ sql, values: params, timeout: QUERY_TIMEOUT_MS }),
+    };
+    const result = await fn(tx);
+    await conn.commit();
+    return result;
+  } catch (error) {
+    try {
+      await conn.rollback();
+    } catch (_) {
+      // The original error is the useful one; a failed rollback on a dead connection frees it anyway.
+    }
+    throw error;
+  } finally {
+    conn.release();
+  }
+}
+
 async function closePool() {
   if (!pool) return;
   const closing = pool;
@@ -102,4 +134,13 @@ async function closePool() {
   await closing.end();
 }
 
-module.exports = { getPool, ping, query, closePool, readConfig, MissingConfigError };
+module.exports = {
+  getPool,
+  ping,
+  query,
+  write,
+  transaction,
+  closePool,
+  readConfig,
+  MissingConfigError,
+};

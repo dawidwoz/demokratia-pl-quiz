@@ -3,7 +3,7 @@ project: "Z kim mi po drodze"
 version: 1
 status: approved
 created: 2026-11-03
-updated: 2026-11-21
+updated: 2026-11-22
 prd_version: 1
 main_goal: speed
 top_blocker: capacity
@@ -44,7 +44,7 @@ Wyborca szukający partii zgodnej ze swoimi poglądami nie ma dobrego sposobu, b
 | F-01 | production-database-connection  | (foundation) produkcyjne API łączy się z bazą, a zmiany schematu da się wdrażać | —                                     | NFR (działanie bez API Sejmu)     | done     |
 | F-02 | automated-test-baseline         | (foundation) testy automatyczne uruchamiają się jedną komendą                | —                                     | Business Logic                    | done     |
 | S-01 | anonymous-quiz-result           | rozwiązać quiz bez konta i zobaczyć zgodność z każdą partią                  | F-01, F-02, seeded quiz content       | US-01, FR-002, FR-003, FR-004     | done     |
-| S-02 | result-position-justification   | zobaczyć, dlaczego partia ma dane stanowisko (uzasadnienie, źródło, data)    | S-01                                  | FR-003, FR-004                    | in-progress |
+| S-02 | result-position-justification   | zobaczyć, dlaczego partia ma dane stanowisko (uzasadnienie, źródło, data)    | S-01                                  | FR-003, FR-004                    | done     |
 | S-03 | account-registration-login      | założyć konto i się zalogować                                                | F-01                                  | FR-001                            | blocked  |
 | S-04 | save-quiz-result                | zapisać swój wynik na koncie i zobaczyć go ponownie (tylko ja)               | S-01, S-03                            | FR-005                            | proposed |
 | S-05 | admin-quiz-management           | jako admin dodać i zmienić quiz z pytaniami, źródłem i wagą                  | S-01, S-03                            | FR-009                            | proposed |
@@ -133,7 +133,7 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Wynika z guardrails (każde stanowisko ma źródło i datę) i przy nacisku na jakość nie może zostać odłożone za konta; bez niego wynik to czarna skrzynka.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-03: Użytkownik zakłada konto i się loguje
 
@@ -263,3 +263,4 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
 ## Done
 
 - **S-01: rozwiązać quiz bez konta i zobaczyć zgodność z każdą partią** — Archived 2026-11-21 → `context/archive/2026-11-11-s-01/`. Lesson: —. (Folder zmiany nazywa się `s-01`, a `Change ID` w roadmapie to `anonymous-quiz-result`, więc element zamknięto ręcznie.)
+- **S-02: zobaczyć, dlaczego partia ma dane stanowisko (uzasadnienie, źródło, data)** — Archived 2026-11-22 → `context/archive/2026-11-21-result-position-justification/`. Lesson: —.

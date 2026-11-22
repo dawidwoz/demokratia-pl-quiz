@@ -1,10 +1,10 @@
 ---
 change_id: result-position-justification
 title: Result position justification and real quiz questions
-status: impl_reviewed
+status: archived
 created: 2026-11-21
-updated: 2026-11-21
-archived_at: null
+updated: 2026-11-22
+archived_at: 2026-11-22T13:03:58Z
 ---
 
 ## Notes

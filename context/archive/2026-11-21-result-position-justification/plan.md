@@ -298,54 +298,54 @@ Migration 0008 is applied by the manual deploy and cannot be undone by rollback.
 
 #### Automated
 
-- [x] 1.1 API tests pass including the new content tests — 33ed789
-- [x] 1.2 Template passes the content check in draft mode — 33ed789
-- [x] 1.3 Template fails the content check in strict mode with a non-zero exit — 33ed789
-- [x] 1.4 Formatting check is clean for the content files — 33ed789
+- [x] 1.1 API tests pass including the new content tests — 9001a9c
+- [x] 1.2 Template passes the content check in draft mode — 9001a9c
+- [x] 1.3 Template fails the content check in strict mode with a non-zero exit — 9001a9c
+- [x] 1.4 Formatting check is clean for the content files — 9001a9c
 
 #### Manual
 
-- [x] 1.5 Following the README, a filled-in question can be checked and errors are understandable — 33ed789
-- [x] 1.6 Draft SQL for the template reads correctly (sample deletion first, quoting, no brak row) — 33ed789
+- [x] 1.5 Following the README, a filled-in question can be checked and errors are understandable — 9001a9c
+- [x] 1.6 Draft SQL for the template reads correctly (sample deletion first, quoting, no brak row) — 9001a9c
 
 ### Phase 2: API contract — stances in the result response
 
 #### Automated
 
-- [x] 2.1 API tests pass with the new result-response cases — c84b9dd
-- [x] 2.2 Formatting check is clean for the API files — c84b9dd
+- [x] 2.1 API tests pass with the new result-response cases — 9001a9c
+- [x] 2.2 Formatting check is clean for the API files — 9001a9c
 
 #### Manual
 
-- [x] 2.3 Local POST of eight answers returns positions with justification null and source label and date — c84b9dd
-- [x] 2.4 GET quiz still shows no stances — c84b9dd
+- [x] 2.3 Local POST of eight answers returns positions with justification null and source label and date — 9001a9c
+- [x] 2.4 GET quiz still shows no stances — 9001a9c
 
 ### Phase 3: Result UI — per-question stance blocks
 
 #### Automated
 
-- [x] 3.1 App tests pass — 235018a
-- [x] 3.2 Production build passes — 235018a
-- [x] 3.3 Formatting check is clean for the app files — 235018a
+- [x] 3.1 App tests pass — 9001a9c
+- [x] 3.2 Production build passes — 9001a9c
+- [x] 3.3 Formatting check is clean for the app files — 9001a9c
 
 #### Manual
 
-- [x] 3.4 Browser walkthrough shows no-stance, no-justification and skipped states — 235018a
-- [x] 3.5 Keyboard-only toggling works and both themes stay readable — 235018a
-- [x] 3.6 No answers appear in the URL or browser storage after the result — 235018a
+- [x] 3.4 Browser walkthrough shows no-stance, no-justification and skipped states — 9001a9c
+- [x] 3.5 Keyboard-only toggling works and both themes stay readable — 9001a9c
+- [x] 3.6 No answers appear in the URL or browser storage after the result — 9001a9c
 
 ### Phase 4: Real content import (gated on your data)
 
 #### Automated
 
-- [x] 4.1 Strict content check passes with zero errors on the real file — 20927fe
-- [x] 4.2 Full test suite passes — 20927fe
-- [x] 4.3 Generated migration exists and contains no sample text — 20927fe
-- [x] 4.4 Formatting check is clean for content and docs — 20927fe
+- [x] 4.1 Strict content check passes with zero errors on the real file — 9001a9c
+- [x] 4.2 Full test suite passes — 9001a9c
+- [x] 4.3 Generated migration exists and contains no sample text — 9001a9c
+- [x] 4.4 Formatting check is clean for content and docs — 9001a9c
 
 #### Manual
 
-- [x] 4.5 Scratch-database migration applies, reruns as no pending, and counts match the JSON — 20927fe
-- [x] 4.6 Local quiz list and result screen show only real content with justifications — 20927fe
-- [x] 4.7 Every stance is reviewed against its source and signed off — 20927fe
-- [x] 4.8 You decide when to deploy and know that migration 0008 cannot be rolled back — 20927fe
+- [x] 4.5 Scratch-database migration applies, reruns as no pending, and counts match the JSON — 9001a9c
+- [x] 4.6 Local quiz list and result screen show only real content with justifications — 9001a9c
+- [x] 4.7 Every stance is reviewed against its source and signed off — 9001a9c
+- [x] 4.8 You decide when to deploy and know that migration 0008 cannot be rolled back — 9001a9c

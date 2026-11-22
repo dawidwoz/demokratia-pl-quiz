@@ -402,60 +402,60 @@ Migrations are add-only and backward-compatible with the previous app version (n
 
 #### Automated
 
-- [x] 1.1 API tests pass, including new `passwords`, `tokens`, `rate-limit`, `db` write/transaction tests and the unchanged existing handler/db tests: `npm run test:api` — a85821b
-- [x] 1.2 Scrypt measurement script runs and prints timings: `node api/scripts/measure-scrypt.js` — a85821b
-- [x] 1.3 Formatting on changed files passes: `npx prettier --check api` — a85821b
+- [x] 1.1 API tests pass, including new `passwords`, `tokens`, `rate-limit`, `db` write/transaction tests and the unchanged existing handler/db tests: `npm run test:api` — 5c4bcfd
+- [x] 1.2 Scrypt measurement script runs and prints timings: `node api/scripts/measure-scrypt.js` — 5c4bcfd
+- [x] 1.3 Formatting on changed files passes: `npx prettier --check api` — 5c4bcfd
 
 #### Manual
 
-- [x] 1.4 Migrations `0009`–`0011` apply on a scratch MariaDB database using the PowerShell recipe from `context/foundation/lessons.md`, and `schema_migrations` lists them — a85821b
-- [x] 1.5 The opt-in DB test passes with `AUTH_DB_TEST=1` against the scratch database and refuses to run when `DB_NAME` does not look like a scratch database — a85821b
-- [x] 1.6 `common-passwords.txt` source and licence are recorded in its header and a few well-known weak 10+ character passwords are rejected — a85821b
+- [x] 1.4 Migrations `0009`–`0011` apply on a scratch MariaDB database using the PowerShell recipe from `context/foundation/lessons.md`, and `schema_migrations` lists them — 5c4bcfd
+- [x] 1.5 The opt-in DB test passes with `AUTH_DB_TEST=1` against the scratch database and refuses to run when `DB_NAME` does not look like a scratch database — 5c4bcfd
+- [x] 1.6 `common-passwords.txt` source and licence are recorded in its header and a few well-known weak 10+ character passwords are rejected — 5c4bcfd
 
 ### Phase 2: Auth API
 
 #### Automated
 
-- [x] 2.1 API tests pass, including new `mailer`, `auth-service` (fake store), `auth-routes` (real server on port 0, in-memory fake store) tests: `npm run test:api` — 5f77d21
-- [x] 2.2 Tests prove anti-enumeration (identical 202 bodies for new/existing/unknown emails; same 401 for unknown and wrong-password), the CSRF guard (cross-origin, missing headers, `same-site` rejected), single-use and expired tokens, session regeneration at login, password-reset session invalidation, limiter 429s, 413 on oversized bodies, and that `console` output during these flows contains no email, password or token — 5f77d21
-- [x] 2.3 Existing quiz endpoint tests pass unchanged: `npm run test:api` — 5f77d21
-- [x] 2.4 Formatting passes: `npx prettier --check api` — 5f77d21
+- [x] 2.1 API tests pass, including new `mailer`, `auth-service` (fake store), `auth-routes` (real server on port 0, in-memory fake store) tests: `npm run test:api` — 5c4bcfd
+- [x] 2.2 Tests prove anti-enumeration (identical 202 bodies for new/existing/unknown emails; same 401 for unknown and wrong-password), the CSRF guard (cross-origin, missing headers, `same-site` rejected), single-use and expired tokens, session regeneration at login, password-reset session invalidation, limiter 429s, 413 on oversized bodies, and that `console` output during these flows contains no email, password or token — 5c4bcfd
+- [x] 2.3 Existing quiz endpoint tests pass unchanged: `npm run test:api` — 5c4bcfd
+- [x] 2.4 Formatting passes: `npx prettier --check api` — 5c4bcfd
 
 #### Manual
 
-- [x] 2.5 With a scratch database, `MAIL_TRANSPORT=console` and `AUTH_INSECURE_COOKIES=1`, a PowerShell/curl run of register → verify (token from console) → login → `me` → logout works and `me` is `{user:null}` afterwards — 5f77d21
-- [x] 2.6 A POST with `Origin: https://evil.example` (and without `Sec-Fetch-Site`) to `/api/auth/login` returns 403 `csrf_rejected` — 5f77d21
-- [x] 2.7 Password reset invalidates a second logged-in session and the old password no longer works — 5f77d21
+- [x] 2.5 With a scratch database, `MAIL_TRANSPORT=console` and `AUTH_INSECURE_COOKIES=1`, a PowerShell/curl run of register → verify (token from console) → login → `me` → logout works and `me` is `{user:null}` afterwards — 5c4bcfd
+- [x] 2.6 A POST with `Origin: https://evil.example` (and without `Sec-Fetch-Site`) to `/api/auth/login` returns 403 `csrf_rejected` — 5c4bcfd
+- [x] 2.7 Password reset invalidates a second logged-in session and the old password no longer works — 5c4bcfd
 
 ### Phase 3: Angular auth UI and dev proxy
 
 #### Automated
 
-- [x] 3.1 App tests pass (new `AuthApi`, `AuthState`, page specs and the updated `App` spec): `npm run test:app` — 84a382d
-- [x] 3.2 Production build stays within budgets: `npm run build` — 84a382d
-- [x] 3.3 Full suite passes: `npm test` — 84a382d
-- [x] 3.4 Formatting passes: `npx prettier --check src` — 84a382d
+- [x] 3.1 App tests pass (new `AuthApi`, `AuthState`, page specs and the updated `App` spec): `npm run test:app` — 5c4bcfd
+- [x] 3.2 Production build stays within budgets: `npm run build` — 5c4bcfd
+- [x] 3.3 Full suite passes: `npm test` — 5c4bcfd
+- [x] 3.4 Formatting passes: `npx prettier --check src` — 5c4bcfd
 
 #### Manual
 
-- [x] 3.5 With `npm start` (proxy) and the API on `:3000` using `MAIL_TRANSPORT=console`, the full browser flow works: register → verification link → login (header shows email) → logout → forgot/reset — 84a382d
-- [x] 3.6 The anonymous quiz still works end to end, with no failing network calls or console errors (`GET /api/auth/me` returns 200 `{user:null}`) — 84a382d
-- [x] 3.7 Forms are usable at phone width and in dark mode, with visible focus and screen-reader error announcements — 84a382d
+- [x] 3.5 With `npm start` (proxy) and the API on `:3000` using `MAIL_TRANSPORT=console`, the full browser flow works: register → verification link → login (header shows email) → logout → forgot/reset — 5c4bcfd
+- [x] 3.6 The anonymous quiz still works end to end, with no failing network calls or console errors (`GET /api/auth/me` returns 200 `{user:null}`) — 5c4bcfd
+- [x] 3.7 Forms are usable at phone width and in dark mode, with visible focus and screen-reader error announcements — 5c4bcfd
 
 ### Phase 4: Legal pages and go-live readiness
 
 #### Automated
 
-- [x] 4.1 Full suite passes, including the `TERMS_VERSION` consistency test and legal page specs: `npm test` — 356f716
-- [x] 4.2 Go-live guard fails while the placeholder is present: `node scripts/check-go-live.mjs` exits non-zero — 356f716
-- [x] 4.3 Production build succeeds: `npm run build` — 356f716
-- [x] 4.4 Formatting passes on changed files: `npx prettier --check src api scripts` — 356f716
+- [x] 4.1 Full suite passes, including the `TERMS_VERSION` consistency test and legal page specs: `npm test` — 5c4bcfd
+- [x] 4.2 Go-live guard fails while the placeholder is present: `node scripts/check-go-live.mjs` exits non-zero — 5c4bcfd
+- [x] 4.3 Production build succeeds: `npm run build` — 5c4bcfd
+- [x] 4.4 Formatting passes on changed files: `npx prettier --check src api scripts` — 5c4bcfd
 
 #### Manual
 
-- [x] 4.5 The owner reads and approves (or edits) the draft Polityka Prywatności and Regulamin, and sets `CONTROLLER_NAME`, `PRIVACY_CONTACT` and `EFFECTIVE_DATE`; the guard then passes — 356f716
-- [x] 4.6 Go-live gates done: a sender mailbox exists for `MAIL_FROM`; `SMTP_*`, `MAIL_FROM` and `PUBLIC_BASE_URL` are set in the cPanel Node app, which is re-saved — 356f716
-- [x] 4.7 On the host, `node api/scripts/measure-scrypt.js` shows an acceptable hash time (target under 500 ms) and no memory errors; otherwise adjust the scrypt constants to another OWASP-listed equivalent — 356f716
-- [x] 4.8 After the manual deploy workflow, the smoke check passes, and a real registration, verification mail, login, logout, and password-reset mail work on `quiz.demokratia.pl` — 356f716
-- [x] 4.9 In browser dev tools the production session cookie shows `__Host-sid`, `Secure`, `HttpOnly`, `SameSite=Lax` — 356f716
-- [x] 4.10 Docs updates in `CLAUDE.md`, `prd.md`, `roadmap.md` and `infrastructure.md` are reviewed — 356f716
+- [x] 4.5 The owner reads and approves (or edits) the draft Polityka Prywatności and Regulamin, and sets `CONTROLLER_NAME`, `PRIVACY_CONTACT` and `EFFECTIVE_DATE`; the guard then passes — 5c4bcfd
+- [x] 4.6 Go-live gates done: a sender mailbox exists for `MAIL_FROM`; `SMTP_*`, `MAIL_FROM` and `PUBLIC_BASE_URL` are set in the cPanel Node app, which is re-saved — 5c4bcfd
+- [x] 4.7 On the host, `node api/scripts/measure-scrypt.js` shows an acceptable hash time (target under 500 ms) and no memory errors; otherwise adjust the scrypt constants to another OWASP-listed equivalent — 5c4bcfd
+- [x] 4.8 After the manual deploy workflow, the smoke check passes, and a real registration, verification mail, login, logout, and password-reset mail work on `quiz.demokratia.pl` — 5c4bcfd
+- [x] 4.9 In browser dev tools the production session cookie shows `__Host-sid`, `Secure`, `HttpOnly`, `SameSite=Lax` — 5c4bcfd
+- [x] 4.10 Docs updates in `CLAUDE.md`, `prd.md`, `roadmap.md` and `infrastructure.md` are reviewed — 5c4bcfd

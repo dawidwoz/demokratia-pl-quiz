@@ -45,7 +45,7 @@ Wyborca szukający partii zgodnej ze swoimi poglądami nie ma dobrego sposobu, b
 | F-02 | automated-test-baseline         | (foundation) testy automatyczne uruchamiają się jedną komendą                | —                                     | Business Logic                    | done     |
 | S-01 | anonymous-quiz-result           | rozwiązać quiz bez konta i zobaczyć zgodność z każdą partią                  | F-01, F-02, seeded quiz content       | US-01, FR-002, FR-003, FR-004     | done     |
 | S-02 | result-position-justification   | zobaczyć, dlaczego partia ma dane stanowisko (uzasadnienie, źródło, data)    | S-01                                  | FR-003, FR-004                    | done     |
-| S-03 | account-registration-login      | założyć konto i się zalogować                                                | F-01                                  | FR-001                            | in-progress |
+| S-03 | account-registration-login      | założyć konto i się zalogować                                                | F-01                                  | FR-001                            | done |
 | S-04 | save-quiz-result                | zapisać swój wynik na koncie i zobaczyć go ponownie (tylko ja)               | S-01, S-03                            | FR-005                            | proposed |
 | S-05 | admin-quiz-management           | jako admin dodać i zmienić quiz z pytaniami, źródłem i wagą                  | S-01, S-03                            | FR-009                            | proposed |
 | S-06 | admin-party-positions           | jako admin dodać i zmienić stanowisko partii ze źródłem i uzasadnieniem      | S-05                                  | FR-010                            | proposed |
@@ -147,7 +147,7 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
   - Czy warunki RODO i lokalizacja danych vh.pl są akceptowalne? — Rozstrzygnięte 2026-11-22: tak (lokalizacja i 31 dni kopii zaakceptowane, bez umowy powierzenia, użytkownicy informowani Polityką Prywatności i Regulaminem; wyzwalacz nr 4 nie zachodzi).
   - Jak użytkownik zakłada konto i się loguje (PRD Open Question 4)? — Rozstrzygnięte 2026-11-22: adres e-mail i hasło, potwierdzenie adresu, reset hasła.
 - **Risk:** Pierwszy wycinek zapisujący dane osobowe, więc RODO jest bramką; konta są opcjonalne dla quizu, dlatego wycinek jest poza ścieżką gwiazdy przewodniej.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-04: Zalogowany użytkownik zapisuje wynik
 
@@ -264,3 +264,4 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
 
 - **S-01: rozwiązać quiz bez konta i zobaczyć zgodność z każdą partią** — Archived 2026-11-21 → `context/archive/2026-11-11-s-01/`. Lesson: —. (Folder zmiany nazywa się `s-01`, a `Change ID` w roadmapie to `anonymous-quiz-result`, więc element zamknięto ręcznie.)
 - **S-02: zobaczyć, dlaczego partia ma dane stanowisko (uzasadnienie, źródło, data)** — Archived 2026-11-22 → `context/archive/2026-11-21-result-position-justification/`. Lesson: —.
+- **S-03: założyć konto i się zalogować** — Archived 2026-11-22 → `context/archive/2026-11-22-account-registration-login/`. Lesson: —.

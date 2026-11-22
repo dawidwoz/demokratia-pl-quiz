@@ -266,8 +266,8 @@ test('SQL: sample is retired first, then the quiz is inserted in one transaction
   const order = [
     'GENERATED from content/quizzes/test.json',
     'START TRANSACTION;',
+    'DELETE FROM parties',
     'DELETE FROM quizzes WHERE is_sample = 1;',
-    'DELETE FROM parties WHERE id NOT IN (SELECT party_id FROM quiz_parties);',
     'INSERT INTO quizzes',
     'INSERT INTO parties',
     'INSERT INTO quiz_parties',
@@ -286,6 +286,18 @@ test('SQL: sample is retired first, then the quiz is inserted in one transaction
   assert.match(sql, /\(101, 'Quiz', 'Opis', 0\)/);
   assert.match(sql, /\(101, 101, 1, 'Pytanie 101\?', 2,/);
   assert.match(sql, /\(108, 101, 8, 'Pytanie 108\?', 2,/);
+});
+
+test('SQL: only the parties of sample quizzes are deleted, and a party a real quiz uses is kept', () => {
+  const sql = renderSeedSql(validDoc());
+  // The broad "every party that is in no quiz" delete must not come back.
+  assert.ok(!sql.includes('NOT IN (SELECT party_id FROM quiz_parties);'));
+  assert.match(
+    sql,
+    /DELETE FROM parties\s+WHERE id IN \(SELECT party_id FROM quiz_parties WHERE quiz_id IN \(SELECT id FROM quizzes WHERE is_sample = 1\)\)\s+AND id NOT IN \(SELECT party_id FROM quiz_parties WHERE quiz_id IN \(SELECT id FROM quizzes WHERE is_sample = 0\)\);/,
+  );
+  // The parties go before the quizzes: the links that identify them vanish with the quiz.
+  assert.ok(sql.indexOf('DELETE FROM parties') < sql.indexOf('DELETE FROM quizzes'));
 });
 
 test('SQL: quotes, backslashes, newlines and Polish characters are escaped', () => {
@@ -439,4 +451,18 @@ test('the shipped template passes in draft mode and fails in strict mode', () =>
   const strict = runCli(['check', template]);
   assert.equal(strict.code, 1);
   assert.match(strict.err, /at least 8 questions/);
+});
+
+test('every committed content file passes the strict check with no warnings', () => {
+  const dir = path.join(__dirname, '..', '..', 'content', 'quizzes');
+  const files = fs
+    .readdirSync(dir)
+    .filter((name) => name.endsWith('.json') && !name.startsWith('_')); // _template.json is a draft
+  // Real content must exist: the seed migration is generated from it.
+  assert.ok(files.length > 0, 'no content/quizzes/*.json file found');
+  for (const name of files) {
+    const text = fs.readFileSync(path.join(dir, name), 'utf8').replace(/^﻿/, '');
+    const { errors, warnings } = validateContent(JSON.parse(text));
+    assert.deepEqual({ errors, warnings }, { errors: [], warnings: [] }, name);
+  }
 });

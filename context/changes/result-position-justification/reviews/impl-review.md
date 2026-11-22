@@ -31,7 +31,7 @@ Evidence: every planned file matches its intent (no DRIFT, no MISSING); extras (
 - **Location**: src/app/quiz-run/quiz-run.ts:72
 - **Detail**: `new Map(result.questions.map(...))` throws a TypeError when a result has no `questions` field, for example the new front end talking to an older API after an API-only rollback. The throw happens inside a `computed`, so the whole result view fails, including the party scores that worked before.
 - **Fix**: Guard with `(result.questions ?? [])` and add a spec for a result without `questions` that still shows the party scores.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (2026-11-22): the user accepts the risk without a fix. API and SPA ship in the same deploy; it only matters after an API-only rollback.
 
 ### F2 — Nothing ties the committed JSON to the migration or checks it in CI
 
@@ -74,7 +74,7 @@ Evidence: every planned file matches its intent (no DRIFT, no MISSING); extras (
 - **Location**: api/content.js:15-16, 28-35, 37-38
 - **Detail**: Ids and `clubSize` have no upper bound (a `quiz.id` of 10 digits would load but never be reachable, since routes accept at most 9 digits). `quiz.description` has no length check. URLs such as `http:example.com` or ones containing credentials pass `new URL()`. The party-name check only approximates the database collation. All of these fail loudly or harmlessly later (database error, rolled back), none is a security issue because Angular sanitises `javascript:` links.
 - **Fix**: Cap ids at 999999999, `clubSize` at 460 and `description` at a sane length, reject URLs with whitespace or credentials, and note the collation limitation in a comment.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (2026-11-22): the user accepts without a fix. The strict check passes on the real file, and any value the database cannot take fails loudly and rolls back.
 
 ### F5 — A "brak" position loses its explanation
 
@@ -93,7 +93,7 @@ Evidence: every planned file matches its intent (no DRIFT, no MISSING); extras (
   - Tradeoff: A migration, API and UI change for 3 positions.
   - Confidence: MEDIUM — depends on how many such cases real content will have.
   - Blind spot: The right place to store it.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (2026-11-22): the user accepts the loss without a fix; the explanation stays in the JSON only. Not documented in `content/README.md`.
 
 ### F6 — Result response repeats sources and is about 53 KB
 
@@ -103,4 +103,4 @@ Evidence: every planned file matches its intent (no DRIFT, no MISSING); extras (
 - **Location**: api/quiz-data.js:70-76, api/handler.js:181-190
 - **Detail**: For the real quiz each of 138 positions carries its own source label, URL and date, most of them identical within a question, and nothing compresses responses. This is acceptable for the PRD target of under 2 seconds at 5 to 50 users.
 - **Fix**: No change now; enable gzip at the reverse proxy if the quiz grows.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (2026-11-22): the user accepts without a fix.

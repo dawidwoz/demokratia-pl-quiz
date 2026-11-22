@@ -56,8 +56,10 @@ function formatParties(parties, names) {
     });
 }
 
-// deps: { data: { listQuizzes, getQuiz, getScoringData }, ping }
-function createHandler({ data, ping }) {
+// deps: { data: { listQuizzes, getQuiz, getScoringData }, ping, auth }
+// `auth` (optional, see auth-routes.js) serves /api/auth/*; without it those paths are a plain 404.
+// The quiz routes never use it: anonymous quiz-taking has no account or session code in its path.
+function createHandler({ data, ping, auth }) {
   async function healthDb(res) {
     try {
       await ping();
@@ -177,6 +179,8 @@ function createHandler({ data, ping }) {
       const resultMatch = /^\/api\/quizzes\/([1-9]\d{0,8})\/result$/.exec(pathname);
       if (req.method === 'POST' && resultMatch)
         return await postResult(req, res, Number(resultMatch[1]));
+
+      if (auth && pathname.startsWith('/api/auth/')) return await auth.handle(req, res, pathname);
 
       return sendJson(res, 404, { status: 'not_found' });
     } catch (error) {

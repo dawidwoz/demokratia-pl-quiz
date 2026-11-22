@@ -45,7 +45,7 @@ Wyborca szukający partii zgodnej ze swoimi poglądami nie ma dobrego sposobu, b
 | F-02 | automated-test-baseline         | (foundation) testy automatyczne uruchamiają się jedną komendą                | —                                     | Business Logic                    | done     |
 | S-01 | anonymous-quiz-result           | rozwiązać quiz bez konta i zobaczyć zgodność z każdą partią                  | F-01, F-02, seeded quiz content       | US-01, FR-002, FR-003, FR-004     | done     |
 | S-02 | result-position-justification   | zobaczyć, dlaczego partia ma dane stanowisko (uzasadnienie, źródło, data)    | S-01                                  | FR-003, FR-004                    | done     |
-| S-03 | account-registration-login      | założyć konto i się zalogować                                                | F-01                                  | FR-001                            | blocked  |
+| S-03 | account-registration-login      | założyć konto i się zalogować                                                | F-01                                  | FR-001                            | in-progress |
 | S-04 | save-quiz-result                | zapisać swój wynik na koncie i zobaczyć go ponownie (tylko ja)               | S-01, S-03                            | FR-005                            | proposed |
 | S-05 | admin-quiz-management           | jako admin dodać i zmienić quiz z pytaniami, źródłem i wagą                  | S-01, S-03                            | FR-009                            | proposed |
 | S-06 | admin-party-positions           | jako admin dodać i zmienić stanowisko partii ze źródłem i uzasadnieniem      | S-05                                  | FR-010                            | proposed |
@@ -147,7 +147,7 @@ Co już jest w kodzie na dzień 2026-11-03 (zbadane automatycznie i potwierdzone
   - Czy warunki RODO i lokalizacja danych vh.pl są akceptowalne przed zapisem danych osobowych (spełnienie wyzwalacza nr 4 przejścia na plan B)? — Owner: user. Block: yes.
   - Jak użytkownik zakłada konto i się loguje (PRD Open Question 4)? — Owner: user. Block: no.
 - **Risk:** Pierwszy wycinek zapisujący dane osobowe, więc RODO jest bramką; konta są opcjonalne dla quizu, dlatego wycinek jest poza ścieżką gwiazdy przewodniej.
-- **Status:** blocked
+- **Status:** in-progress
 
 ### S-04: Zalogowany użytkownik zapisuje wynik
 

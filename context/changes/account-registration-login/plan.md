@@ -402,30 +402,30 @@ Migrations are add-only and backward-compatible with the previous app version (n
 
 #### Automated
 
-- [x] 1.1 API tests pass, including new `passwords`, `tokens`, `rate-limit`, `db` write/transaction tests and the unchanged existing handler/db tests: `npm run test:api`
-- [x] 1.2 Scrypt measurement script runs and prints timings: `node api/scripts/measure-scrypt.js`
-- [x] 1.3 Formatting on changed files passes: `npx prettier --check api`
+- [x] 1.1 API tests pass, including new `passwords`, `tokens`, `rate-limit`, `db` write/transaction tests and the unchanged existing handler/db tests: `npm run test:api` — a85821b
+- [x] 1.2 Scrypt measurement script runs and prints timings: `node api/scripts/measure-scrypt.js` — a85821b
+- [x] 1.3 Formatting on changed files passes: `npx prettier --check api` — a85821b
 
 #### Manual
 
-- [x] 1.4 Migrations `0009`–`0011` apply on a scratch MariaDB database using the PowerShell recipe from `context/foundation/lessons.md`, and `schema_migrations` lists them
-- [x] 1.5 The opt-in DB test passes with `AUTH_DB_TEST=1` against the scratch database and refuses to run when `DB_NAME` does not look like a scratch database
-- [x] 1.6 `common-passwords.txt` source and licence are recorded in its header and a few well-known weak 10+ character passwords are rejected
+- [x] 1.4 Migrations `0009`–`0011` apply on a scratch MariaDB database using the PowerShell recipe from `context/foundation/lessons.md`, and `schema_migrations` lists them — a85821b
+- [x] 1.5 The opt-in DB test passes with `AUTH_DB_TEST=1` against the scratch database and refuses to run when `DB_NAME` does not look like a scratch database — a85821b
+- [x] 1.6 `common-passwords.txt` source and licence are recorded in its header and a few well-known weak 10+ character passwords are rejected — a85821b
 
 ### Phase 2: Auth API
 
 #### Automated
 
-- [ ] 2.1 API tests pass, including new `mailer`, `auth-service` (fake store), `auth-routes` (real server on port 0, in-memory fake store) tests: `npm run test:api`
-- [ ] 2.2 Tests prove anti-enumeration (identical 202 bodies for new/existing/unknown emails; same 401 for unknown and wrong-password), the CSRF guard (cross-origin, missing headers, `same-site` rejected), single-use and expired tokens, session regeneration at login, password-reset session invalidation, limiter 429s, 413 on oversized bodies, and that `console` output during these flows contains no email, password or token
-- [ ] 2.3 Existing quiz endpoint tests pass unchanged: `npm run test:api`
-- [ ] 2.4 Formatting passes: `npx prettier --check api`
+- [x] 2.1 API tests pass, including new `mailer`, `auth-service` (fake store), `auth-routes` (real server on port 0, in-memory fake store) tests: `npm run test:api`
+- [x] 2.2 Tests prove anti-enumeration (identical 202 bodies for new/existing/unknown emails; same 401 for unknown and wrong-password), the CSRF guard (cross-origin, missing headers, `same-site` rejected), single-use and expired tokens, session regeneration at login, password-reset session invalidation, limiter 429s, 413 on oversized bodies, and that `console` output during these flows contains no email, password or token
+- [x] 2.3 Existing quiz endpoint tests pass unchanged: `npm run test:api`
+- [x] 2.4 Formatting passes: `npx prettier --check api`
 
 #### Manual
 
-- [ ] 2.5 With a scratch database, `MAIL_TRANSPORT=console` and `AUTH_INSECURE_COOKIES=1`, a PowerShell/curl run of register → verify (token from console) → login → `me` → logout works and `me` is `{user:null}` afterwards
-- [ ] 2.6 A POST with `Origin: https://evil.example` (and without `Sec-Fetch-Site`) to `/api/auth/login` returns 403 `csrf_rejected`
-- [ ] 2.7 Password reset invalidates a second logged-in session and the old password no longer works
+- [x] 2.5 With a scratch database, `MAIL_TRANSPORT=console` and `AUTH_INSECURE_COOKIES=1`, a PowerShell/curl run of register → verify (token from console) → login → `me` → logout works and `me` is `{user:null}` afterwards
+- [x] 2.6 A POST with `Origin: https://evil.example` (and without `Sec-Fetch-Site`) to `/api/auth/login` returns 403 `csrf_rejected`
+- [x] 2.7 Password reset invalidates a second logged-in session and the old password no longer works
 
 ### Phase 3: Angular auth UI and dev proxy
 

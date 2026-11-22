@@ -252,7 +252,9 @@ jobs:
           else
             echo "api/db.js is absent in this commit; skipping the DB check"
           fi
-          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "${SITE_URL%/}/quiz/1")
+          # The host rate-limits by address (an occasional 429, source unknown, see infrastructure.md), so
+          # retry like the other checks: curl treats 429 and 5xx as transient and honours Retry-After.
+          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 --retry 5 --retry-delay 10 --retry-all-errors "${SITE_URL%/}/quiz/1")
           echo "SPA deep link: HTTP $code"
           [ "$code" = "200" ]
           # Commits from before the quiz API existed (rollback targets) have no api/quiz-data.js.
